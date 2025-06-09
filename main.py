@@ -1,0 +1,336 @@
+# main.py
+
+import os
+import io
+import re
+import json
+import base64
+from datetime import datetime
+
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
+from fastapi.responses import JSONResponse
+from starlette.requests import ClientDisconnect
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError, OperationalError
+
+from PIL import Image
+from db import SessionLocal
+from models import Report, Ticket
+from ocr_processor import process_plate_and_issue_ticket
+from logger import logger
+from utils import is_same_image
+from config import CAMERA_USER, CAMERA_PASS
+
+app = FastAPI()
+
+# Directories for saving raw requests and snapshots
+SNAPSHOTS_DIR   = "snapshots"
+RAW_REQUEST_DIR = os.path.join(SNAPSHOTS_DIR, "raw_request")
+SPOT_LAST_DIR   = "spot_last"      # where we keep the "last main_crop" per (camera, spot)
+
+os.makedirs(RAW_REQUEST_DIR, exist_ok=True)
+os.makedirs(SNAPSHOTS_DIR,   exist_ok=True)
+os.makedirs(SPOT_LAST_DIR,   exist_ok=True)
+
+
+def _retry_commit(obj, session):
+    """
+    Try to session.commit() on obj; if commit fails due to lost connection,
+    rollback/close and retry once with a fresh session.
+    """
+    try:
+        session.commit()
+    except OperationalError:
+        logger.warning("Lost DB connection during commit; retrying once", exc_info=True)
+        try:
+            session.rollback()
+        except:
+            pass
+        try:
+            session.close()
+        except:
+            pass
+
+        new_sess = SessionLocal()
+        try:
+            new_sess.add(obj)
+            new_sess.commit()
+        finally:
+            new_sess.close()
+
+
+@app.post("/post")
+async def receive_parking_data(request: Request, background_tasks: BackgroundTasks):
+    """
+    1) Save raw JSON to disk (catching ClientDisconnect).
+    2) Validate required fields.
+    3) Split parking_area into (location_code, api_code).
+    4) Lookup camera_id, pole_id, camera_ip in DB (short‐lived session, with retry).
+    5) If occupancy == 0 → EXIT: feature‐match vs. last‐saved crop → only close if truly gone.
+    6) If occupancy == 1 → ENTRY: check for existing open ticket; then insert report; save snapshot; queue OCR.
+    """
+
+    # ── 1) Read raw body & save to file ──
+    try:
+        raw_body = await request.body()
+    except ClientDisconnect:
+        logger.error("Client disconnected before sending body", exc_info=True)
+        raise HTTPException(status_code=400, detail="Client disconnected before sending body")
+
+    ts     = datetime.now().strftime("%Y%m%d%H%M%S")
+    raw_fn = os.path.join(RAW_REQUEST_DIR, f"raw_request_{ts}.json")
+    try:
+        with open(raw_fn, "wb") as f:
+            f.write(raw_body)
+    except Exception:
+        logger.error("Failed to write raw request to disk", exc_info=True)
+
+    # ── 2) Parse JSON payload ──
+    try:
+        payload = await request.json()
+    except Exception as e:
+        logger.error("Failed to parse JSON payload", exc_info=True)
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
+
+    # ── 2a) Ensure required fields are present ──
+    required_fields = [
+        "event", "device", "time", "report_type",
+        "resolution_w", "resolution_y", "parking_area",
+        "index_number", "occupancy", "duration",
+        "coordinate_x1", "coordinate_y1",
+        "coordinate_x2", "coordinate_y2",
+        "coordinate_x3", "coordinate_y3",
+        "coordinate_x4", "coordinate_y4",
+        "vehicle_frame_x1", "vehicle_frame_y1",
+        "vehicle_frame_x2", "vehicle_frame_y2",
+        "snapshot"
+    ]
+    missing = [f for f in required_fields if payload.get(f) is None]
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Missing fields: {', '.join(missing)}"
+        )
+
+    # ── 3) Split parking_area → letters+digits ──
+    m = re.match(r"^([A-Za-z]+)(\d+)$", payload["parking_area"])
+    if not m:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid parking_area format (expected letters+digits, e.g. 'NAD95')"
+        )
+    location_code = m.group(1)   # e.g. "NAD"
+    api_code      = m.group(2)   # e.g. "95"
+    spot_number   = payload["index_number"]
+
+    # ── 4) Lookup camera_id, pole_id, camera_ip ──
+    try:
+        db = SessionLocal()
+        stmt = text(
+            """
+            SELECT
+              c.id      AS camera_id,
+              c.pole_id AS pole_id,
+              c.p_ip    AS camera_ip
+            FROM cameras AS c
+            JOIN poles     AS p ON c.pole_id   = p.id
+            JOIN zones     AS z ON p.zone_id    = z.id
+            JOIN locations AS l ON p.location_id = l.id
+            WHERE l.code    = :loc_code
+              AND c.api_code = :api_code
+            LIMIT 1
+            """
+        )
+        row = db.execute(stmt, {"loc_code": location_code, "api_code": api_code}).fetchone()
+        db.close()
+
+        if row is None:
+            raise HTTPException(status_code=400, detail="No camera found for that parking_area")
+
+        camera_id, pole_id, camera_ip = row
+
+    except OperationalError:
+        # Retry once on lost connection
+        logger.warning("Lost DB connection during camera lookup; retrying once", exc_info=True)
+        try:
+            db.rollback()
+        except:
+            pass
+        try:
+            db.close()
+        except:
+            pass
+
+        db2 = SessionLocal()
+        try:
+            row2 = db2.execute(stmt, {"loc_code": location_code, "api_code": api_code}).fetchone()
+            if row2 is None:
+                raise HTTPException(status_code=400, detail="No camera found for that parking_area")
+            camera_id, pole_id, camera_ip = row2
+        except SQLAlchemyError as final_err:
+            db2.rollback()
+            db2.close()
+            logger.error("Final DB failure during camera lookup", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Database lookup failed: {final_err}")
+        finally:
+            db2.close()
+
+    except SQLAlchemyError as sa_err:
+        logger.error("Database error while looking up camera", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Database error: {sa_err}")
+
+    # ── 5) If occupancy == 0 → attempt to “EXIT” ──
+    if payload["occupancy"] == 0:
+        # 5a) Decode snapshot and crop to the parking polygon (for feature‐matching)
+        try:
+            raw_bytes = base64.b64decode(payload["snapshot"])
+            pil_img   = Image.open(io.BytesIO(raw_bytes))
+        except Exception:
+            pil_img = None
+            logger.error("Failed to decode snapshot for EXIT check", exc_info=True)
+
+        if pil_img:
+            coords = [
+                (payload["coordinate_x1"], payload["coordinate_y1"]),
+                (payload["coordinate_x2"], payload["coordinate_y2"]),
+                (payload["coordinate_x3"], payload["coordinate_y3"]),
+                (payload["coordinate_x4"], payload["coordinate_y4"])
+            ]
+            xs, ys = zip(*coords)
+            left, right = min(xs), max(xs)
+            top, bottom = min(ys), max(ys)
+
+            current_crop = pil_img.crop((left, top, right, bottom))
+            temp_crop_path = os.path.join(SNAPSHOTS_DIR, f"temp_crop_exit_{ts}.jpg")
+            current_crop.save(temp_crop_path)
+
+            # Compare against last‐seen “main_crop” for this (camera, spot)
+            last_image_path = os.path.join(SPOT_LAST_DIR, f"spot_{camera_id}_{spot_number}.jpg")
+            if os.path.isfile(last_image_path):
+                try:
+                    same = is_same_image(
+                        last_image_path,
+                        temp_crop_path,
+                        min_match_count=50,
+                        inlier_ratio_thresh=0.5
+                    )
+                    if same:
+                        # The car is still there: ignore this phantom “0”
+                        os.remove(temp_crop_path)
+                        logger.debug(
+                            "EXIT report ignored (false‐clear). Camera=%d, Spot=%d",
+                            camera_id, spot_number
+                        )
+                        return JSONResponse(status_code=200, content={"message": "False‐clear; skip EXIT"})
+                except Exception:
+                    logger.error("Error in feature-match during EXIT check", exc_info=True)
+
+            try:
+                os.remove(temp_crop_path)
+            except:
+                pass
+
+        # 5b) Proceed to close any open ticket
+        db2 = SessionLocal()
+        try:
+            open_ticket = db2.query(Ticket).filter_by(
+                camera_id   = camera_id,
+                spot_number = spot_number,
+                exit_time   = None
+            ).order_by(Ticket.entry_time.desc()).first()
+
+            if open_ticket:
+                open_ticket.exit_time = datetime.fromisoformat(payload["time"])
+                _retry_commit(open_ticket, db2)
+                logger.debug(
+                    "Closed ticket id=%d at %s",
+                    open_ticket.id, payload["time"]
+                )
+                return JSONResponse(status_code=200, content={"message": "Exit recorded"})
+            else:
+                logger.debug(
+                    "No open ticket to close for camera=%d, spot=%d",
+                    camera_id, spot_number
+                )
+                return JSONResponse(status_code=200, content={"message": "No open ticket to close"})
+
+        except SQLAlchemyError as e:
+            try:
+                db2.rollback()
+            except:
+                pass
+            logger.error("Database error on EXIT", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Database error on exit: {e}")
+        finally:
+            db2.close()
+
+    # ── 6) If occupancy == 1 → “ENTRY” ──
+    else:
+        db2 = SessionLocal()
+        try:
+            # 6a) Ensure no open ticket already exists
+            existing_ticket = db2.query(Ticket).filter_by(
+                camera_id   = camera_id,
+                spot_number = spot_number,
+                exit_time   = None
+            ).order_by(Ticket.entry_time.desc()).first()
+
+            if existing_ticket:
+                logger.debug(
+                    "Spot %d on camera %d already occupied (ticket id=%d)",
+                    spot_number, camera_id, existing_ticket.id
+                )
+                return JSONResponse(status_code=200, content={"message": "Spot already occupied"})
+
+            # 6b) Insert into reports table
+            new_report = Report(
+                camera_id  = camera_id,
+                event       = payload["event"],
+                report_type = payload["report_type"],
+                timestamp   = datetime.fromisoformat(payload["time"]),
+                payload     = payload
+            )
+            db2.add(new_report)
+            _retry_commit(new_report, db2)
+
+        except SQLAlchemyError as sa_err:
+            try:
+                db2.rollback()
+            except:
+                pass
+            logger.error("Database error on report insert", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Database error on report insert: {sa_err}")
+        finally:
+            db2.close()
+
+        # 6c) Save the snapshot image locally (for OCR thread)
+        park_folder = os.path.join(
+            SNAPSHOTS_DIR,
+            f"parking_cam{camera_id}_spot{spot_number}_{ts}"
+        )
+        os.makedirs(park_folder, exist_ok=True)
+
+        try:
+            img_data      = base64.b64decode(payload["snapshot"])
+            snapshot_path = os.path.join(park_folder, f"snapshot_{ts}.jpg")
+            with open(snapshot_path, "wb") as imgf:
+                imgf.write(img_data)
+        except Exception as e:
+            logger.error("Failed to decode/save snapshot", exc_info=True)
+            raise HTTPException(status_code=400, detail=f"Cannot decode snapshot: {e}")
+
+        # 6d) Enqueue OCR/ticket logic in the background
+        background_tasks.add_task(
+            process_plate_and_issue_ticket,
+            payload,
+            park_folder,
+            ts,
+            camera_id,
+            pole_id,
+            spot_number,
+            camera_ip,
+            CAMERA_USER,
+            CAMERA_PASS
+        )
+
+        return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
