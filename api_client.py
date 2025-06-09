@@ -205,7 +205,7 @@ def save_correction_files(
                 "confidence":    str(plate_info.get("conf", "")),
                 "plate_image":   plate_info.get("plate_image_path", ""),
                 "frame_image":   plate_info.get("frame_image_path", ""),
-                "camer_ip":      camera_ip,
+                "camera_ip":     camera_ip,
                 "message":       plate_info.get("message", "NP_")
             },
             "character_confidence": plate_info.get("character_confidence", []),
