@@ -11,7 +11,7 @@ from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import ClientDisconnect
-from sqlalchemy import text
+from sqlalchemy import text, asc, desc
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 
 from PIL import Image
@@ -745,10 +745,40 @@ def delete_camera(cam_id: int):
 
 
 @app.get("/tickets")
-def list_tickets():
+def list_tickets(
+    page: int = 1,
+    page_size: int = 50,
+    search: str | None = None,
+    sort_by: str = "id",
+    sort_order: str = "desc",
+):
+    """Return paginated list of tickets with optional search and sorting."""
+
     db = SessionLocal()
     try:
-        return [_as_dict(t) for t in db.query(Ticket).all()]
+        query = db.query(Ticket)
+
+        if search:
+            pattern = f"%{search}%"
+            query = query.filter(Ticket.plate_number.like(pattern))
+
+        sort_col = getattr(Ticket, sort_by, Ticket.id)
+        order_fn = desc if sort_order.lower() == "desc" else asc
+        query = query.order_by(order_fn(sort_col))
+
+        total = query.count()
+        results = (
+            query.offset((page - 1) * page_size)
+            .limit(page_size)
+            .all()
+        )
+
+        return {
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "data": [_as_dict(t) for t in results],
+        }
     finally:
         db.close()
 
