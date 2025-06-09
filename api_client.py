@@ -14,7 +14,7 @@ from db import SessionLocal
 from models import Camera
 from logger import logger
 
-PARKONIC_BASE_URL = "https://api.parkonic.com/api/street-parking/v2"
+PARKONIC_BASE_URL = "https://dev.parkonic.com/api/street-parking/v2"
 
 
 def park_out_request(token: str, parkout_time: str, spot_number: int, pole_id: int, trip_id: int):
