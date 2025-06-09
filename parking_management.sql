@@ -103,6 +103,7 @@ CREATE TABLE `manual_reviews` (
   `event_time` datetime NOT NULL,
   `image_path` varchar(255) NOT NULL,
   `clip_path` varchar(255) DEFAULT NULL,
+  `ticket_id` int(11) DEFAULT NULL,
   `review_status` enum('PENDING','RESOLVED') NOT NULL DEFAULT 'PENDING',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -253,7 +254,8 @@ ALTER TABLE `locations`
 --
 ALTER TABLE `manual_reviews`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `camera_id` (`camera_id`);
+  ADD KEY `camera_id` (`camera_id`),
+  ADD KEY `ticket_id` (`ticket_id`);
 
 --
 -- Indexes for table `plate_logs`
@@ -370,7 +372,8 @@ ALTER TABLE `cameras`
 -- Constraints for table `manual_reviews`
 --
 ALTER TABLE `manual_reviews`
-  ADD CONSTRAINT `manual_reviews_ibfk_1` FOREIGN KEY (`camera_id`) REFERENCES `cameras` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `manual_reviews_ibfk_1` FOREIGN KEY (`camera_id`) REFERENCES `cameras` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `manual_reviews_ibfk_2` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `plate_logs`

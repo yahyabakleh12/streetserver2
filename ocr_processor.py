@@ -321,6 +321,10 @@ def process_plate_and_issue_ticket(
                 db_session.commit()
                 logger.debug("Inserted UNREAD ticket into tickets: id=%d", new_ticket.id)
 
+                # link manual review to the new ticket
+                new_review.ticket_id = new_ticket.id
+                db_session.commit()
+
                 # d) Spawn thread to fetch camera clip for manual review
                 def fetch_and_update_clip(rid: int, cam_ip: str, user: str, pwd: str, ev_time: datetime):
                     start_dt = ev_time - timedelta(seconds=8)
