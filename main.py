@@ -393,6 +393,22 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
                     "Closed ticket id=%d at %s",
                     open_ticket.id, payload["time"]
                 )
+
+                if open_ticket.parkonic_trip_id is not None:
+                    try:
+                        from api_client import park_out_request
+                        from config import PARKONIC_API_TOKEN
+
+                        park_out_request(
+                            token=PARKONIC_API_TOKEN,
+                            parkout_time=payload["time"],
+                            spot_number=spot_number,
+                            pole_id=pole_id,
+                            trip_id=open_ticket.parkonic_trip_id,
+                        )
+                    except Exception:
+                        logger.error("park_out_request failed", exc_info=True)
+
                 return JSONResponse(status_code=200, content={"message": "Exit recorded"})
             else:
                 logger.debug(
