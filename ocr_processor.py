@@ -239,21 +239,21 @@ def process_plate_and_issue_ticket(
 
             from api_client import park_in_request
             try:
-                # ticket_resp = park_in_request(
-                #     token        = PARKONIC_API_TOKEN,
-                #     parkin_time  = payload["time"],
-                #     plate_code   = plate_code or "",
-                #     plate_number = plate_number or "",
-                #     emirates     = plate_city or "",
-                #     conf         = str(conf_val or 0),
-                #     spot_number  = spot_number,
-                #     pole_id      = pole_id,
-                #     images       = plate_b64_list
-                # )
-                # logger.debug("park_in_request returned: %s", ticket_resp)
+                ticket_resp = park_in_request(
+                    token        = PARKONIC_API_TOKEN,
+                    parkin_time  = payload["time"],
+                    plate_code   = plate_code or "",
+                    plate_number = plate_number or "",
+                    emirates     = plate_city or "",
+                    conf         = str(conf_val or 0),
+                    spot_number  = spot_number,
+                    pole_id      = pole_id,
+                    images       = plate_b64_list
+                )
+                logger.debug("park_in_request returned: %s", ticket_resp)
 
-                # trip_id = ticket_resp.get("trip_id")
-                trip_id = 123098198234
+                trip_id = ticket_resp.get("trip_id")
+                # trip_id = 123098198234
                 if trip_id is None:
                     logger.debug("No trip_id returned → skip ticket insert")
                 else:
