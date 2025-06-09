@@ -66,6 +66,14 @@ Example:
 curl "http://localhost:8000/manual-reviews?page=1&page_size=20"
 ```
 
+### Retrieving a manual review
+
+Fetch details for a specific review by ID using `/manual-reviews/{id}`.
+
+```bash
+curl "http://localhost:8000/manual-reviews/123"
+```
+
 ## License
 
 This project is released under the terms of the MIT License. See [LICENSE](LICENSE) for the full text.
