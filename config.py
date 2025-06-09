@@ -14,7 +14,7 @@ DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:3306/{DB_NAME}"
 # API Tokens
 # ─────────────────────────────────────────────────────────────────────────────
 OCR_TOKEN         = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTTlAiLCJpYXQiOjE3MDM0MTUxOTcsImV4cCI6MTczNDk1MTE5NywiY2xpIjoiQVBJIiwid2lkIjpudWxsfQ.EIup6X0h65BjBEUMmE3BHxolQjH18lrMaCxvfoJ0_Nw"
-PARKONIC_API_TOKEN= "eBOs1asdasd1IDXwseQCb3bLvHxNv0Gx4HLC21Ub"
+PARKONIC_API_TOKEN= "dBOs11IDXwseQCb3bLvHxNv0Gx4HLC21UQ"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Camera Credentials (if they’re the same for all cameras)
