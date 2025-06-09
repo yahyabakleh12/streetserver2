@@ -30,6 +30,25 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 The API exposes a `/post` endpoint that accepts JSON payloads describing parking events.
 
+### Listing tickets
+
+Use the `/tickets` endpoint to retrieve issued tickets. It supports pagination
+and basic searching by license plate number.
+
+Query parameters:
+
+- `page` – page number starting from 1 (default `1`)
+- `page_size` – number of items per page (default `50`)
+- `search` – partial plate number to filter by
+- `sort_by` – field to sort on (`id`, `entry_time`, etc.)
+- `sort_order` – `asc` or `desc` (default `desc`)
+
+Example:
+
+```bash
+curl "http://localhost:8000/tickets?page=1&page_size=20&search=ABC&sort_by=entry_time"
+```
+
 ## License
 
 This project is released under the terms of the MIT License. See [LICENSE](LICENSE) for the full text.
