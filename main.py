@@ -8,18 +8,27 @@ import base64
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from starlette.requests import ClientDisconnect
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 
 from PIL import Image
 from db import SessionLocal
-from models import Report, Ticket
+from models import (
+    Report,
+    Ticket,
+    Camera,
+    Pole,
+    Location,
+    ManualReview,
+    Zone
+)
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
 from utils import is_same_image
 from config import CAMERA_USER, CAMERA_PASS
+from pydantic import BaseModel
 
 app = FastAPI()
 
@@ -57,6 +66,46 @@ def _retry_commit(obj, session):
             new_sess.commit()
         finally:
             new_sess.close()
+
+
+class LocationCreate(BaseModel):
+    name: str
+    code: str
+    portal_name: str
+    portal_password: str
+    ip_schema: str
+
+
+class PoleCreate(BaseModel):
+    zone_id: int
+    code: str
+    location_id: int
+    number_of_cameras: int | None = 0
+    server: str | None = None
+    router: str | None = None
+    router_ip: str | None = None
+    router_vpn_ip: str | None = None
+
+
+class CameraCreate(BaseModel):
+    pole_id: int
+    api_code: str
+    p_ip: str
+    number_of_parking: int | None = 0
+    vpn_ip: str | None = None
+
+
+class ManualCorrection(BaseModel):
+    plate_number: str
+    plate_code: str
+    plate_city: str
+    confidence: int
+
+
+class ZoneCreate(BaseModel):
+    code: str
+    location_id: int
+    parameters: dict | None = None
 
 
 @app.post("/post")
@@ -334,3 +383,178 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
+
+
+@app.post("/locations")
+def create_location(loc: LocationCreate):
+    db = SessionLocal()
+    try:
+        new_obj = Location(**loc.dict())
+        db.add(new_obj)
+        _retry_commit(new_obj, db)
+        return {"id": new_obj.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.post("/zones")
+def create_zone(zone: ZoneCreate):
+    db = SessionLocal()
+    try:
+        new_obj = Zone(**zone.dict())
+        db.add(new_obj)
+        _retry_commit(new_obj, db)
+        return {"id": new_obj.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.post("/poles")
+def create_pole(pole: PoleCreate):
+    db = SessionLocal()
+    try:
+        new_obj = Pole(**pole.dict())
+        db.add(new_obj)
+        _retry_commit(new_obj, db)
+        return {"id": new_obj.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.post("/cameras")
+def create_camera(cam: CameraCreate):
+    db = SessionLocal()
+    try:
+        new_obj = Camera(**cam.dict())
+        db.add(new_obj)
+        _retry_commit(new_obj, db)
+        return {"id": new_obj.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.get("/manual-reviews")
+def list_manual_reviews(status: str = "PENDING"):
+    db = SessionLocal()
+    try:
+        reviews = db.query(ManualReview).filter_by(review_status=status).all()
+        data = [
+            {
+                "id": r.id,
+                "camera_id": r.camera_id,
+                "spot_number": r.spot_number,
+                "event_time": r.event_time.isoformat(),
+                "image_path": r.image_path,
+                "clip_path": r.clip_path,
+                "plate_status": r.plate_status,
+            }
+            for r in reviews
+        ]
+        return data
+    finally:
+        db.close()
+
+
+@app.get("/manual-reviews/{review_id}/image")
+def get_review_image(review_id: int):
+    db = SessionLocal()
+    try:
+        review = db.query(ManualReview).get(review_id)
+        if review is None or not os.path.isfile(review.image_path):
+            raise HTTPException(status_code=404, detail="Image not found")
+        return FileResponse(review.image_path)
+    finally:
+        db.close()
+
+
+@app.get("/manual-reviews/{review_id}/video")
+def get_review_video(review_id: int):
+    db = SessionLocal()
+    try:
+        review = db.query(ManualReview).get(review_id)
+        if review is None or not review.clip_path or not os.path.isfile(review.clip_path):
+            raise HTTPException(status_code=404, detail="Clip not found")
+        return FileResponse(review.clip_path)
+    finally:
+        db.close()
+
+
+@app.post("/manual-reviews/{review_id}/correct")
+def correct_manual_review(review_id: int, correction: ManualCorrection):
+    db = SessionLocal()
+    try:
+        review = db.query(ManualReview).get(review_id)
+        if review is None:
+            raise HTTPException(status_code=404, detail="Review not found")
+        if review.ticket_id is None:
+            raise HTTPException(status_code=400, detail="No associated ticket")
+
+        ticket = db.query(Ticket).get(review.ticket_id)
+        if ticket is None:
+            raise HTTPException(status_code=404, detail="Ticket not found")
+
+        ticket.plate_number = correction.plate_number
+        ticket.plate_code   = correction.plate_code
+        ticket.plate_city   = correction.plate_city
+        ticket.confidence   = correction.confidence
+        _retry_commit(ticket, db)
+
+        review.review_status = "RESOLVED"
+        review.plate_status  = "READ"
+        _retry_commit(review, db)
+
+        try:
+            from api_client import park_in_request
+            from config import PARKONIC_API_TOKEN
+            with open(review.image_path, "rb") as f:
+                b64_img = base64.b64encode(f.read()).decode("utf-8")
+            park_in_request(
+                token=PARKONIC_API_TOKEN,
+                parkin_time=str(ticket.entry_time),
+                plate_code=correction.plate_code,
+                plate_number=correction.plate_number,
+                emirates=correction.plate_city,
+                conf=str(correction.confidence),
+                spot_number=ticket.spot_number,
+                pole_id=ticket.camera.pole_id,
+                images=[b64_img]
+            )
+        except Exception:
+            logger.error("park_in_request failed", exc_info=True)
+
+        return {"status": "updated"}
+    finally:
+        db.close()
+
+
+@app.post("/manual-reviews/{review_id}/dismiss")
+def dismiss_manual_review(review_id: int):
+    db = SessionLocal()
+    try:
+        review = db.query(ManualReview).get(review_id)
+        if review is None:
+            raise HTTPException(status_code=404, detail="Review not found")
+
+        if review.ticket_id:
+            ticket = db.query(Ticket).get(review.ticket_id)
+            if ticket and ticket.exit_time is None:
+                ticket.exit_time = ticket.entry_time
+                _retry_commit(ticket, db)
+
+        review.review_status = "RESOLVED"
+        _retry_commit(review, db)
+        return {"status": "dismissed"}
+    finally:
+        db.close()
