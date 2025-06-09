@@ -86,8 +86,13 @@ class ManualReview(Base):
     image_path     = Column(String(255), nullable=False)
     clip_path      = Column(String(255), nullable=True)
     ticket_id      = Column(Integer, ForeignKey("tickets.id", ondelete="SET NULL"), nullable=True)
+    plate_status   = Column(Enum("READ", "UNREAD", name="manual_plate_status"), nullable=False)
+    plate_image    = Column(String(255), nullable=False)
+    snapshot_folder = Column(String(255), nullable=False)
     review_status  = Column(Enum("PENDING", "RESOLVED", name="review_status"), nullable=False, default="PENDING")
     created_at     = Column(DateTime, default=datetime.utcnow)
 
     camera    = relationship("Camera", back_populates="manual_reviews")
     ticket    = relationship("Ticket")
+
+

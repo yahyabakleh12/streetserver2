@@ -104,6 +104,9 @@ CREATE TABLE `manual_reviews` (
   `image_path` varchar(255) NOT NULL,
   `clip_path` varchar(255) DEFAULT NULL,
   `ticket_id` int(11) DEFAULT NULL,
+  `plate_status` enum('READ','UNREAD') NOT NULL,
+  `plate_image` varchar(255) NOT NULL,
+  `snapshot_folder` varchar(255) NOT NULL,
   `review_status` enum('PENDING','RESOLVED') NOT NULL DEFAULT 'PENDING',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -128,6 +131,7 @@ CREATE TABLE `plate_logs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
+
 
 --
 -- Table structure for table `poles`
@@ -264,6 +268,7 @@ ALTER TABLE `plate_logs`
   ADD PRIMARY KEY (`id`),
   ADD KEY `camera_id` (`camera_id`);
 
+
 --
 -- Indexes for table `poles`
 --
@@ -328,6 +333,7 @@ ALTER TABLE `manual_reviews`
 ALTER TABLE `plate_logs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9187;
 
+
 --
 -- AUTO_INCREMENT for table `poles`
 --
@@ -380,6 +386,7 @@ ALTER TABLE `manual_reviews`
 --
 ALTER TABLE `plate_logs`
   ADD CONSTRAINT `plate_logs_ibfk_1` FOREIGN KEY (`camera_id`) REFERENCES `cameras` (`id`) ON DELETE CASCADE;
+
 
 --
 -- Constraints for table `poles`
