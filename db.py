@@ -1,12 +1,16 @@
 # db.py
 
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # ─── Use MySQL Connector/Python driver ───
 # Replace <username>, <password>, <hostname>, <port>, <database> with your actual values.
-DATABASE_URL = "mysql+mysqlconnector://street:Devstreet@127.0.0.1:3306/parking_management"
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "mysql+mysqlconnector://street:Devstreet@127.0.0.1:3306/parking_management",
+)
 
 # Create engine with pool_pre_ping so that any stale connection is auto‐replaced,
 # pool_recycle so we don’t hold sockets open past typical wait_timeout,
