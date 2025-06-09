@@ -4,11 +4,10 @@ StreetServer2 is a FastAPI application that receives parking reports from networ
 
 ## Requirements
 
-Python 3.10 or later is recommended. Install the required packages:
+Python 3.10 or later is recommended. Install the required packages using `requirements.txt`:
 
 ```bash
-pip install fastapi uvicorn[standard] sqlalchemy pymysql mysql-connector-python \
-    requests pillow numpy opencv-python ultralytics
+pip install -r requirements.txt
 ```
 
 ## Configuration
