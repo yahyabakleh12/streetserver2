@@ -13,12 +13,17 @@ pip install fastapi uvicorn[standard] sqlalchemy pymysql mysql-connector-python 
 
 ## Configuration
 
-Edit `config.py` and update the following values before running the server:
+The application reads configuration from environment variables. Values defined
+in `config.py` act as defaults if the variables are not provided.
 
-- `DB_USER`, `DB_PASS`, `DB_HOST`, `DB_NAME` – MySQL credentials used to build `DATABASE_URL`.
+Set the following variables as needed before running the server:
+
+- `DATABASE_URL` – MySQL connection string. If unset it is built from `DB_USER`,
+  `DB_PASS`, `DB_HOST`, and `DB_NAME` in `config.py`.
 - `OCR_TOKEN` and `PARKONIC_API_TOKEN` – tokens for the OCR service and Parkonic API.
 - `CAMERA_USER` and `CAMERA_PASS` – credentials used to fetch camera clips.
-- `YOLO_MODEL_PATH` – path to the YOLO license plate model.
+- `YOLO_MODEL_PATH` – path to the YOLO license plate model (can also be changed in
+  `config.py`).
 
 ## Running the server
 
