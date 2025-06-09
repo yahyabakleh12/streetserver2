@@ -946,6 +946,19 @@ def list_manual_reviews(
         db.close()
 
 
+@app.get("/manual-reviews/{review_id}")
+def get_manual_review(review_id: int):
+    """Return a single manual review by id."""
+    db = SessionLocal()
+    try:
+        obj = db.query(ManualReview).get(review_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
 @app.get("/manual-reviews/{review_id}/image")
 def get_review_image(review_id: int):
     db = SessionLocal()
