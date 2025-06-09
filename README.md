@@ -74,6 +74,35 @@ Fetch details for a specific review by ID using `/manual-reviews/{id}`.
 curl "http://localhost:8000/manual-reviews/123"
 ```
 
+### Correcting a manual review
+
+Submit updated plate information when a review has been manually verified using
+`/manual-reviews/{review_id}/correct`.
+
+Required JSON fields:
+
+- `plate_number` – license plate number
+- `plate_code` – plate code
+- `plate_city` – issuing city
+- `confidence` – confidence value as an integer
+
+Example:
+
+```bash
+curl -X POST http://localhost:8000/manual-reviews/123/correct \
+  -H "Content-Type: application/json" \
+  -d '{"plate_number": "ABC123", "plate_code": "12", "plate_city": "DXB", "confidence": 95}'
+```
+
+### Dismissing a manual review
+
+To dismiss a review without changing the ticket, use
+`/manual-reviews/{review_id}/dismiss`.
+
+```bash
+curl -X POST http://localhost:8000/manual-reviews/123/dismiss
+```
+
 ## License
 
 This project is released under the terms of the MIT License. See [LICENSE](LICENSE) for the full text.
