@@ -68,6 +68,11 @@ def _retry_commit(obj, session):
             new_sess.close()
 
 
+def _as_dict(model_obj):
+    """Return a dict of column values for a SQLAlchemy model instance."""
+    return {c.name: getattr(model_obj, c.name) for c in model_obj.__table__.columns}
+
+
 class LocationCreate(BaseModel):
     name: str
     code: str
@@ -106,6 +111,65 @@ class ZoneCreate(BaseModel):
     code: str
     location_id: int
     parameters: dict | None = None
+
+
+class LocationUpdate(BaseModel):
+    name: str | None = None
+    code: str | None = None
+    portal_name: str | None = None
+    portal_password: str | None = None
+    ip_schema: str | None = None
+    parameters: dict | None = None
+
+
+class PoleUpdate(BaseModel):
+    zone_id: int | None = None
+    code: str | None = None
+    location_id: int | None = None
+    number_of_cameras: int | None = None
+    server: str | None = None
+    router: str | None = None
+    router_ip: str | None = None
+    router_vpn_ip: str | None = None
+    location_coordinates: str | None = None
+
+
+class CameraUpdate(BaseModel):
+    pole_id: int | None = None
+    api_code: str | None = None
+    p_ip: str | None = None
+    number_of_parking: int | None = None
+    vpn_ip: str | None = None
+
+
+class ZoneUpdate(BaseModel):
+    code: str | None = None
+    location_id: int | None = None
+    parameters: dict | None = None
+
+
+class TicketUpdate(BaseModel):
+    camera_id: int | None = None
+    spot_number: int | None = None
+    plate_number: str | None = None
+    plate_code: str | None = None
+    plate_city: str | None = None
+    confidence: int | None = None
+    entry_time: datetime | None = None
+    exit_time: datetime | None = None
+    parkonic_trip_id: int | None = None
+
+
+class ReportUpdate(BaseModel):
+    camera_id: int | None = None
+    event: str | None = None
+    report_type: str | None = None
+    timestamp: datetime | None = None
+    payload: dict | None = None
+
+
+class ManualReviewUpdate(BaseModel):
+    review_status: str | None = None
 
 
 @app.post("/post")
@@ -445,6 +509,337 @@ def create_camera(cam: CameraCreate):
         db.close()
 
 
+@app.get("/locations")
+def list_locations():
+    db = SessionLocal()
+    try:
+        objs = db.query(Location).all()
+        return [_as_dict(o) for o in objs]
+    finally:
+        db.close()
+
+
+@app.get("/locations/{loc_id}")
+def get_location(loc_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Location).get(loc_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.put("/locations/{loc_id}")
+def update_location(loc_id: int, loc: LocationUpdate):
+    db = SessionLocal()
+    try:
+        obj = db.query(Location).get(loc_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        for k, v in loc.dict(exclude_unset=True).items():
+            setattr(obj, k, v)
+        _retry_commit(obj, db)
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.delete("/locations/{loc_id}")
+def delete_location(loc_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Location).get(loc_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.get("/zones")
+def list_zones():
+    db = SessionLocal()
+    try:
+        return [_as_dict(z) for z in db.query(Zone).all()]
+    finally:
+        db.close()
+
+
+@app.get("/zones/{zone_id}")
+def get_zone(zone_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Zone).get(zone_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.put("/zones/{zone_id}")
+def update_zone(zone_id: int, zone: ZoneUpdate):
+    db = SessionLocal()
+    try:
+        obj = db.query(Zone).get(zone_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        for k, v in zone.dict(exclude_unset=True).items():
+            setattr(obj, k, v)
+        _retry_commit(obj, db)
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.delete("/zones/{zone_id}")
+def delete_zone(zone_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Zone).get(zone_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.get("/poles")
+def list_poles():
+    db = SessionLocal()
+    try:
+        return [_as_dict(p) for p in db.query(Pole).all()]
+    finally:
+        db.close()
+
+
+@app.get("/poles/{pole_id}")
+def get_pole(pole_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Pole).get(pole_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.put("/poles/{pole_id}")
+def update_pole(pole_id: int, pole: PoleUpdate):
+    db = SessionLocal()
+    try:
+        obj = db.query(Pole).get(pole_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        for k, v in pole.dict(exclude_unset=True).items():
+            setattr(obj, k, v)
+        _retry_commit(obj, db)
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.delete("/poles/{pole_id}")
+def delete_pole(pole_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Pole).get(pole_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.get("/cameras")
+def list_cameras():
+    db = SessionLocal()
+    try:
+        return [_as_dict(c) for c in db.query(Camera).all()]
+    finally:
+        db.close()
+
+
+@app.get("/cameras/{cam_id}")
+def get_camera(cam_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Camera).get(cam_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.put("/cameras/{cam_id}")
+def update_camera(cam_id: int, cam: CameraUpdate):
+    db = SessionLocal()
+    try:
+        obj = db.query(Camera).get(cam_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        for k, v in cam.dict(exclude_unset=True).items():
+            setattr(obj, k, v)
+        _retry_commit(obj, db)
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.delete("/cameras/{cam_id}")
+def delete_camera(cam_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Camera).get(cam_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.get("/tickets")
+def list_tickets():
+    db = SessionLocal()
+    try:
+        return [_as_dict(t) for t in db.query(Ticket).all()]
+    finally:
+        db.close()
+
+
+@app.post("/tickets")
+def create_ticket(ticket: TicketUpdate):
+    db = SessionLocal()
+    try:
+        new_obj = Ticket(**ticket.dict(exclude_unset=True))
+        db.add(new_obj)
+        _retry_commit(new_obj, db)
+        return {"id": new_obj.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.get("/tickets/{ticket_id}")
+def get_ticket(ticket_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Ticket).get(ticket_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.put("/tickets/{ticket_id}")
+def update_ticket(ticket_id: int, ticket: TicketUpdate):
+    db = SessionLocal()
+    try:
+        obj = db.query(Ticket).get(ticket_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        for k, v in ticket.dict(exclude_unset=True).items():
+            setattr(obj, k, v)
+        _retry_commit(obj, db)
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.delete("/tickets/{ticket_id}")
+def delete_ticket(ticket_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Ticket).get(ticket_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.get("/reports")
+def list_reports():
+    db = SessionLocal()
+    try:
+        return [_as_dict(r) for r in db.query(Report).all()]
+    finally:
+        db.close()
+
+
+@app.post("/reports")
+def create_report(report: ReportUpdate):
+    db = SessionLocal()
+    try:
+        new_obj = Report(**report.dict(exclude_unset=True))
+        db.add(new_obj)
+        _retry_commit(new_obj, db)
+        return {"id": new_obj.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.get("/reports/{report_id}")
+def get_report(report_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Report).get(report_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.put("/reports/{report_id}")
+def update_report(report_id: int, report: ReportUpdate):
+    db = SessionLocal()
+    try:
+        obj = db.query(Report).get(report_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        for k, v in report.dict(exclude_unset=True).items():
+            setattr(obj, k, v)
+        _retry_commit(obj, db)
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.delete("/reports/{report_id}")
+def delete_report(report_id: int):
+    db = SessionLocal()
+    try:
+        obj = db.query(Report).get(report_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
 @app.get("/manual-reviews")
 def list_manual_reviews(status: str = "PENDING"):
     db = SessionLocal()
@@ -556,5 +951,37 @@ def dismiss_manual_review(review_id: int):
         review.review_status = "RESOLVED"
         _retry_commit(review, db)
         return {"status": "dismissed"}
+    finally:
+        db.close()
+
+
+@app.get("/manual-reviews/{review_id}/snapshots")
+def list_review_snapshots(review_id: int):
+    db = SessionLocal()
+    try:
+        review = db.query(ManualReview).get(review_id)
+        if review is None:
+            raise HTTPException(status_code=404, detail="Review not found")
+        folder = os.path.join(SNAPSHOTS_DIR, review.snapshot_folder)
+        if not os.path.isdir(folder):
+            raise HTTPException(status_code=404, detail="Snapshot folder not found")
+        files = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+        return {"files": files}
+    finally:
+        db.close()
+
+
+@app.get("/manual-reviews/{review_id}/snapshots/{filename}")
+def get_review_snapshot(review_id: int, filename: str):
+    db = SessionLocal()
+    try:
+        review = db.query(ManualReview).get(review_id)
+        if review is None:
+            raise HTTPException(status_code=404, detail="Review not found")
+        folder = os.path.join(SNAPSHOTS_DIR, review.snapshot_folder)
+        path = os.path.join(folder, filename)
+        if not os.path.isfile(path):
+            raise HTTPException(status_code=404, detail="File not found")
+        return FileResponse(path)
     finally:
         db.close()
