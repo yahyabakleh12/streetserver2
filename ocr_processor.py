@@ -231,6 +231,23 @@ def process_plate_and_issue_ticket(
         db_session.commit()
         logger.debug("Inserted into plate_logs: camera_id=%d, status=%s", camera_id, plate_status)
 
+        # 6b) Insert an entry in manual_reviews to keep track of the processed
+        # plate image and snapshot directory for debugging.
+        new_review_tx = ManualReview(
+            camera_id       = camera_id,
+            spot_number     = spot_number,
+            event_time      = datetime.fromisoformat(payload["time"]),
+            image_path      = final_plate_path,
+            plate_status    = plate_status,
+            plate_image     = final_plate_filename,
+            snapshot_folder = os.path.basename(park_folder),
+            review_status   = "RESOLVED" if plate_status == "READ" else "PENDING"
+        )
+        db_session.add(new_review_tx)
+        db_session.flush()
+        review_id = new_review_tx.id
+        db_session.commit()
+
         # 7) If READ → create Ticket
         if plate_status == "READ":
             with open(final_plate_path, "rb") as f:
@@ -271,6 +288,9 @@ def process_plate_and_issue_ticket(
                     db_session.add(new_ticket)
                     db_session.commit()
                     logger.debug("Inserted into tickets: id=%d", new_ticket.id)
+                    # associate manual review record with the ticket
+                    new_review_tx.ticket_id = new_ticket.id
+                    db_session.commit()
             except Exception:
                 logger.error("park_in_request failed", exc_info=True)
 
@@ -292,19 +312,9 @@ def process_plate_and_issue_ticket(
                     )
                     return
 
-                # b) Insert into ManualReview
-                new_review = ManualReview(
-                    camera_id     = camera_id,
-                    spot_number   = spot_number,
-                    event_time    = datetime.fromisoformat(payload["time"]),
-                    image_path    = final_plate_path,
-                    review_status = "PENDING"
-                )
-                db_session.add(new_review)
-                db_session.flush()  # assign new_review.id without committing
-                review_id = new_review.id
-                db_session.commit()
-                logger.debug("Inserted into manual_reviews: id=%d", review_id)
+                # The manual review entry was already created above as
+                # ``new_review_tx`` with review_status=PENDING. Reuse it here.
+                logger.debug("Using existing manual_review id=%d for UNREAD plate", review_id)
 
                 # c) INSERT a Ticket for UNREAD plate
                 new_ticket = Ticket(
@@ -322,7 +332,7 @@ def process_plate_and_issue_ticket(
                 logger.debug("Inserted UNREAD ticket into tickets: id=%d", new_ticket.id)
 
                 # link manual review to the new ticket
-                new_review.ticket_id = new_ticket.id
+                new_review_tx.ticket_id = new_ticket.id
                 db_session.commit()
 
                 # d) Spawn thread to fetch camera clip for manual review
