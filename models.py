@@ -11,8 +11,51 @@ from sqlalchemy import (
     ForeignKey
 )
 from sqlalchemy.orm import relationship
-
 from db import Base
+
+
+class Location(Base):
+    __tablename__ = "locations"
+    id             = Column(Integer, primary_key=True, index=True)
+    name           = Column(String(100), nullable=False)
+    code           = Column(String(50),  nullable=False, unique=True)
+    portal_name    = Column(String(100), nullable=False)
+    portal_password= Column(String(100), nullable=False)
+    ip_schema      = Column(String(100), nullable=False)
+    parameters     = Column(JSON, nullable=True)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+    poles  = relationship("Pole", back_populates="location")
+    zones  = relationship("Zone", back_populates="location")
+
+
+class Zone(Base):
+    __tablename__ = "zones"
+    id          = Column(Integer, primary_key=True, index=True)
+    code        = Column(String(50), nullable=False)
+    parameters  = Column(JSON, nullable=True)
+    location_id = Column(Integer, ForeignKey("locations.id", ondelete="CASCADE"), nullable=False)
+
+    location = relationship("Location", back_populates="zones")
+    poles    = relationship("Pole", back_populates="zone")
+
+
+class Pole(Base):
+    __tablename__ = "poles"
+    id                = Column(Integer, primary_key=True, index=True)
+    zone_id           = Column(Integer, ForeignKey("zones.id", ondelete="CASCADE"), nullable=False)
+    code              = Column(String(50), nullable=False)
+    location_id       = Column(Integer, ForeignKey("locations.id", ondelete="CASCADE"), nullable=False)
+    number_of_cameras = Column(Integer, default=0)
+    server            = Column(String(100), nullable=True)
+    router            = Column(String(100), nullable=True)
+    router_ip         = Column(String(45), nullable=True)
+    router_vpn_ip     = Column(String(45), nullable=True)
+    location_coordinates = Column(String(255), nullable=True)
+
+    cameras  = relationship("Camera", back_populates="pole")
+    location = relationship("Location", back_populates="poles")
+    zone     = relationship("Zone", back_populates="poles")
 
 
 class Camera(Base):
@@ -29,6 +72,7 @@ class Camera(Base):
     plate_logs       = relationship("PlateLog", back_populates="camera")
     tickets          = relationship("Ticket", back_populates="camera")
     manual_reviews   = relationship("ManualReview", back_populates="camera")
+    pole             = relationship("Pole", back_populates="cameras")
 
 
 class Report(Base):
