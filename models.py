@@ -85,7 +85,9 @@ class ManualReview(Base):
     event_time     = Column(DateTime,   nullable=False)
     image_path     = Column(String(255), nullable=False)
     clip_path      = Column(String(255), nullable=True)
+    ticket_id      = Column(Integer, ForeignKey("tickets.id", ondelete="SET NULL"), nullable=True)
     review_status  = Column(Enum("PENDING", "RESOLVED", name="review_status"), nullable=False, default="PENDING")
     created_at     = Column(DateTime, default=datetime.utcnow)
 
     camera    = relationship("Camera", back_populates="manual_reviews")
+    ticket    = relationship("Ticket")
