@@ -905,10 +905,24 @@ def delete_report(report_id: int):
 
 
 @app.get("/manual-reviews")
-def list_manual_reviews(status: str = "PENDING"):
+def list_manual_reviews(
+    status: str = "PENDING",
+    page: int = 1,
+    page_size: int = 50,
+):
+    """Return paginated manual reviews filtered by status."""
+
     db = SessionLocal()
     try:
-        reviews = db.query(ManualReview).filter_by(review_status=status).all()
+        query = db.query(ManualReview).filter_by(review_status=status)
+
+        total = query.count()
+        reviews = (
+            query.offset((page - 1) * page_size)
+            .limit(page_size)
+            .all()
+        )
+
         data = [
             {
                 "id": r.id,
@@ -921,7 +935,13 @@ def list_manual_reviews(status: str = "PENDING"):
             }
             for r in reviews
         ]
-        return data
+
+        return {
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+            "data": data,
+        }
     finally:
         db.close()
 

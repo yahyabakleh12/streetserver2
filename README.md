@@ -49,6 +49,23 @@ Example:
 curl "http://localhost:8000/tickets?page=1&page_size=20&search=ABC&sort_by=entry_time"
 ```
 
+### Listing manual reviews
+
+Use the `/manual-reviews` endpoint to retrieve events that require human
+verification. The endpoint supports simple pagination.
+
+Query parameters:
+
+- `status` – review status to filter by (`PENDING` or `RESOLVED`, default `PENDING`)
+- `page` – page number starting from 1 (default `1`)
+- `page_size` – number of items per page (default `50`)
+
+Example:
+
+```bash
+curl "http://localhost:8000/manual-reviews?page=1&page_size=20"
+```
+
 ## License
 
 This project is released under the terms of the MIT License. See [LICENSE](LICENSE) for the full text.
