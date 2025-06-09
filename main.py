@@ -9,6 +9,7 @@ from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from fastapi.responses import JSONResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import ClientDisconnect
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
@@ -31,6 +32,24 @@ from config import CAMERA_USER, CAMERA_PASS
 from pydantic import BaseModel
 
 app = FastAPI()
+
+# 1. List the origins your frontend will be served from.
+#    You can use ["*"] to allow all, but in production it's safer to list exact URLs.
+origins = [
+    "http://localhost:5173",
+    
+]
+
+# 2. Add the CORS middleware *before* you include any routers.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,          # ⚙️ Allowed origins
+    allow_credentials=True,         # ⚙️ Allow cookies, Authorization headers
+    allow_methods=["*"],            # ⚙️ Allowed HTTP methods (GET, POST, ...)
+    allow_headers=["*"],            # ⚙️ Allowed HTTP headers (Content-Type, Authorization, ...)
+    expose_headers=["*"],           # (optional) headers you want JS to read
+    max_age=3600,                   # (optional) how long the results of a preflight request can be cached
+)
 
 # Directories for saving raw requests and snapshots
 SNAPSHOTS_DIR   = "snapshots"
