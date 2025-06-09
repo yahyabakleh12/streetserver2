@@ -88,8 +88,23 @@ def _retry_commit(obj, session):
 
 
 def _as_dict(model_obj):
-    """Return a dict of column values for a SQLAlchemy model instance."""
-    return {c.name: getattr(model_obj, c.name) for c in model_obj.__table__.columns}
+    """Return a dict of column values for a SQLAlchemy model instance.
+
+    Handles ``bytes``/``bytearray`` fields by converting them to a hex string so
+    that FastAPI's ``jsonable_encoder`` won't attempt to decode them as UTF-8,
+    which would raise ``UnicodeDecodeError``.
+    """
+
+    result = {}
+    for c in model_obj.__table__.columns:
+        value = getattr(model_obj, c.name)
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            try:
+                value = value.decode("utf-8")
+            except Exception:
+                value = value.hex()
+        result[c.name] = value
+    return result
 
 
 class LocationCreate(BaseModel):
