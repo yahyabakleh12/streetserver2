@@ -563,7 +563,7 @@ def create_camera(cam: CameraCreate):
 def list_locations():
     db = SessionLocal()
     try:
-        objs = db.query(Location).all()
+        objs = db.query(Location).order_by(desc(Location.created_at)).all()
         return [_as_dict(o) for o in objs]
     finally:
         db.close()
@@ -614,7 +614,8 @@ def delete_location(loc_id: int):
 def list_zones():
     db = SessionLocal()
     try:
-        return [_as_dict(z) for z in db.query(Zone).all()]
+        objs = db.query(Zone).order_by(desc(Zone.id)).all()
+        return [_as_dict(z) for z in objs]
     finally:
         db.close()
 
@@ -664,7 +665,8 @@ def delete_zone(zone_id: int):
 def list_poles():
     db = SessionLocal()
     try:
-        return [_as_dict(p) for p in db.query(Pole).all()]
+        objs = db.query(Pole).order_by(desc(Pole.id)).all()
+        return [_as_dict(p) for p in objs]
     finally:
         db.close()
 
@@ -714,7 +716,8 @@ def delete_pole(pole_id: int):
 def list_cameras():
     db = SessionLocal()
     try:
-        return [_as_dict(c) for c in db.query(Camera).all()]
+        objs = db.query(Camera).order_by(desc(Camera.id)).all()
+        return [_as_dict(c) for c in objs]
     finally:
         db.close()
 
@@ -859,7 +862,8 @@ def delete_ticket(ticket_id: int):
 def list_reports():
     db = SessionLocal()
     try:
-        return [_as_dict(r) for r in db.query(Report).all()]
+        objs = db.query(Report).order_by(desc(Report.created_at)).all()
+        return [_as_dict(r) for r in objs]
     finally:
         db.close()
 
@@ -931,6 +935,7 @@ def list_manual_reviews(
     db = SessionLocal()
     try:
         query = db.query(ManualReview).filter_by(review_status=status)
+        query = query.order_by(desc(ManualReview.created_at))
 
         total = query.count()
         reviews = (
@@ -1079,6 +1084,7 @@ def list_review_snapshots(review_id: int):
         if not os.path.isdir(folder):
             raise HTTPException(status_code=404, detail="Snapshot folder not found")
         files = [f for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+        files.sort(key=lambda x: os.path.getmtime(os.path.join(folder, x)), reverse=True)
         return {"files": files}
     finally:
         db.close()
