@@ -38,7 +38,16 @@ CAMERA_PASS = os.environ.get("CAMERA_PASS", "72756642@NAHSP196")
 # ─────────────────────────────────────────────────────────────────────────────
 YOLO_MODEL_PATH = "models/car.pt"
 
-
-API_POLE_ID = 586
+# Deprecated: pole ID should be retrieved from the DB.
+# Remains for backward compatibility if set via environment.
+import warnings
+API_POLE_ID = os.environ.get("API_POLE_ID")
+if API_POLE_ID:
+    warnings.warn("API_POLE_ID constant is deprecated; fetch from DB instead", DeprecationWarning)
+    try:
+        API_POLE_ID = int(API_POLE_ID)
+    except ValueError:
+        warnings.warn("Invalid API_POLE_ID; ignoring")
+        API_POLE_ID = None
 
 API_LOCATION_ID = 213
