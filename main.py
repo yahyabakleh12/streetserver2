@@ -35,13 +35,19 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# 1. List the origins your frontend will be served from.
-#    You can use ["*"] to allow all, but in production it's safer to list exact URLs.
-origins = [
-    "http://localhost:5000",
-    "http://192.168.1.220:5000",
-    "http://192.168.194.161:5000",
-]
+# 1. Determine which origins are allowed to access the API.
+#    By default a couple of development IPs are whitelisted, but this can be
+#    overridden via the ``CORS_ORIGINS`` environment variable.  Use ``*`` to
+#    allow any origin, or provide a comma separated list of hosts.
+cors_env = os.environ.get("CORS_ORIGINS")
+if cors_env:
+    origins = [o.strip() for o in cors_env.split(",")]
+else:
+    origins = [
+        "http://localhost:5000",
+        "http://192.168.1.220:5000",
+        "http://192.168.194.161:5000",
+    ]
 
 # 2. Add the CORS middleware *before* you include any routers.
 app.add_middleware(
