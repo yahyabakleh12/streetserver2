@@ -38,7 +38,7 @@ app = FastAPI()
 # 1. List the origins your frontend will be served from.
 #    You can use ["*"] to allow all, but in production it's safer to list exact URLs.
 origins = [
-    "http://localhost:5173",
+    "http://localhost:5000",
     
 ]
 
