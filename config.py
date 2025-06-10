@@ -37,3 +37,8 @@ CAMERA_PASS = os.environ.get("CAMERA_PASS", "72756642@NAHSP196")
 # YOLO model path (on CPU)
 # ─────────────────────────────────────────────────────────────────────────────
 YOLO_MODEL_PATH = "models/car.pt"
+
+
+API_POLE_ID = 586
+
+API_LOCATION_ID = 213

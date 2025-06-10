@@ -28,7 +28,7 @@ from models import (
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
 from utils import is_same_image
-from config import CAMERA_USER, CAMERA_PASS
+from config import CAMERA_USER, CAMERA_PASS, API_POLE_ID,API_LOCATION_ID
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -1041,7 +1041,7 @@ def correct_manual_review(review_id: int, correction: ManualCorrection):
                 emirates=correction.plate_city,
                 conf=str(correction.confidence),
                 spot_number=ticket.spot_number,
-                pole_id=ticket.camera.pole_id,
+                pole_id=API_POLE_ID,
                 images=[b64_img]
             )
         except Exception:

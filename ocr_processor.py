@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw
 
 from camera_clip import request_camera_clip
 from network import send_request_with_retry
-from config import OCR_TOKEN, PARKONIC_API_TOKEN, YOLO_MODEL_PATH
+from config import OCR_TOKEN, PARKONIC_API_TOKEN, YOLO_MODEL_PATH, API_POLE_ID
 from models import PlateLog, Ticket, ManualReview
 from db import SessionLocal
 from logger import logger
@@ -264,7 +264,7 @@ def process_plate_and_issue_ticket(
                     emirates     = plate_city or "",
                     conf         = str(conf_val or 0),
                     spot_number  = spot_number,
-                    pole_id      = pole_id,
+                    pole_id      = API_POLE_ID,
                     images       = plate_b64_list
                 )
                 logger.debug("park_in_request returned: %s", ticket_resp)
