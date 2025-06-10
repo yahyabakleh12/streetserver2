@@ -28,7 +28,7 @@ from models import (
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
 from utils import is_same_image
-from config import CAMERA_USER, CAMERA_PASS, API_POLE_ID,API_LOCATION_ID
+from config import API_POLE_ID, API_LOCATION_ID
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -278,7 +278,11 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             SELECT
               c.id      AS camera_id,
               c.pole_id AS pole_id,
-              c.p_ip    AS camera_ip
+              c.p_ip    AS camera_ip,
+              p.api_pole_id       AS api_pole_id,
+              l.parkonic_api_token AS parkonic_api_token,
+              l.camera_user        AS camera_user,
+              l.camera_pass        AS camera_pass
             FROM cameras AS c
             JOIN poles     AS p ON c.pole_id   = p.id
             JOIN zones     AS z ON p.zone_id    = z.id
@@ -294,7 +298,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
         if row is None:
             raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-        camera_id, pole_id, camera_ip = row
+        camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row
 
     except OperationalError:
         # Retry once on lost connection
@@ -313,7 +317,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             row2 = db2.execute(stmt, {"loc_code": location_code, "api_code": api_code}).fetchone()
             if row2 is None:
                 raise HTTPException(status_code=400, detail="No camera found for that parking_area")
-            camera_id, pole_id, camera_ip = row2
+            camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row2
         except SQLAlchemyError as final_err:
             db2.rollback()
             db2.close()
@@ -492,8 +496,10 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             pole_id,
             spot_number,
             camera_ip,
-            CAMERA_USER,
-            CAMERA_PASS
+            cam_user,
+            cam_pass,
+            parkonic_api_token,
+            api_pole_id,
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
