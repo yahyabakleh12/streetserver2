@@ -291,7 +291,6 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
 async def receive_parking_data(
     request: Request,
     background_tasks: BackgroundTasks,
-    current_user: User = Depends(get_current_user)
 ):
     """
     1) Save raw JSON to disk (catching ClientDisconnect).
