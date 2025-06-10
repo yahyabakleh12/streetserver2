@@ -28,7 +28,9 @@ from models import (
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
 from utils import is_same_image
+
 from config import API_POLE_ID, API_LOCATION_ID
+
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -284,10 +286,12 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             SELECT
               c.id      AS camera_id,
               c.pole_id AS pole_id,
+
               c.p_ip    AS camera_ip,
               l.parkonic_api_token,
               l.camera_user,
               l.camera_pass
+
             FROM cameras AS c
             JOIN poles     AS p ON c.pole_id   = p.id
             JOIN zones     AS z ON p.zone_id    = z.id
@@ -303,7 +307,9 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
         if row is None:
             raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
+
         camera_id, pole_id, camera_ip, park_token, cam_user, cam_pass = row
+
 
     except OperationalError:
         # Retry once on lost connection
@@ -322,7 +328,9 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             row2 = db2.execute(stmt, {"loc_code": location_code, "api_code": api_code}).fetchone()
             if row2 is None:
                 raise HTTPException(status_code=400, detail="No camera found for that parking_area")
+
             camera_id, pole_id, camera_ip, park_token, cam_user, cam_pass = row2
+
         except SQLAlchemyError as final_err:
             db2.rollback()
             db2.close()
@@ -411,7 +419,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
                             token=park_token or "",
                             parkout_time=payload["time"],
                             spot_number=spot_number,
-                            pole_id=pole_id,
+                            pole_id=api_pole_id,
                             trip_id=open_ticket.parkonic_trip_id,
                         )
                     except Exception:
@@ -498,6 +506,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             ts,
             camera_id,
             pole_id,
+            api_pole_id,
             spot_number,
             camera_ip,
             cam_user or "admin",
@@ -1039,13 +1048,23 @@ def correct_manual_review(review_id: int, correction: ManualCorrection):
 
         try:
             from api_client import park_in_request
+
             park_token = None
             try:
                 park_token = ticket.camera.pole.location.parkonic_api_token
             except Exception:
                 park_token = None
+
             with open(review.image_path, "rb") as f:
                 b64_img = base64.b64encode(f.read()).decode("utf-8")
+
+            pole_api_id = db.query(Pole.api_pole_id)\
+                .join(Camera, Camera.pole_id == Pole.id)\
+                .filter(Camera.id == review.camera_id)\
+                .scalar()
+            if pole_api_id is None:
+                pole_api_id = CFG_POLE_ID
+
             park_in_request(
                 token=park_token or "",
                 parkin_time=str(ticket.entry_time),
@@ -1054,7 +1073,7 @@ def correct_manual_review(review_id: int, correction: ManualCorrection):
                 emirates=correction.plate_city,
                 conf=str(correction.confidence),
                 spot_number=ticket.spot_number,
-                pole_id=API_POLE_ID,
+                pole_id=pole_api_id,
                 images=[b64_img]
             )
         except Exception:

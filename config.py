@@ -31,7 +31,7 @@ OCR_TOKEN = os.environ.get(
 # ─────────────────────────────────────────────────────────────────────────────
 YOLO_MODEL_PATH = "models/car.pt"
 
-
 API_POLE_ID = 586
+
 
 API_LOCATION_ID = 213

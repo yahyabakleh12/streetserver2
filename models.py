@@ -55,6 +55,7 @@ class Pole(Base):
     router_ip         = Column(String(45), nullable=True)
     router_vpn_ip     = Column(String(45), nullable=True)
     location_coordinates = Column(String(255), nullable=True)
+    api_pole_id       = Column(Integer, nullable=True)
 
     cameras  = relationship("Camera", back_populates="pole")
     location = relationship("Location", back_populates="poles")
