@@ -39,7 +39,8 @@ app = FastAPI()
 #    You can use ["*"] to allow all, but in production it's safer to list exact URLs.
 origins = [
     "http://localhost:5000",
-    
+    "http://192.168.1.220:5000",
+    "http://192.168.194.161:5000",
 ]
 
 # 2. Add the CORS middleware *before* you include any routers.
