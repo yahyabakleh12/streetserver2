@@ -38,6 +38,24 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 The API exposes a `/post` endpoint that accepts JSON payloads describing parking events.
 
+### Authentication
+
+Endpoints are protected using bearer tokens. First create a user in the `users`
+table and obtain a token:
+
+```bash
+curl -X POST http://localhost:8000/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=YOUR_USER&password=YOUR_PASS"
+```
+
+Use the returned token in the `Authorization` header when calling other
+endpoints:
+
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:8000/tickets
+```
+
 ### Listing tickets
 
 Use the `/tickets` endpoint to retrieve issued tickets. It supports pagination

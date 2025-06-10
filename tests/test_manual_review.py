@@ -10,15 +10,28 @@ os.environ["DATABASE_URL"] = TEST_DB
 
 from db import Base, engine, SessionLocal
 from main import app
-from models import Location, Zone, Pole, Camera, Ticket, ManualReview
+from models import Location, Zone, Pole, Camera, Ticket, ManualReview, User
+from main import get_password_hash
 
 # Create tables
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
+session = SessionLocal()
+user = User(username="test", hashed_password=get_password_hash("secret"))
+session.add(user)
+session.commit()
+session.close()
 
 @pytest.fixture(scope="module")
 def client():
     with TestClient(app) as c:
+        resp = c.post(
+            "/token",
+            data={"username": "test", "password": "secret"},
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+        )
+        token = resp.json()["access_token"]
+        c.headers.update({"Authorization": f"Bearer {token}"})
         yield c
     # Clean up DB file after tests
     Base.metadata.drop_all(bind=engine)

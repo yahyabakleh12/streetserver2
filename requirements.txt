@@ -8,3 +8,6 @@ pillow
 numpy
 opencv-python
 ultralytics
+passlib[bcrypt]
+python-jose
+python-multipart

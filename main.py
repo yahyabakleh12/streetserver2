@@ -5,14 +5,17 @@ import io
 import re
 import json
 import base64
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import ClientDisconnect
 from sqlalchemy import text, asc, desc
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from jose import JWTError, jwt
+from passlib.context import CryptContext
 
 from PIL import Image
 from db import SessionLocal
@@ -23,7 +26,8 @@ from models import (
     Pole,
     Location,
     ManualReview,
-    Zone
+    Zone,
+    User
 )
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
@@ -68,6 +72,52 @@ SPOT_LAST_DIR   = "spot_last"      # where we keep the "last main_crop" per (cam
 os.makedirs(RAW_REQUEST_DIR, exist_ok=True)
 os.makedirs(SNAPSHOTS_DIR,   exist_ok=True)
 os.makedirs(SPOT_LAST_DIR,   exist_ok=True)
+
+# ── Authentication setup ───────────────────────────────────────────────────
+SECRET_KEY = os.environ.get("SECRET_KEY", "changeme")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str | None = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.username == username).first()
+    finally:
+        db.close()
+    if user is None:
+        raise credentials_exception
+    return user
 
 
 def _retry_commit(obj, session):
@@ -221,8 +271,28 @@ class ManualReviewUpdate(BaseModel):
     review_status: str | None = None
 
 
+@app.post("/token")
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.username == form_data.username).first()
+    finally:
+        db.close()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Incorrect username or password")
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
 @app.post("/post")
-async def receive_parking_data(request: Request, background_tasks: BackgroundTasks):
+async def receive_parking_data(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user)
+):
     """
     1) Save raw JSON to disk (catching ClientDisconnect).
     2) Validate required fields.
@@ -526,7 +596,10 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
 
 
 @app.post("/locations")
-def create_location(loc: LocationCreate):
+def create_location(
+    loc: LocationCreate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         new_obj = Location(**loc.dict())
@@ -541,7 +614,10 @@ def create_location(loc: LocationCreate):
 
 
 @app.post("/zones")
-def create_zone(zone: ZoneCreate):
+def create_zone(
+    zone: ZoneCreate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         new_obj = Zone(**zone.dict())
@@ -556,7 +632,10 @@ def create_zone(zone: ZoneCreate):
 
 
 @app.post("/poles")
-def create_pole(pole: PoleCreate):
+def create_pole(
+    pole: PoleCreate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         new_obj = Pole(**pole.dict())
@@ -571,7 +650,10 @@ def create_pole(pole: PoleCreate):
 
 
 @app.post("/cameras")
-def create_camera(cam: CameraCreate):
+def create_camera(
+    cam: CameraCreate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         new_obj = Camera(**cam.dict())
@@ -586,7 +668,7 @@ def create_camera(cam: CameraCreate):
 
 
 @app.get("/locations")
-def list_locations():
+def list_locations(current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         objs = db.query(Location).order_by(desc(Location.created_at)).all()
@@ -596,7 +678,7 @@ def list_locations():
 
 
 @app.get("/locations/{loc_id}")
-def get_location(loc_id: int):
+def get_location(loc_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Location).get(loc_id)
@@ -608,7 +690,11 @@ def get_location(loc_id: int):
 
 
 @app.put("/locations/{loc_id}")
-def update_location(loc_id: int, loc: LocationUpdate):
+def update_location(
+    loc_id: int,
+    loc: LocationUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         obj = db.query(Location).get(loc_id)
@@ -623,7 +709,7 @@ def update_location(loc_id: int, loc: LocationUpdate):
 
 
 @app.delete("/locations/{loc_id}")
-def delete_location(loc_id: int):
+def delete_location(loc_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Location).get(loc_id)
@@ -637,7 +723,7 @@ def delete_location(loc_id: int):
 
 
 @app.get("/zones")
-def list_zones():
+def list_zones(current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         objs = db.query(Zone).order_by(desc(Zone.id)).all()
@@ -647,7 +733,7 @@ def list_zones():
 
 
 @app.get("/zones/{zone_id}")
-def get_zone(zone_id: int):
+def get_zone(zone_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Zone).get(zone_id)
@@ -659,7 +745,11 @@ def get_zone(zone_id: int):
 
 
 @app.put("/zones/{zone_id}")
-def update_zone(zone_id: int, zone: ZoneUpdate):
+def update_zone(
+    zone_id: int,
+    zone: ZoneUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         obj = db.query(Zone).get(zone_id)
@@ -674,7 +764,7 @@ def update_zone(zone_id: int, zone: ZoneUpdate):
 
 
 @app.delete("/zones/{zone_id}")
-def delete_zone(zone_id: int):
+def delete_zone(zone_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Zone).get(zone_id)
@@ -688,7 +778,7 @@ def delete_zone(zone_id: int):
 
 
 @app.get("/poles")
-def list_poles():
+def list_poles(current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         objs = db.query(Pole).order_by(desc(Pole.id)).all()
@@ -698,7 +788,7 @@ def list_poles():
 
 
 @app.get("/poles/{pole_id}")
-def get_pole(pole_id: int):
+def get_pole(pole_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Pole).get(pole_id)
@@ -710,7 +800,11 @@ def get_pole(pole_id: int):
 
 
 @app.put("/poles/{pole_id}")
-def update_pole(pole_id: int, pole: PoleUpdate):
+def update_pole(
+    pole_id: int,
+    pole: PoleUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         obj = db.query(Pole).get(pole_id)
@@ -725,7 +819,7 @@ def update_pole(pole_id: int, pole: PoleUpdate):
 
 
 @app.delete("/poles/{pole_id}")
-def delete_pole(pole_id: int):
+def delete_pole(pole_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Pole).get(pole_id)
@@ -739,7 +833,7 @@ def delete_pole(pole_id: int):
 
 
 @app.get("/cameras")
-def list_cameras():
+def list_cameras(current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         objs = db.query(Camera).order_by(desc(Camera.id)).all()
@@ -749,7 +843,7 @@ def list_cameras():
 
 
 @app.get("/cameras/{cam_id}")
-def get_camera(cam_id: int):
+def get_camera(cam_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Camera).get(cam_id)
@@ -761,7 +855,11 @@ def get_camera(cam_id: int):
 
 
 @app.put("/cameras/{cam_id}")
-def update_camera(cam_id: int, cam: CameraUpdate):
+def update_camera(
+    cam_id: int,
+    cam: CameraUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         obj = db.query(Camera).get(cam_id)
@@ -776,7 +874,7 @@ def update_camera(cam_id: int, cam: CameraUpdate):
 
 
 @app.delete("/cameras/{cam_id}")
-def delete_camera(cam_id: int):
+def delete_camera(cam_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Camera).get(cam_id)
@@ -796,6 +894,7 @@ def list_tickets(
     search: str | None = None,
     sort_by: str = "id",
     sort_order: str = "desc",
+    current_user: User = Depends(get_current_user),
 ):
     """Return paginated list of tickets with optional search and sorting."""
 
@@ -829,7 +928,10 @@ def list_tickets(
 
 
 @app.post("/tickets")
-def create_ticket(ticket: TicketUpdate):
+def create_ticket(
+    ticket: TicketUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         new_obj = Ticket(**ticket.dict(exclude_unset=True))
@@ -844,7 +946,7 @@ def create_ticket(ticket: TicketUpdate):
 
 
 @app.get("/tickets/{ticket_id}")
-def get_ticket(ticket_id: int):
+def get_ticket(ticket_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Ticket).get(ticket_id)
@@ -856,7 +958,11 @@ def get_ticket(ticket_id: int):
 
 
 @app.put("/tickets/{ticket_id}")
-def update_ticket(ticket_id: int, ticket: TicketUpdate):
+def update_ticket(
+    ticket_id: int,
+    ticket: TicketUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         obj = db.query(Ticket).get(ticket_id)
@@ -871,7 +977,7 @@ def update_ticket(ticket_id: int, ticket: TicketUpdate):
 
 
 @app.delete("/tickets/{ticket_id}")
-def delete_ticket(ticket_id: int):
+def delete_ticket(ticket_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Ticket).get(ticket_id)
@@ -885,7 +991,7 @@ def delete_ticket(ticket_id: int):
 
 
 @app.get("/reports")
-def list_reports():
+def list_reports(current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         objs = db.query(Report).order_by(desc(Report.created_at)).all()
@@ -895,7 +1001,10 @@ def list_reports():
 
 
 @app.post("/reports")
-def create_report(report: ReportUpdate):
+def create_report(
+    report: ReportUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         new_obj = Report(**report.dict(exclude_unset=True))
@@ -910,7 +1019,7 @@ def create_report(report: ReportUpdate):
 
 
 @app.get("/reports/{report_id}")
-def get_report(report_id: int):
+def get_report(report_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Report).get(report_id)
@@ -922,7 +1031,11 @@ def get_report(report_id: int):
 
 
 @app.put("/reports/{report_id}")
-def update_report(report_id: int, report: ReportUpdate):
+def update_report(
+    report_id: int,
+    report: ReportUpdate,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         obj = db.query(Report).get(report_id)
@@ -937,7 +1050,7 @@ def update_report(report_id: int, report: ReportUpdate):
 
 
 @app.delete("/reports/{report_id}")
-def delete_report(report_id: int):
+def delete_report(report_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()
     try:
         obj = db.query(Report).get(report_id)
@@ -955,6 +1068,7 @@ def list_manual_reviews(
     status: str = "PENDING",
     page: int = 1,
     page_size: int = 50,
+    current_user: User = Depends(get_current_user),
 ):
     """Return paginated manual reviews filtered by status."""
 
@@ -994,7 +1108,10 @@ def list_manual_reviews(
 
 
 @app.get("/manual-reviews/{review_id}")
-def get_manual_review(review_id: int):
+def get_manual_review(
+    review_id: int,
+    current_user: User = Depends(get_current_user),
+):
     """Return a single manual review by id."""
     db = SessionLocal()
     try:
@@ -1007,7 +1124,10 @@ def get_manual_review(review_id: int):
 
 
 @app.get("/manual-reviews/{review_id}/image")
-def get_review_image(review_id: int):
+def get_review_image(
+    review_id: int,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         review = db.query(ManualReview).get(review_id)
@@ -1019,7 +1139,10 @@ def get_review_image(review_id: int):
 
 
 @app.get("/manual-reviews/{review_id}/video")
-def get_review_video(review_id: int):
+def get_review_video(
+    review_id: int,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         review = db.query(ManualReview).get(review_id)
@@ -1031,7 +1154,11 @@ def get_review_video(review_id: int):
 
 
 @app.post("/manual-reviews/{review_id}/correct")
-def correct_manual_review(review_id: int, correction: ManualCorrection):
+def correct_manual_review(
+    review_id: int,
+    correction: ManualCorrection,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         review = db.query(ManualReview).get(review_id)
@@ -1093,7 +1220,10 @@ def correct_manual_review(review_id: int, correction: ManualCorrection):
 
 
 @app.post("/manual-reviews/{review_id}/dismiss")
-def dismiss_manual_review(review_id: int):
+def dismiss_manual_review(
+    review_id: int,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         review = db.query(ManualReview).get(review_id)
@@ -1114,7 +1244,10 @@ def dismiss_manual_review(review_id: int):
 
 
 @app.get("/manual-reviews/{review_id}/snapshots")
-def list_review_snapshots(review_id: int):
+def list_review_snapshots(
+    review_id: int,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         review = db.query(ManualReview).get(review_id)
@@ -1131,7 +1264,11 @@ def list_review_snapshots(review_id: int):
 
 
 @app.get("/manual-reviews/{review_id}/snapshots/{filename}")
-def get_review_snapshot(review_id: int, filename: str):
+def get_review_snapshot(
+    review_id: int,
+    filename: str,
+    current_user: User = Depends(get_current_user),
+):
     db = SessionLocal()
     try:
         review = db.query(ManualReview).get(review_id)
