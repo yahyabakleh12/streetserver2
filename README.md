@@ -22,6 +22,8 @@ Set the following variables as needed before running the server:
 - `OCR_TOKEN` – token for the OCR service.
 - `YOLO_MODEL_PATH` – path to the YOLO license plate model (can also be changed in
   `config.py`).
+- `CORS_ORIGINS`  – comma-separated list of origins allowed to access the API.
+  Use `*` to allow requests from any host.
 
 Camera credentials and the Parkonic API token are now stored per location in the
 `locations` table instead of being global environment variables.
