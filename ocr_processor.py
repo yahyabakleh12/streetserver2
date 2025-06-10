@@ -46,9 +46,7 @@ def process_plate_and_issue_ticket(
     camera_ip: str,
     camera_user: str,
     camera_pass: str,
-    parkonic_api_token: str,
-    api_pole_id: int
-
+    parkonic_api_token: str
 ):
     """
     1) Re-open saved snapshot, annotate & crop the parking region.
