@@ -79,6 +79,9 @@ CREATE TABLE `locations` (
   `portal_name` varchar(100) NOT NULL,
   `portal_password` varchar(100) NOT NULL,
   `ip_schema` varchar(100) NOT NULL,
+  `parkonic_api_token` varchar(255) DEFAULT NULL,
+  `camera_user` varchar(100) DEFAULT NULL,
+  `camera_pass` varchar(100) DEFAULT NULL,
   `parameters` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`parameters`)),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -87,8 +90,8 @@ CREATE TABLE `locations` (
 -- Dumping data for table `locations`
 --
 
-INSERT INTO `locations` (`id`, `name`, `code`, `portal_name`, `portal_password`, `ip_schema`, `parameters`, `created_at`) VALUES
-(1, 'Nad Al Sheba', 'NAD', 'nad_portal', 'nad_pass', '192.168.100.0/24', NULL, '2025-06-03 11:58:00');
+INSERT INTO `locations` (`id`, `name`, `code`, `portal_name`, `portal_password`, `ip_schema`, `parkonic_api_token`, `camera_user`, `camera_pass`, `parameters`, `created_at`) VALUES
+(1, 'Nad Al Sheba', 'NAD', 'nad_portal', 'nad_pass', '192.168.100.0/24', 'dummy_token', 'admin', 'secret', NULL, '2025-06-03 11:58:00');
 
 -- --------------------------------------------------------
 
@@ -147,16 +150,17 @@ CREATE TABLE `poles` (
   `router` varchar(100) DEFAULT NULL,
   `router_ip` varchar(45) DEFAULT NULL,
   `router_vpn_ip` varchar(45) DEFAULT NULL,
-  `location_coordinates` point DEFAULT NULL
+  `location_coordinates` point DEFAULT NULL,
+  `api_pole_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `poles`
 --
 
-INSERT INTO `poles` (`id`, `zone_id`, `code`, `location_id`, `number_of_cameras`, `server`, `router`, `router_ip`, `router_vpn_ip`, `location_coordinates`) VALUES
-(1, 1, 'P1', 1, 1, 'server1', 'router1', '192.168.100.10', '10.0.0.10', 0x000000000101000000e25817b7d110394004e78c28ed954b40),
-(2, 1, 'P2', 1, 1, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `poles` (`id`, `zone_id`, `code`, `location_id`, `number_of_cameras`, `server`, `router`, `router_ip`, `router_vpn_ip`, `location_coordinates`, `api_pole_id`) VALUES
+(1, 1, 'P1', 1, 1, 'server1', 'router1', '192.168.100.10', '10.0.0.10', 0x000000000101000000e25817b7d110394004e78c28ed954b40, NULL),
+(2, 1, 'P2', 1, 1, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

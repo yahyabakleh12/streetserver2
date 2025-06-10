@@ -22,6 +22,9 @@ class Location(Base):
     portal_name    = Column(String(100), nullable=False)
     portal_password= Column(String(100), nullable=False)
     ip_schema      = Column(String(100), nullable=False)
+    parkonic_api_token = Column(String(255), nullable=True)
+    camera_user       = Column(String(100), nullable=True)
+    camera_pass       = Column(String(100), nullable=True)
     parameters     = Column(JSON, nullable=True)
     created_at     = Column(DateTime, default=datetime.utcnow)
 
@@ -52,6 +55,7 @@ class Pole(Base):
     router_ip         = Column(String(45), nullable=True)
     router_vpn_ip     = Column(String(45), nullable=True)
     location_coordinates = Column(String(255), nullable=True)
+    api_pole_id       = Column(Integer, nullable=True)
 
     cameras  = relationship("Camera", back_populates="pole")
     location = relationship("Location", back_populates="poles")

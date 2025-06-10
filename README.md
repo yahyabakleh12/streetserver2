@@ -19,10 +19,12 @@ Set the following variables as needed before running the server:
 
 - `DATABASE_URL` – MySQL connection string. If unset it is built from `DB_USER`,
   `DB_PASS`, `DB_HOST`, and `DB_NAME` in `config.py`.
-- `OCR_TOKEN` and `PARKONIC_API_TOKEN` – tokens for the OCR service and Parkonic API.
-- `CAMERA_USER` and `CAMERA_PASS` – credentials used to fetch camera clips.
+- `OCR_TOKEN` – token for the OCR service.
 - `YOLO_MODEL_PATH` – path to the YOLO license plate model (can also be changed in
   `config.py`).
+
+Camera credentials and the Parkonic API token are now stored per location in the
+`locations` table instead of being global environment variables.
 
 ## Running the server
 

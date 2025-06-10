@@ -18,27 +18,20 @@ DATABASE_URL = os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL)
 # ─────────────────────────────────────────────────────────────────────────────
 # API Tokens
 # ─────────────────────────────────────────────────────────────────────────────
-OCR_TOKEN         = os.environ.get(
+OCR_TOKEN = os.environ.get(
     "OCR_TOKEN",
     "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTTlAiLCJpYXQiOjE3MDM0MTUxOTcsImV4cCI6MTczNDk1MTE5NywiY2xpIjoiQVBJIiwid2lkIjpudWxsfQ.EIup6X0h65BjBEUMmE3BHxolQjH18lrMaCxvfoJ0_Nw",
 )
-PARKONIC_API_TOKEN = os.environ.get(
-    "PARKONIC_API_TOKEN",
-    "dBOs11IDXwseQCb3bLvHxNv0Gx4HLC21UQ",
-)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Camera Credentials (if they’re the same for all cameras)
-# ─────────────────────────────────────────────────────────────────────────────
-CAMERA_USER = os.environ.get("CAMERA_USER", "admin")
-CAMERA_PASS = os.environ.get("CAMERA_PASS", "72756642@NAHSP196")
+# Location specific configuration now stores the Parkonic API token and camera
+# credentials.  The global constants previously defined here have been
+# deprecated.
 
 # ─────────────────────────────────────────────────────────────────────────────
 # YOLO model path (on CPU)
 # ─────────────────────────────────────────────────────────────────────────────
 YOLO_MODEL_PATH = "models/car.pt"
 
-
 API_POLE_ID = 586
+
 
 API_LOCATION_ID = 213
