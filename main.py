@@ -417,7 +417,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
                         from api_client import park_out_request
 
                         park_out_request(
-                            token=park_token or "",
+                            token=parkonic_api_token or "",
                             parkout_time=payload["time"],
                             spot_number=spot_number,
                             pole_id=api_pole_id,
