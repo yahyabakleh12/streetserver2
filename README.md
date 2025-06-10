@@ -36,11 +36,11 @@ Make sure MySQL is running and the tables defined in `models.py` exist. Then sta
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-The API exposes a `/post` endpoint that accepts JSON payloads describing parking events.
+The API exposes a `/post` endpoint that accepts JSON payloads describing parking events. This endpoint is intended for camera devices and does **not** require authentication.
 
 ### Authentication
 
-Endpoints are protected using bearer tokens. First create a user in the `users`
+Most endpoints are protected using bearer tokens. First create a user in the `users`
 table and obtain a token:
 
 ```bash
