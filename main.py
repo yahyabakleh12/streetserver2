@@ -28,7 +28,7 @@ from models import (
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
 from utils import is_same_image
-from config import CAMERA_USER, CAMERA_PASS, API_POLE_ID,API_LOCATION_ID
+from config import API_POLE_ID, API_LOCATION_ID
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -113,6 +113,9 @@ class LocationCreate(BaseModel):
     portal_name: str
     portal_password: str
     ip_schema: str
+    parkonic_api_token: str | None = None
+    camera_user: str | None = None
+    camera_pass: str | None = None
 
 
 class PoleCreate(BaseModel):
@@ -153,6 +156,9 @@ class LocationUpdate(BaseModel):
     portal_name: str | None = None
     portal_password: str | None = None
     ip_schema: str | None = None
+    parkonic_api_token: str | None = None
+    camera_user: str | None = None
+    camera_pass: str | None = None
     parameters: dict | None = None
 
 
@@ -278,7 +284,10 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             SELECT
               c.id      AS camera_id,
               c.pole_id AS pole_id,
-              c.p_ip    AS camera_ip
+              c.p_ip    AS camera_ip,
+              l.parkonic_api_token,
+              l.camera_user,
+              l.camera_pass
             FROM cameras AS c
             JOIN poles     AS p ON c.pole_id   = p.id
             JOIN zones     AS z ON p.zone_id    = z.id
@@ -294,7 +303,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
         if row is None:
             raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-        camera_id, pole_id, camera_ip = row
+        camera_id, pole_id, camera_ip, park_token, cam_user, cam_pass = row
 
     except OperationalError:
         # Retry once on lost connection
@@ -313,7 +322,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             row2 = db2.execute(stmt, {"loc_code": location_code, "api_code": api_code}).fetchone()
             if row2 is None:
                 raise HTTPException(status_code=400, detail="No camera found for that parking_area")
-            camera_id, pole_id, camera_ip = row2
+            camera_id, pole_id, camera_ip, park_token, cam_user, cam_pass = row2
         except SQLAlchemyError as final_err:
             db2.rollback()
             db2.close()
@@ -397,10 +406,9 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
                 if open_ticket.parkonic_trip_id is not None:
                     try:
                         from api_client import park_out_request
-                        from config import PARKONIC_API_TOKEN
 
                         park_out_request(
-                            token=PARKONIC_API_TOKEN,
+                            token=park_token or "",
                             parkout_time=payload["time"],
                             spot_number=spot_number,
                             pole_id=pole_id,
@@ -492,8 +500,9 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             pole_id,
             spot_number,
             camera_ip,
-            CAMERA_USER,
-            CAMERA_PASS
+            cam_user or "admin",
+            cam_pass or "",
+            park_token or ""
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
@@ -1030,11 +1039,15 @@ def correct_manual_review(review_id: int, correction: ManualCorrection):
 
         try:
             from api_client import park_in_request
-            from config import PARKONIC_API_TOKEN
+            park_token = None
+            try:
+                park_token = ticket.camera.pole.location.parkonic_api_token
+            except Exception:
+                park_token = None
             with open(review.image_path, "rb") as f:
                 b64_img = base64.b64encode(f.read()).decode("utf-8")
             park_in_request(
-                token=PARKONIC_API_TOKEN,
+                token=park_token or "",
                 parkin_time=str(ticket.entry_time),
                 plate_code=correction.plate_code,
                 plate_number=correction.plate_number,

@@ -5,7 +5,6 @@ import uuid
 import requests
 from datetime import datetime
 from logger import logger
-from config import CAMERA_USER, CAMERA_PASS  # or pass from caller
 import os
 
 VIDEO_CLIPS_DIR = "video_clips"
