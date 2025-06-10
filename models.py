@@ -14,6 +14,17 @@ from sqlalchemy.orm import relationship
 from db import Base
 
 
+class User(Base):
+    """Application user for authentication."""
+
+    __tablename__ = "users"
+
+    id             = Column(Integer, primary_key=True, index=True)
+    username       = Column(String(50), unique=True, nullable=False)
+    hashed_password= Column(String(128), nullable=False)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+
+
 class Location(Base):
     __tablename__ = "locations"
     id             = Column(Integer, primary_key=True, index=True)
