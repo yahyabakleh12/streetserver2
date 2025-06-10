@@ -512,9 +512,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             camera_ip,
             cam_user,
             cam_pass,
-            parkonic_api_token,
-            api_pole_id,
-
+            parkonic_api_token
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
