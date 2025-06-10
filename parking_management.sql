@@ -79,6 +79,7 @@ CREATE TABLE `locations` (
   `portal_name` varchar(100) NOT NULL,
   `portal_password` varchar(100) NOT NULL,
   `ip_schema` varchar(100) NOT NULL,
+  `parkonic_api_token` varchar(100) DEFAULT NULL,
   `parameters` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`parameters`)),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -87,8 +88,8 @@ CREATE TABLE `locations` (
 -- Dumping data for table `locations`
 --
 
-INSERT INTO `locations` (`id`, `name`, `code`, `portal_name`, `portal_password`, `ip_schema`, `parameters`, `created_at`) VALUES
-(1, 'Nad Al Sheba', 'NAD', 'nad_portal', 'nad_pass', '192.168.100.0/24', NULL, '2025-06-03 11:58:00');
+INSERT INTO `locations` (`id`, `name`, `code`, `portal_name`, `portal_password`, `ip_schema`, `parkonic_api_token`, `parameters`, `created_at`) VALUES
+(1, 'Nad Al Sheba', 'NAD', 'nad_portal', 'nad_pass', '192.168.100.0/24', 'TOKEN1', NULL, '2025-06-03 11:58:00');
 
 -- --------------------------------------------------------
 
@@ -142,6 +143,7 @@ CREATE TABLE `poles` (
   `zone_id` int(11) NOT NULL,
   `code` varchar(50) NOT NULL,
   `location_id` int(11) NOT NULL,
+  `api_pole_id` int(11) DEFAULT NULL,
   `number_of_cameras` int(11) DEFAULT 0,
   `server` varchar(100) DEFAULT NULL,
   `router` varchar(100) DEFAULT NULL,
@@ -154,9 +156,9 @@ CREATE TABLE `poles` (
 -- Dumping data for table `poles`
 --
 
-INSERT INTO `poles` (`id`, `zone_id`, `code`, `location_id`, `number_of_cameras`, `server`, `router`, `router_ip`, `router_vpn_ip`, `location_coordinates`) VALUES
-(1, 1, 'P1', 1, 1, 'server1', 'router1', '192.168.100.10', '10.0.0.10', 0x000000000101000000e25817b7d110394004e78c28ed954b40),
-(2, 1, 'P2', 1, 1, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `poles` (`id`, `zone_id`, `code`, `location_id`, `api_pole_id`, `number_of_cameras`, `server`, `router`, `router_ip`, `router_vpn_ip`, `location_coordinates`) VALUES
+(1, 1, 'P1', 1, 501, 1, 'server1', 'router1', '192.168.100.10', '10.0.0.10', 0x000000000101000000e25817b7d110394004e78c28ed954b40),
+(2, 1, 'P2', 1, 502, 1, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

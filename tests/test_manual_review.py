@@ -30,13 +30,13 @@ def client():
 @pytest.fixture()
 def sample_review(tmp_path):
     session = SessionLocal()
-    loc = Location(name="Loc", code="L1", portal_name="u", portal_password="p", ip_schema="ip")
+    loc = Location(name="Loc", code="L1", portal_name="u", portal_password="p", ip_schema="ip", parkonic_api_token="TESTTOKEN")
     session.add(loc)
     session.commit()
     zone = Zone(code="Z1", location_id=loc.id)
     session.add(zone)
     session.commit()
-    pole = Pole(zone_id=zone.id, code="P1", location_id=loc.id)
+    pole = Pole(zone_id=zone.id, code="P1", location_id=loc.id, api_pole_id=111)
     session.add(pole)
     session.commit()
     cam = Camera(pole_id=pole.id, api_code="C1", p_ip="127.0.0.1")
@@ -83,8 +83,12 @@ def test_correct_manual_review_success(client, sample_review):
         "plate_city": "DXB",
         "confidence": 99,
     }
-    with patch("api_client.park_in_request", return_value=None):
+    with patch("api_client.park_in_request", return_value=None) as mock_pi:
         response = client.post(f"/manual-reviews/{review_id}/correct", json=payload)
+        mock_pi.assert_called_once()
+        kwargs = mock_pi.call_args.kwargs
+        assert kwargs["token"] == "TESTTOKEN"
+        assert kwargs["pole_id"] == 111
     assert response.status_code == 200
     assert response.json() == {"status": "updated"}
 
@@ -107,8 +111,9 @@ def test_correct_manual_review_not_found(client):
         "plate_city": "DXB",
         "confidence": 80,
     }
-    with patch("api_client.park_in_request", return_value=None):
+    with patch("api_client.park_in_request", return_value=None) as mock_pi:
         response = client.post("/manual-reviews/999/correct", json=payload)
+        mock_pi.assert_not_called()
     assert response.status_code == 404
     assert response.json()["detail"] == "Review not found"
 

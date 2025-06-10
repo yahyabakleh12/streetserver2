@@ -28,7 +28,7 @@ from models import (
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
 from utils import is_same_image
-from config import CAMERA_USER, CAMERA_PASS, API_POLE_ID,API_LOCATION_ID
+from config import CAMERA_USER, CAMERA_PASS
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -1030,18 +1030,23 @@ def correct_manual_review(review_id: int, correction: ManualCorrection):
 
         try:
             from api_client import park_in_request
-            from config import PARKONIC_API_TOKEN
             with open(review.image_path, "rb") as f:
                 b64_img = base64.b64encode(f.read()).decode("utf-8")
+
+            pole = review.camera.pole
+            location = pole.location
+            api_pole_id = pole.api_pole_id
+            parkonic_api_token = location.parkonic_api_token
+
             park_in_request(
-                token=PARKONIC_API_TOKEN,
+                token=parkonic_api_token,
                 parkin_time=str(ticket.entry_time),
                 plate_code=correction.plate_code,
                 plate_number=correction.plate_number,
                 emirates=correction.plate_city,
                 conf=str(correction.confidence),
                 spot_number=ticket.spot_number,
-                pole_id=API_POLE_ID,
+                pole_id=api_pole_id,
                 images=[b64_img]
             )
         except Exception:

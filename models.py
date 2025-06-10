@@ -22,6 +22,7 @@ class Location(Base):
     portal_name    = Column(String(100), nullable=False)
     portal_password= Column(String(100), nullable=False)
     ip_schema      = Column(String(100), nullable=False)
+    parkonic_api_token = Column(String(100), nullable=True)
     parameters     = Column(JSON, nullable=True)
     created_at     = Column(DateTime, default=datetime.utcnow)
 
@@ -46,6 +47,7 @@ class Pole(Base):
     zone_id           = Column(Integer, ForeignKey("zones.id", ondelete="CASCADE"), nullable=False)
     code              = Column(String(50), nullable=False)
     location_id       = Column(Integer, ForeignKey("locations.id", ondelete="CASCADE"), nullable=False)
+    api_pole_id       = Column(Integer, nullable=True)
     number_of_cameras = Column(Integer, default=0)
     server            = Column(String(100), nullable=True)
     router            = Column(String(100), nullable=True)
