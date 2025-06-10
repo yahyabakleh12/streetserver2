@@ -210,7 +210,8 @@ def process_plate_and_issue_ticket(
         os.makedirs(PLATES_READ_DIR,   exist_ok=True)
         os.makedirs(PLATES_UNREAD_DIR, exist_ok=True)
 
-        final_plate_filename = f"{camera_id}_{ts}.jpg"
+        micro = datetime.utcnow().strftime('%f')
+        final_plate_filename = f"{camera_id}_{ts}_{micro}.jpg"
         dest_dir = PLATES_READ_DIR if plate_status == "READ" else PLATES_UNREAD_DIR
         final_plate_path = os.path.join(dest_dir, final_plate_filename)
 
@@ -349,7 +350,8 @@ def process_plate_and_issue_ticket(
                         password     = pwd,
                         start_dt     = start_dt,
                         end_dt       = end_dt,
-                        segment_name = ev_time.strftime("%Y%m%d%H%M%S")
+                        segment_name = ev_time.strftime("%Y%m%d%H%M%S"),
+                        unique_tag   = str(rid),
                     )
                     session_t = SessionLocal()
                     try:
