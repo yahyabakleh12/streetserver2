@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw
 from camera_clip import request_camera_clip
 from network import send_request_with_retry
 
-from config import OCR_TOKEN, YOLO_MODEL_PATH, API_POLE_ID
+from config import OCR_TOKEN, YOLO_MODEL_PATH
 
 from models import PlateLog, Ticket, ManualReview
 from db import SessionLocal
@@ -46,7 +46,9 @@ def process_plate_and_issue_ticket(
     camera_ip: str,
     camera_user: str,
     camera_pass: str,
-    parkonic_api_token: str
+    parkonic_api_token: str,
+    api_pole_id: int
+
 ):
     """
     1) Re-open saved snapshot, annotate & crop the parking region.

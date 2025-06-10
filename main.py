@@ -288,9 +288,10 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
               c.pole_id AS pole_id,
 
               c.p_ip    AS camera_ip,
-              l.parkonic_api_token,
-              l.camera_user,
-              l.camera_pass
+              p.api_pole_id       AS api_pole_id,
+              l.parkonic_api_token AS parkonic_api_token,
+              l.camera_user        AS camera_user,
+              l.camera_pass        AS camera_pass
 
             FROM cameras AS c
             JOIN poles     AS p ON c.pole_id   = p.id
@@ -308,7 +309,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
 
-        camera_id, pole_id, camera_ip, park_token, cam_user, cam_pass = row
+        camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row
 
 
     except OperationalError:
@@ -329,7 +330,7 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             if row2 is None:
                 raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-            camera_id, pole_id, camera_ip, park_token, cam_user, cam_pass = row2
+            camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row2
 
         except SQLAlchemyError as final_err:
             db2.rollback()
@@ -509,9 +510,11 @@ async def receive_parking_data(request: Request, background_tasks: BackgroundTas
             api_pole_id,
             spot_number,
             camera_ip,
-            cam_user or "admin",
-            cam_pass or "",
-            park_token or ""
+            cam_user,
+            cam_pass,
+            parkonic_api_token,
+            api_pole_id,
+
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
