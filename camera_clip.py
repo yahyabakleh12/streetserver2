@@ -17,7 +17,8 @@ def request_camera_clip(
     password: str,
     start_dt: datetime,
     end_dt: datetime,
-    segment_name: str
+    segment_name: str,
+    unique_tag: str | None = None,
 ) -> str:
     """
     Attempt up to 3 times (0, +5s, +5s) to fetch a 20 s MP4 from the camera.
@@ -33,8 +34,13 @@ def request_camera_clip(
         "sid":       0,
         "uuid":      str(uuid.uuid4()),
     }
-    out_name = f"{VIDEO_CLIPS_DIR}/clip_{start_dt.strftime('%Y%m%d_%H%M%S')}" \
-               f"_{end_dt.strftime('%H%M%S')}.mp4"
+    out_name = (
+        f"{VIDEO_CLIPS_DIR}/clip_"
+        f"{start_dt.strftime('%Y%m%d_%H%M%S')}_{end_dt.strftime('%H%M%S')}"
+    )
+    if unique_tag:
+        out_name += f"_{unique_tag}"
+    out_name += ".mp4"
     url = f"http://{camera_ip}/dataloader.cgi"
 
     max_retries = 2
