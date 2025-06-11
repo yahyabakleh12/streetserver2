@@ -6,6 +6,7 @@ import re
 import json
 import base64
 from datetime import datetime, timedelta
+import uuid
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse, FileResponse
@@ -59,22 +60,22 @@ else:
 # 2. Add the CORS middleware *before* you include any routers.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,          # ⚙️ Allowed origins
-    allow_credentials=True,         # ⚙️ Allow cookies, Authorization headers
-    allow_methods=["*"],            # ⚙️ Allowed HTTP methods (GET, POST, ...)
-    allow_headers=["*"],            # ⚙️ Allowed HTTP headers (Content-Type, Authorization, ...)
-    expose_headers=["*"],           # (optional) headers you want JS to read
-    max_age=3600,                   # (optional) how long the results of a preflight request can be cached
+    allow_origins=origins,  # ⚙️ Allowed origins
+    allow_credentials=True,  # ⚙️ Allow cookies, Authorization headers
+    allow_methods=["*"],  # ⚙️ Allowed HTTP methods (GET, POST, ...)
+    allow_headers=["*"],  # ⚙️ Allowed HTTP headers (Content-Type, Authorization, ...)
+    expose_headers=["*"],  # (optional) headers you want JS to read
+    max_age=3600,  # (optional) how long the results of a preflight request can be cached
 )
 
 # Directories for saving raw requests and snapshots
-SNAPSHOTS_DIR   = "snapshots"
+SNAPSHOTS_DIR = "snapshots"
 RAW_REQUEST_DIR = os.path.join(SNAPSHOTS_DIR, "raw_request")
-SPOT_LAST_DIR   = "spot_last"      # where we keep the "last main_crop" per (camera, spot)
+SPOT_LAST_DIR = "spot_last"  # where we keep the "last main_crop" per (camera, spot)
 
 os.makedirs(RAW_REQUEST_DIR, exist_ok=True)
-os.makedirs(SNAPSHOTS_DIR,   exist_ok=True)
-os.makedirs(SPOT_LAST_DIR,   exist_ok=True)
+os.makedirs(SNAPSHOTS_DIR, exist_ok=True)
+os.makedirs(SPOT_LAST_DIR, exist_ok=True)
 
 # ── Authentication setup ───────────────────────────────────────────────────
 SECRET_KEY = os.environ.get("SECRET_KEY", "changeme")
@@ -223,6 +224,7 @@ class PermissionUpdate(BaseModel):
     name: str | None = None
     description: str | None = None
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -234,7 +236,7 @@ def get_password_hash(password: str) -> str:
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "jti": str(uuid.uuid4())})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
@@ -307,10 +309,7 @@ def list_users(current_user: User = Depends(require_permission("manage_users")))
     db = SessionLocal()
     try:
         users = db.query(User).options(joinedload(User.roles)).all()
-        return [
-            {**_as_dict(u), "roles": [r.id for r in u.roles]}
-            for u in users
-        ]
+        return [{**_as_dict(u), "roles": [r.id for r in u.roles]} for u in users]
     finally:
         db.close()
 
@@ -393,10 +392,7 @@ def list_roles(current_user: User = Depends(require_permission("manage_roles")))
     db = SessionLocal()
     try:
         roles = db.query(Role).options(joinedload(Role.permissions)).all()
-        return [
-            {**_as_dict(r), "permissions": [p.id for p in r.permissions]}
-            for r in roles
-        ]
+        return [{**_as_dict(r), "permissions": [p.id for p in r.permissions]} for r in roles]
     finally:
         db.close()
 
@@ -429,7 +425,9 @@ def update_role(
         if role.description is not None:
             obj.description = role.description
         if role.permission_ids is not None:
-            obj.permissions = db.query(Permission).filter(Permission.id.in_(role.permission_ids)).all()
+            obj.permissions = (
+                db.query(Permission).filter(Permission.id.in_(role.permission_ids)).all()
+            )
         _retry_commit(obj, db)
         return {**_as_dict(obj), "permissions": [p.id for p in obj.permissions]}
     finally:
@@ -481,7 +479,9 @@ def list_permissions(current_user: User = Depends(require_permission("manage_per
 
 
 @app.get("/permissions/{perm_id}")
-def get_permission(perm_id: int, current_user: User = Depends(require_permission("manage_permissions"))):
+def get_permission(
+    perm_id: int, current_user: User = Depends(require_permission("manage_permissions"))
+):
     db = SessionLocal()
     try:
         perm = db.query(Permission).get(perm_id)
@@ -512,7 +512,9 @@ def update_permission(
 
 
 @app.delete("/permissions/{perm_id}")
-def delete_permission(perm_id: int, current_user: User = Depends(require_permission("manage_permissions"))):
+def delete_permission(
+    perm_id: int, current_user: User = Depends(require_permission("manage_permissions"))
+):
     db = SessionLocal()
     try:
         obj = db.query(Permission).get(perm_id)
@@ -523,8 +525,6 @@ def delete_permission(perm_id: int, current_user: User = Depends(require_permiss
         return {"status": "deleted"}
     finally:
         db.close()
-
-
 
 
 def _retry_commit(obj, session):
@@ -573,7 +573,6 @@ def _as_dict(model_obj):
     return result
 
 
-
 @app.post("/token")
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     db = SessionLocal()
@@ -611,7 +610,7 @@ async def receive_parking_data(
         logger.error("Client disconnected before sending body", exc_info=True)
         raise HTTPException(status_code=400, detail="Client disconnected before sending body")
 
-    ts     = datetime.now().strftime("%Y%m%d%H%M%S")
+    ts = datetime.now().strftime("%Y%m%d%H%M%S")
     raw_fn = os.path.join(RAW_REQUEST_DIR, f"raw_request_{ts}.json")
     try:
         with open(raw_fn, "wb") as f:
@@ -628,34 +627,44 @@ async def receive_parking_data(
 
     # ── 2a) Ensure required fields are present ──
     required_fields = [
-        "event", "device", "time", "report_type",
-        "resolution_w", "resolution_y", "parking_area",
-        "index_number", "occupancy", "duration",
-        "coordinate_x1", "coordinate_y1",
-        "coordinate_x2", "coordinate_y2",
-        "coordinate_x3", "coordinate_y3",
-        "coordinate_x4", "coordinate_y4",
-        "vehicle_frame_x1", "vehicle_frame_y1",
-        "vehicle_frame_x2", "vehicle_frame_y2",
-        "snapshot"
+        "event",
+        "device",
+        "time",
+        "report_type",
+        "resolution_w",
+        "resolution_y",
+        "parking_area",
+        "index_number",
+        "occupancy",
+        "duration",
+        "coordinate_x1",
+        "coordinate_y1",
+        "coordinate_x2",
+        "coordinate_y2",
+        "coordinate_x3",
+        "coordinate_y3",
+        "coordinate_x4",
+        "coordinate_y4",
+        "vehicle_frame_x1",
+        "vehicle_frame_y1",
+        "vehicle_frame_x2",
+        "vehicle_frame_y2",
+        "snapshot",
     ]
     missing = [f for f in required_fields if payload.get(f) is None]
     if missing:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Missing fields: {', '.join(missing)}"
-        )
+        raise HTTPException(status_code=400, detail=f"Missing fields: {', '.join(missing)}")
 
     # ── 3) Split parking_area → letters+digits ──
     m = re.match(r"^([A-Za-z]+)(\d+)$", payload["parking_area"])
     if not m:
         raise HTTPException(
             status_code=400,
-            detail="Invalid parking_area format (expected letters+digits, e.g. 'NAD95')"
+            detail="Invalid parking_area format (expected letters+digits, e.g. 'NAD95')",
         )
-    location_code = m.group(1)   # e.g. "NAD"
-    api_code      = m.group(2)   # e.g. "95"
-    spot_number   = payload["index_number"]
+    location_code = m.group(1)  # e.g. "NAD"
+    api_code = m.group(2)  # e.g. "95"
+    spot_number = payload["index_number"]
 
     # ── 4) Lookup camera_id, pole_id, camera_ip ──
     try:
@@ -687,9 +696,7 @@ async def receive_parking_data(
         if row is None:
             raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-
         camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row
-
 
     except OperationalError:
         # Retry once on lost connection
@@ -709,7 +716,9 @@ async def receive_parking_data(
             if row2 is None:
                 raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-            camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row2
+            camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = (
+                row2
+            )
 
         except SQLAlchemyError as final_err:
             db2.rollback()
@@ -728,7 +737,7 @@ async def receive_parking_data(
         # 5a) Decode snapshot and crop to the parking polygon (for feature‐matching)
         try:
             raw_bytes = base64.b64decode(payload["snapshot"])
-            pil_img   = Image.open(io.BytesIO(raw_bytes))
+            pil_img = Image.open(io.BytesIO(raw_bytes))
         except Exception:
             pil_img = None
             logger.error("Failed to decode snapshot for EXIT check", exc_info=True)
@@ -738,7 +747,7 @@ async def receive_parking_data(
                 (payload["coordinate_x1"], payload["coordinate_y1"]),
                 (payload["coordinate_x2"], payload["coordinate_y2"]),
                 (payload["coordinate_x3"], payload["coordinate_y3"]),
-                (payload["coordinate_x4"], payload["coordinate_y4"])
+                (payload["coordinate_x4"], payload["coordinate_y4"]),
             ]
             xs, ys = zip(*coords)
             left, right = min(xs), max(xs)
@@ -753,19 +762,19 @@ async def receive_parking_data(
             if os.path.isfile(last_image_path):
                 try:
                     same = is_same_image(
-                        last_image_path,
-                        temp_crop_path,
-                        min_match_count=50,
-                        inlier_ratio_thresh=0.5
+                        last_image_path, temp_crop_path, min_match_count=50, inlier_ratio_thresh=0.5
                     )
                     if same:
                         # The car is still there: ignore this phantom “0”
                         os.remove(temp_crop_path)
                         logger.debug(
                             "EXIT report ignored (false‐clear). Camera=%d, Spot=%d",
-                            camera_id, spot_number
+                            camera_id,
+                            spot_number,
                         )
-                        return JSONResponse(status_code=200, content={"message": "False‐clear; skip EXIT"})
+                        return JSONResponse(
+                            status_code=200, content={"message": "False‐clear; skip EXIT"}
+                        )
                 except Exception:
                     logger.error("Error in feature-match during EXIT check", exc_info=True)
 
@@ -777,19 +786,17 @@ async def receive_parking_data(
         # 5b) Proceed to close any open ticket
         db2 = SessionLocal()
         try:
-            open_ticket = db2.query(Ticket).filter_by(
-                camera_id   = camera_id,
-                spot_number = spot_number,
-                exit_time   = None
-            ).order_by(Ticket.entry_time.desc()).first()
+            open_ticket = (
+                db2.query(Ticket)
+                .filter_by(camera_id=camera_id, spot_number=spot_number, exit_time=None)
+                .order_by(Ticket.entry_time.desc())
+                .first()
+            )
 
             if open_ticket:
                 open_ticket.exit_time = datetime.fromisoformat(payload["time"])
                 _retry_commit(open_ticket, db2)
-                logger.debug(
-                    "Closed ticket id=%d at %s",
-                    open_ticket.id, payload["time"]
-                )
+                logger.debug("Closed ticket id=%d at %s", open_ticket.id, payload["time"])
 
                 if open_ticket.parkonic_trip_id is not None:
                     try:
@@ -808,8 +815,7 @@ async def receive_parking_data(
                 return JSONResponse(status_code=200, content={"message": "Exit recorded"})
             else:
                 logger.debug(
-                    "No open ticket to close for camera=%d, spot=%d",
-                    camera_id, spot_number
+                    "No open ticket to close for camera=%d, spot=%d", camera_id, spot_number
                 )
                 return JSONResponse(status_code=200, content={"message": "No open ticket to close"})
 
@@ -828,26 +834,29 @@ async def receive_parking_data(
         db2 = SessionLocal()
         try:
             # 6a) Ensure no open ticket already exists
-            existing_ticket = db2.query(Ticket).filter_by(
-                camera_id   = camera_id,
-                spot_number = spot_number,
-                exit_time   = None
-            ).order_by(Ticket.entry_time.desc()).first()
+            existing_ticket = (
+                db2.query(Ticket)
+                .filter_by(camera_id=camera_id, spot_number=spot_number, exit_time=None)
+                .order_by(Ticket.entry_time.desc())
+                .first()
+            )
 
             if existing_ticket:
                 logger.debug(
                     "Spot %d on camera %d already occupied (ticket id=%d)",
-                    spot_number, camera_id, existing_ticket.id
+                    spot_number,
+                    camera_id,
+                    existing_ticket.id,
                 )
                 return JSONResponse(status_code=200, content={"message": "Spot already occupied"})
 
             # 6b) Insert into reports table
             new_report = Report(
-                camera_id  = camera_id,
-                event       = payload["event"],
-                report_type = payload["report_type"],
-                timestamp   = datetime.fromisoformat(payload["time"]),
-                payload     = payload
+                camera_id=camera_id,
+                event=payload["event"],
+                report_type=payload["report_type"],
+                timestamp=datetime.fromisoformat(payload["time"]),
+                payload=payload,
             )
             db2.add(new_report)
             _retry_commit(new_report, db2)
@@ -858,19 +867,18 @@ async def receive_parking_data(
             except:
                 pass
             logger.error("Database error on report insert", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Database error on report insert: {sa_err}")
+            raise HTTPException(
+                status_code=500, detail=f"Database error on report insert: {sa_err}"
+            )
         finally:
             db2.close()
 
         # 6c) Save the snapshot image locally (for OCR thread)
-        park_folder = os.path.join(
-            SNAPSHOTS_DIR,
-            f"parking_cam{camera_id}_spot{spot_number}_{ts}"
-        )
+        park_folder = os.path.join(SNAPSHOTS_DIR, f"parking_cam{camera_id}_spot{spot_number}_{ts}")
         os.makedirs(park_folder, exist_ok=True)
 
         try:
-            img_data      = base64.b64decode(payload["snapshot"])
+            img_data = base64.b64decode(payload["snapshot"])
             snapshot_path = os.path.join(park_folder, f"snapshot_{ts}.jpg")
             with open(snapshot_path, "wb") as imgf:
                 imgf.write(img_data)
@@ -891,7 +899,7 @@ async def receive_parking_data(
             camera_ip,
             cam_user,
             cam_pass,
-            parkonic_api_token
+            parkonic_api_token,
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
@@ -1213,11 +1221,7 @@ def list_tickets(
         query = query.order_by(order_fn(sort_col))
 
         total = query.count()
-        results = (
-            query.offset((page - 1) * page_size)
-            .limit(page_size)
-            .all()
-        )
+        results = query.offset((page - 1) * page_size).limit(page_size).all()
 
         return {
             "total": total,
@@ -1380,11 +1384,7 @@ def list_manual_reviews(
         query = query.order_by(desc(ManualReview.created_at))
 
         total = query.count()
-        reviews = (
-            query.offset((page - 1) * page_size)
-            .limit(page_size)
-            .all()
-        )
+        reviews = query.offset((page - 1) * page_size).limit(page_size).all()
 
         data = [
             {
@@ -1474,13 +1474,13 @@ def correct_manual_review(
             raise HTTPException(status_code=404, detail="Ticket not found")
 
         ticket.plate_number = correction.plate_number
-        ticket.plate_code   = correction.plate_code
-        ticket.plate_city   = correction.plate_city
-        ticket.confidence   = correction.confidence
+        ticket.plate_code = correction.plate_code
+        ticket.plate_city = correction.plate_city
+        ticket.confidence = correction.confidence
         _retry_commit(ticket, db)
 
         review.review_status = "RESOLVED"
-        review.plate_status  = "READ"
+        review.plate_status = "READ"
         _retry_commit(review, db)
 
         try:
@@ -1495,10 +1495,12 @@ def correct_manual_review(
             with open(review.image_path, "rb") as f:
                 b64_img = base64.b64encode(f.read()).decode("utf-8")
 
-            pole_api_id = db.query(Pole.api_pole_id)\
-                .join(Camera, Camera.pole_id == Pole.id)\
-                .filter(Camera.id == review.camera_id)\
+            pole_api_id = (
+                db.query(Pole.api_pole_id)
+                .join(Camera, Camera.pole_id == Pole.id)
+                .filter(Camera.id == review.camera_id)
                 .scalar()
+            )
             if pole_api_id is None:
                 pole_api_id = CFG_POLE_ID
 
@@ -1511,7 +1513,7 @@ def correct_manual_review(
                 conf=str(correction.confidence),
                 spot_number=ticket.spot_number,
                 pole_id=pole_api_id,
-                images=[b64_img]
+                images=[b64_img],
             )
         except Exception:
             logger.error("park_in_request failed", exc_info=True)
