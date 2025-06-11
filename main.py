@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import ClientDisconnect
 from sqlalchemy import text, asc, desc
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
+from sqlalchemy.orm import joinedload
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -27,7 +28,9 @@ from models import (
     Location,
     ManualReview,
     Zone,
-    User
+    User,
+    Role,
+    Permission,
 )
 from ocr_processor import process_plate_and_issue_ticket
 from logger import logger
@@ -112,12 +115,274 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         raise credentials_exception
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.username == username).first()
+        user = (
+            db.query(User)
+            .options(joinedload(User.roles).joinedload(Role.permissions))
+            .filter(User.username == username)
+            .first()
+        )
     finally:
         db.close()
     if user is None:
         raise credentials_exception
     return user
+
+
+@app.post("/users")
+def create_user(
+    user: UserCreate,
+    current_user: User = Depends(require_permission("manage_users")),
+):
+    db = SessionLocal()
+    try:
+        if db.query(User).filter(User.username == user.username).first():
+            raise HTTPException(status_code=400, detail="Username already exists")
+        roles = []
+        if user.role_ids:
+            roles = db.query(Role).filter(Role.id.in_(user.role_ids)).all()
+        new_user = User(username=user.username, hashed_password=get_password_hash(user.password))
+        new_user.roles = roles
+        db.add(new_user)
+        _retry_commit(new_user, db)
+        return {"id": new_user.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.get("/users")
+def list_users(current_user: User = Depends(require_permission("manage_users"))):
+    db = SessionLocal()
+    try:
+        users = db.query(User).options(joinedload(User.roles)).all()
+        return [
+            {**_as_dict(u), "roles": [r.id for r in u.roles]}
+            for u in users
+        ]
+    finally:
+        db.close()
+
+
+@app.get("/users/{user_id}")
+def get_user(user_id: int, current_user: User = Depends(require_permission("manage_users"))):
+    db = SessionLocal()
+    try:
+        u = db.query(User).options(joinedload(User.roles)).get(user_id)
+        if u is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return {**_as_dict(u), "roles": [r.id for r in u.roles]}
+    finally:
+        db.close()
+
+
+@app.put("/users/{user_id}")
+def update_user(
+    user_id: int,
+    user: UserUpdate,
+    current_user: User = Depends(require_permission("manage_users")),
+):
+    db = SessionLocal()
+    try:
+        obj = db.query(User).options(joinedload(User.roles)).get(user_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        if user.username is not None:
+            obj.username = user.username
+        if user.password is not None:
+            obj.hashed_password = get_password_hash(user.password)
+        if user.role_ids is not None:
+            obj.roles = db.query(Role).filter(Role.id.in_(user.role_ids)).all()
+        _retry_commit(obj, db)
+        return {**_as_dict(obj), "roles": [r.id for r in obj.roles]}
+    finally:
+        db.close()
+
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int, current_user: User = Depends(require_permission("manage_users"))):
+    db = SessionLocal()
+    try:
+        obj = db.query(User).get(user_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.post("/roles")
+def create_role(
+    role: RoleCreate,
+    current_user: User = Depends(require_permission("manage_roles")),
+):
+    db = SessionLocal()
+    try:
+        if db.query(Role).filter(Role.name == role.name).first():
+            raise HTTPException(status_code=400, detail="Role already exists")
+        perms = []
+        if role.permission_ids:
+            perms = db.query(Permission).filter(Permission.id.in_(role.permission_ids)).all()
+        new_role = Role(name=role.name, description=role.description)
+        new_role.permissions = perms
+        db.add(new_role)
+        _retry_commit(new_role, db)
+        return {"id": new_role.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.get("/roles")
+def list_roles(current_user: User = Depends(require_permission("manage_roles"))):
+    db = SessionLocal()
+    try:
+        roles = db.query(Role).options(joinedload(Role.permissions)).all()
+        return [
+            {**_as_dict(r), "permissions": [p.id for p in r.permissions]}
+            for r in roles
+        ]
+    finally:
+        db.close()
+
+
+@app.get("/roles/{role_id}")
+def get_role(role_id: int, current_user: User = Depends(require_permission("manage_roles"))):
+    db = SessionLocal()
+    try:
+        role = db.query(Role).options(joinedload(Role.permissions)).get(role_id)
+        if role is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return {**_as_dict(role), "permissions": [p.id for p in role.permissions]}
+    finally:
+        db.close()
+
+
+@app.put("/roles/{role_id}")
+def update_role(
+    role_id: int,
+    role: RoleUpdate,
+    current_user: User = Depends(require_permission("manage_roles")),
+):
+    db = SessionLocal()
+    try:
+        obj = db.query(Role).options(joinedload(Role.permissions)).get(role_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        if role.name is not None:
+            obj.name = role.name
+        if role.description is not None:
+            obj.description = role.description
+        if role.permission_ids is not None:
+            obj.permissions = db.query(Permission).filter(Permission.id.in_(role.permission_ids)).all()
+        _retry_commit(obj, db)
+        return {**_as_dict(obj), "permissions": [p.id for p in obj.permissions]}
+    finally:
+        db.close()
+
+
+@app.delete("/roles/{role_id}")
+def delete_role(role_id: int, current_user: User = Depends(require_permission("manage_roles"))):
+    db = SessionLocal()
+    try:
+        obj = db.query(Role).get(role_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.post("/permissions")
+def create_permission(
+    perm: PermissionCreate,
+    current_user: User = Depends(require_permission("manage_permissions")),
+):
+    db = SessionLocal()
+    try:
+        if db.query(Permission).filter(Permission.name == perm.name).first():
+            raise HTTPException(status_code=400, detail="Permission already exists")
+        new_perm = Permission(name=perm.name, description=perm.description)
+        db.add(new_perm)
+        _retry_commit(new_perm, db)
+        return {"id": new_perm.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.get("/permissions")
+def list_permissions(current_user: User = Depends(require_permission("manage_permissions"))):
+    db = SessionLocal()
+    try:
+        perms = db.query(Permission).all()
+        return [_as_dict(p) for p in perms]
+    finally:
+        db.close()
+
+
+@app.get("/permissions/{perm_id}")
+def get_permission(perm_id: int, current_user: User = Depends(require_permission("manage_permissions"))):
+    db = SessionLocal()
+    try:
+        perm = db.query(Permission).get(perm_id)
+        if perm is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(perm)
+    finally:
+        db.close()
+
+
+@app.put("/permissions/{perm_id}")
+def update_permission(
+    perm_id: int,
+    perm: PermissionUpdate,
+    current_user: User = Depends(require_permission("manage_permissions")),
+):
+    db = SessionLocal()
+    try:
+        obj = db.query(Permission).get(perm_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        for k, v in perm.dict(exclude_unset=True).items():
+            setattr(obj, k, v)
+        _retry_commit(obj, db)
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
+@app.delete("/permissions/{perm_id}")
+def delete_permission(perm_id: int, current_user: User = Depends(require_permission("manage_permissions"))):
+    db = SessionLocal()
+    try:
+        obj = db.query(Permission).get(perm_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        db.delete(obj)
+        _retry_commit(obj, db)
+        return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+def require_permission(permission_name: str):
+    def dependency(current_user: User = Depends(get_current_user)):
+        for role in current_user.roles:
+            if any(p.name == permission_name for p in role.permissions):
+                return current_user
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    return dependency
 
 
 def _retry_commit(obj, session):
@@ -269,6 +534,40 @@ class ReportUpdate(BaseModel):
 
 class ManualReviewUpdate(BaseModel):
     review_status: str | None = None
+
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    role_ids: list[int] = []
+
+
+class UserUpdate(BaseModel):
+    username: str | None = None
+    password: str | None = None
+    role_ids: list[int] | None = None
+
+
+class RoleCreate(BaseModel):
+    name: str
+    description: str | None = None
+    permission_ids: list[int] = []
+
+
+class RoleUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    permission_ids: list[int] | None = None
+
+
+class PermissionCreate(BaseModel):
+    name: str
+    description: str | None = None
+
+
+class PermissionUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
 
 
 @app.post("/token")
