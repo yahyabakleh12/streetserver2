@@ -1635,8 +1635,19 @@ def correct_manual_review(
             except Exception:
                 park_token = None
 
-            with open(review.image_path, "rb") as f:
-                b64_img = base64.b64encode(f.read()).decode("utf-8")
+            images_list = []
+            folder = os.path.join(SNAPSHOTS_DIR, review.snapshot_folder)
+            try:
+                for fname in os.listdir(folder):
+                    if fname.startswith("annotated_") or fname.startswith("main_crop_"):
+                        with open(os.path.join(folder, fname), "rb") as f:
+                            images_list.append(base64.b64encode(f.read()).decode("utf-8"))
+            except Exception:
+                logger.error("Failed loading snapshot images for API", exc_info=True)
+
+            if not images_list:
+                with open(review.image_path, "rb") as f:
+                    images_list = [base64.b64encode(f.read()).decode("utf-8")]
 
             pole_api_id = (
                 db.query(Pole.api_pole_id)
@@ -1656,7 +1667,7 @@ def correct_manual_review(
                 conf=str(correction.confidence),
                 spot_number=ticket.spot_number,
                 pole_id=pole_api_id,
-                images=[b64_img],
+                images=images_list,
             )
         except Exception:
             logger.error("park_in_request failed", exc_info=True)
