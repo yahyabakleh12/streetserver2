@@ -232,6 +232,9 @@ CREATE TABLE `roles` (
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `roles` (`id`, `name`, `description`) VALUES
+  (1, 'superadmin', 'Super administrator role with full permissions');
+
 -- --------------------------------------------------------
 
 --
@@ -244,6 +247,11 @@ CREATE TABLE `permissions` (
   `description` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `permissions` (`id`, `name`, `description`) VALUES
+  (1, 'manage_users', NULL),
+  (2, 'manage_roles', NULL),
+  (3, 'manage_permissions', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -255,6 +263,9 @@ CREATE TABLE `user_roles` (
   `role_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `user_roles` (`user_id`, `role_id`) VALUES
+  (1, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -265,6 +276,11 @@ CREATE TABLE `role_permissions` (
   `role_id` int(11) NOT NULL,
   `permission_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `role_permissions` (`role_id`, `permission_id`) VALUES
+  (1, 1),
+  (1, 2),
+  (1, 3);
 
 -- --------------------------------------------------------
 
@@ -441,13 +457,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `permissions`
 --
 ALTER TABLE `permissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `zones`

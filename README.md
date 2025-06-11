@@ -59,7 +59,8 @@ curl -H "Authorization: Bearer <token>" http://localhost:8000/tickets
 
 ### Roles and permissions
 
-StreetServer2 implements role-based access control (RBAC). Each user may belong
+StreetServer2 implements role-based access control (RBAC).
+The initial SQL dump defines a `superadmin` role linked to user id 1, granting full access to all permissions. Each user may belong
 to one or more roles. Roles are assigned permissions which gate access to the
 management endpoints. The application defines three permission names used by the
 API:
