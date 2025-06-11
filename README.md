@@ -173,6 +173,15 @@ To dismiss a review without changing the ticket, use
 curl -X POST http://localhost:8000/manual-reviews/123/dismiss
 ```
 
+### Location statistics
+
+Retrieve counts of zones, poles, cameras, tickets and manual reviews grouped by
+location using `/location-stats`.
+
+```bash
+curl http://localhost:8000/location-stats -H "Authorization: Bearer <token>"
+```
+
 ## License
 
 This project is released under the terms of the MIT License. See [LICENSE](LICENSE) for the full text.

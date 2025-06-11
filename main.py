@@ -12,7 +12,7 @@ from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import ClientDisconnect
-from sqlalchemy import text, asc, desc
+from sqlalchemy import text, asc, desc, func
 from sqlalchemy.exc import SQLAlchemyError, OperationalError
 from sqlalchemy.orm import joinedload
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -1593,5 +1593,59 @@ def get_review_snapshot(
         if not os.path.isfile(path):
             raise HTTPException(status_code=404, detail="File not found")
         return FileResponse(path)
+    finally:
+        db.close()
+
+
+@app.get("/location-stats")
+def location_stats(current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+    try:
+        locations = db.query(Location).all()
+        data: list[dict] = []
+        for loc in locations:
+            loc_info = {
+                "id": loc.id,
+                "name": loc.name,
+                "code": loc.code,
+                "zone_count": db.query(func.count(Zone.id)).filter(Zone.location_id == loc.id).scalar() or 0,
+                "zones": [],
+            }
+            zones = db.query(Zone).filter(Zone.location_id == loc.id).all()
+            for zone in zones:
+                zone_info = {
+                    "id": zone.id,
+                    "code": zone.code,
+                    "pole_count": db.query(func.count(Pole.id)).filter(Pole.zone_id == zone.id).scalar() or 0,
+                    "poles": [],
+                }
+                poles = db.query(Pole).filter(Pole.zone_id == zone.id).all()
+                for pole in poles:
+                    camera_count = db.query(func.count(Camera.id)).filter(Camera.pole_id == pole.id).scalar() or 0
+                    ticket_count = (
+                        db.query(func.count(Ticket.id))
+                        .join(Camera, Ticket.camera_id == Camera.id)
+                        .filter(Camera.pole_id == pole.id)
+                        .scalar()
+                        or 0
+                    )
+                    review_count = (
+                        db.query(func.count(ManualReview.id))
+                        .join(Camera, ManualReview.camera_id == Camera.id)
+                        .filter(Camera.pole_id == pole.id)
+                        .scalar()
+                        or 0
+                    )
+                    pole_info = {
+                        "id": pole.id,
+                        "code": pole.code,
+                        "camera_count": camera_count,
+                        "ticket_count": ticket_count,
+                        "manual_review_count": review_count,
+                    }
+                    zone_info["poles"].append(pole_info)
+                loc_info["zones"].append(zone_info)
+            data.append(loc_info)
+        return {"data": data}
     finally:
         db.close()
