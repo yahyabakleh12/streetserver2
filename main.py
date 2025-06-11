@@ -594,7 +594,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
         expires_delta=access_token_expires,
     )
     print("============================================")
-    print(access_token)
+    print({"access_token": access_token, "token_type": "bearer","roles": role_names  })
     print("============================================")
     return {"access_token": access_token, "token_type": "bearer","roles": role_names  }
 
