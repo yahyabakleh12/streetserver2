@@ -577,14 +577,21 @@ def _as_dict(model_obj):
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.username == form_data.username).first()
+        user = (
+            db.query(User)
+            .options(joinedload(User.roles))
+            .filter(User.username == form_data.username)
+            .first()
+        )
+        if not user or not verify_password(form_data.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Incorrect username or password")
+        role_names = [r.name for r in user.roles]
     finally:
         db.close()
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Incorrect username or password")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.username, "roles": role_names},
+        expires_delta=access_token_expires,
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
