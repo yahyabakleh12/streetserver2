@@ -6,11 +6,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # ─── Database connection ───
-# Use the PyMySQL driver by default. The environment variable `DATABASE_URL`
-# can override this value.
+# Use the MySQL Connector/Python driver by default. The environment variable
+# `DATABASE_URL` can override this value.
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "mysql+pymysql://street:Devstreet@127.0.0.1:3306/parking_management",
+    "mysql+mysqlconnector://street:Devstreet@127.0.0.1:3306/parking_management",
 )
 
 # Create engine with pool_pre_ping so that any stale connection is auto‐replaced,

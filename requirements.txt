@@ -1,7 +1,6 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
-pymysql
 mysql-connector-python
 requests
 pillow
