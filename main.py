@@ -85,6 +85,144 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
+class LocationCreate(BaseModel):
+    name: str
+    code: str
+    portal_name: str
+    portal_password: str
+    ip_schema: str
+    parkonic_api_token: str | None = None
+    camera_user: str | None = None
+    camera_pass: str | None = None
+
+
+class PoleCreate(BaseModel):
+    zone_id: int
+    code: str
+    location_id: int
+    number_of_cameras: int | None = 0
+    server: str | None = None
+    router: str | None = None
+    router_ip: str | None = None
+    router_vpn_ip: str | None = None
+
+
+class CameraCreate(BaseModel):
+    pole_id: int
+    api_code: str
+    p_ip: str
+    number_of_parking: int | None = 0
+    vpn_ip: str | None = None
+
+
+class ManualCorrection(BaseModel):
+    plate_number: str
+    plate_code: str
+    plate_city: str
+    confidence: int
+
+
+class ZoneCreate(BaseModel):
+    code: str
+    location_id: int
+    parameters: dict | None = None
+
+
+class LocationUpdate(BaseModel):
+    name: str | None = None
+    code: str | None = None
+    portal_name: str | None = None
+    portal_password: str | None = None
+    ip_schema: str | None = None
+    parkonic_api_token: str | None = None
+    camera_user: str | None = None
+    camera_pass: str | None = None
+    parameters: dict | None = None
+
+
+class PoleUpdate(BaseModel):
+    zone_id: int | None = None
+    code: str | None = None
+    location_id: int | None = None
+    number_of_cameras: int | None = None
+    server: str | None = None
+    router: str | None = None
+    router_ip: str | None = None
+    router_vpn_ip: str | None = None
+    location_coordinates: str | None = None
+
+
+class CameraUpdate(BaseModel):
+    pole_id: int | None = None
+    api_code: str | None = None
+    p_ip: str | None = None
+    number_of_parking: int | None = None
+    vpn_ip: str | None = None
+
+
+class ZoneUpdate(BaseModel):
+    code: str | None = None
+    location_id: int | None = None
+    parameters: dict | None = None
+
+
+class TicketUpdate(BaseModel):
+    camera_id: int | None = None
+    spot_number: int | None = None
+    plate_number: str | None = None
+    plate_code: str | None = None
+    plate_city: str | None = None
+    confidence: int | None = None
+    entry_time: datetime | None = None
+    exit_time: datetime | None = None
+    parkonic_trip_id: int | None = None
+
+
+class ReportUpdate(BaseModel):
+    camera_id: int | None = None
+    event: str | None = None
+    report_type: str | None = None
+    timestamp: datetime | None = None
+    payload: dict | None = None
+
+
+class ManualReviewUpdate(BaseModel):
+    review_status: str | None = None
+
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    role_ids: list[int] = []
+
+
+class UserUpdate(BaseModel):
+    username: str | None = None
+    password: str | None = None
+    role_ids: list[int] | None = None
+
+
+class RoleCreate(BaseModel):
+    name: str
+    description: str | None = None
+    permission_ids: list[int] = []
+
+
+class RoleUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    permission_ids: list[int] | None = None
+
+
+class PermissionCreate(BaseModel):
+    name: str
+    description: str | None = None
+
+
+class PermissionUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -430,144 +568,6 @@ def _as_dict(model_obj):
         result[c.name] = value
     return result
 
-
-class LocationCreate(BaseModel):
-    name: str
-    code: str
-    portal_name: str
-    portal_password: str
-    ip_schema: str
-    parkonic_api_token: str | None = None
-    camera_user: str | None = None
-    camera_pass: str | None = None
-
-
-class PoleCreate(BaseModel):
-    zone_id: int
-    code: str
-    location_id: int
-    number_of_cameras: int | None = 0
-    server: str | None = None
-    router: str | None = None
-    router_ip: str | None = None
-    router_vpn_ip: str | None = None
-
-
-class CameraCreate(BaseModel):
-    pole_id: int
-    api_code: str
-    p_ip: str
-    number_of_parking: int | None = 0
-    vpn_ip: str | None = None
-
-
-class ManualCorrection(BaseModel):
-    plate_number: str
-    plate_code: str
-    plate_city: str
-    confidence: int
-
-
-class ZoneCreate(BaseModel):
-    code: str
-    location_id: int
-    parameters: dict | None = None
-
-
-class LocationUpdate(BaseModel):
-    name: str | None = None
-    code: str | None = None
-    portal_name: str | None = None
-    portal_password: str | None = None
-    ip_schema: str | None = None
-    parkonic_api_token: str | None = None
-    camera_user: str | None = None
-    camera_pass: str | None = None
-    parameters: dict | None = None
-
-
-class PoleUpdate(BaseModel):
-    zone_id: int | None = None
-    code: str | None = None
-    location_id: int | None = None
-    number_of_cameras: int | None = None
-    server: str | None = None
-    router: str | None = None
-    router_ip: str | None = None
-    router_vpn_ip: str | None = None
-    location_coordinates: str | None = None
-
-
-class CameraUpdate(BaseModel):
-    pole_id: int | None = None
-    api_code: str | None = None
-    p_ip: str | None = None
-    number_of_parking: int | None = None
-    vpn_ip: str | None = None
-
-
-class ZoneUpdate(BaseModel):
-    code: str | None = None
-    location_id: int | None = None
-    parameters: dict | None = None
-
-
-class TicketUpdate(BaseModel):
-    camera_id: int | None = None
-    spot_number: int | None = None
-    plate_number: str | None = None
-    plate_code: str | None = None
-    plate_city: str | None = None
-    confidence: int | None = None
-    entry_time: datetime | None = None
-    exit_time: datetime | None = None
-    parkonic_trip_id: int | None = None
-
-
-class ReportUpdate(BaseModel):
-    camera_id: int | None = None
-    event: str | None = None
-    report_type: str | None = None
-    timestamp: datetime | None = None
-    payload: dict | None = None
-
-
-class ManualReviewUpdate(BaseModel):
-    review_status: str | None = None
-
-
-class UserCreate(BaseModel):
-    username: str
-    password: str
-    role_ids: list[int] = []
-
-
-class UserUpdate(BaseModel):
-    username: str | None = None
-    password: str | None = None
-    role_ids: list[int] | None = None
-
-
-class RoleCreate(BaseModel):
-    name: str
-    description: str | None = None
-    permission_ids: list[int] = []
-
-
-class RoleUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
-    permission_ids: list[int] | None = None
-
-
-class PermissionCreate(BaseModel):
-    name: str
-    description: str | None = None
-
-
-class PermissionUpdate(BaseModel):
-    name: str | None = None
-    description: str | None = None
 
 
 @app.post("/token")
