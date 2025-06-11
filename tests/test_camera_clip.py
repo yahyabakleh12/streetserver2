@@ -70,7 +70,8 @@ def test_get_camera_clip_success(client, sample_camera, tmp_path):
     clip_file.write_bytes(b"data")
     start = "2025-01-01T00:00:00"
     end = "2025-01-01T00:00:10"
-    with patch("main.request_camera_clip", return_value=str(clip_file)):
+    with patch("main.request_camera_clip", return_value=str(clip_file)), \
+         patch("main.is_valid_mp4", return_value=True):
         resp = client.get(f"/cameras/{sample_camera}/clip?start={start}&end={end}")
     assert resp.status_code == 200
     assert resp.content == b"data"
@@ -86,3 +87,22 @@ def test_get_camera_clip_not_found(client):
 def test_get_camera_clip_bad_time(client, sample_camera):
     resp = client.get(f"/cameras/{sample_camera}/clip?start=bad&end=2025-01-01T00:00:10")
     assert resp.status_code == 400
+
+
+def test_get_camera_clip_invalid_video(client, sample_camera, tmp_path):
+    clip_file = tmp_path / "clip.mp4"
+    clip_file.write_bytes(b"bad")
+    start = "2025-01-01T00:00:00"
+    end = "2025-01-01T00:00:10"
+    with patch("main.request_camera_clip", return_value=str(clip_file)), \
+         patch("main.is_valid_mp4", return_value=False):
+        resp = client.get(f"/cameras/{sample_camera}/clip?start={start}&end={end}")
+    assert resp.status_code == 500
+
+
+def test_get_camera_clip_fetch_fail(client, sample_camera):
+    start = "2025-01-01T00:00:00"
+    end = "2025-01-01T00:00:10"
+    with patch("main.request_camera_clip", return_value=None):
+        resp = client.get(f"/cameras/{sample_camera}/clip?start={start}&end={end}")
+    assert resp.status_code == 500

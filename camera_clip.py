@@ -7,6 +7,19 @@ from datetime import datetime
 from logger import logger
 import os
 
+
+def is_valid_mp4(path: str) -> bool:
+    """Return True if the file at ``path`` looks like a valid MP4."""
+    if not os.path.isfile(path):
+        return False
+    try:
+        with open(path, "rb") as f:
+            header = f.read(8)
+        return len(header) >= 8 and header[4:8] == b"ftyp"
+    except Exception:
+        logger.error("Failed validating MP4 %s", path, exc_info=True)
+        return False
+
 VIDEO_CLIPS_DIR = "video_clips"
 os.makedirs(VIDEO_CLIPS_DIR, exist_ok=True)
 
@@ -52,12 +65,16 @@ def request_camera_clip(
                 params=params,
                 auth=(username, password),
                 stream=True,
-                timeout=30
+                timeout=30,
             ) as r:
                 r.raise_for_status()
                 with open(out_name, "wb") as f:
                     for chunk in r.iter_content(chunk_size=8192):
                         f.write(chunk)
+
+            if not is_valid_mp4(out_name):
+                os.remove(out_name)
+                raise ValueError("Invalid clip downloaded")
 
             logger.debug(f"Successfully saved clip to {out_name}")
             return out_name

@@ -35,7 +35,7 @@ from models import (
     Permission,
 )
 from ocr_processor import process_plate_and_issue_ticket
-from camera_clip import request_camera_clip
+from camera_clip import request_camera_clip, is_valid_mp4
 from logger import logger
 from utils import is_same_image
 
@@ -1301,7 +1301,7 @@ def get_camera_clip(
         unique_tag=str(cam_id),
     )
 
-    if not clip_path or not os.path.isfile(clip_path):
+    if not clip_path or not os.path.isfile(clip_path) or not is_valid_mp4(clip_path):
         raise HTTPException(status_code=500, detail="Failed to fetch clip")
 
     return FileResponse(clip_path)
