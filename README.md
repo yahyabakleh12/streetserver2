@@ -50,6 +50,9 @@ curl -X POST http://localhost:8000/token \
   -d "username=YOUR_USER&password=YOUR_PASS"
 ```
 
+The JSON response includes the access token and token type. The JWT payload now
+also contains a `roles` field listing the names of the user's roles.
+
 Use the returned token in the `Authorization` header when calling other
 endpoints:
 
