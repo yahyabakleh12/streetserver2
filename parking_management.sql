@@ -209,15 +209,16 @@ CREATE TABLE `tickets` (
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
-  `password` varchar(100) NOT NULL
+  `hashed_password` varchar(128) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`) VALUES
-(1, 'testuser', 'testpass');
+INSERT INTO `users` (`id`, `username`, `hashed_password`) VALUES
+(1, 'testuser', '$2b$12$abcdefghijklmnopqrstuuvJeFRFQuzivnwtp.vBkBi1vkhxw7VLi');
 
 -- --------------------------------------------------------
 
