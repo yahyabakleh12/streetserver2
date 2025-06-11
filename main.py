@@ -255,11 +255,14 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         raise credentials_exception
     db = SessionLocal()
     try:
-        user = (
-            db.query(User)
-            .options(joinedload(User.roles).joinedload(Role.permissions))
-            .filter(User.username == username)
-            .first()
+        user = _retry_operation(
+            lambda s: (
+                s.query(User)
+                .options(joinedload(User.roles).joinedload(Role.permissions))
+                .filter(User.username == username)
+                .first()
+            ),
+            db,
         )
     finally:
         db.close()
@@ -287,11 +290,14 @@ def create_user(
 ):
     db = SessionLocal()
     try:
-        if db.query(User).filter(User.username == user.username).first():
+        if _retry_operation(lambda s: s.query(User).filter(User.username == user.username).first(), db):
             raise HTTPException(status_code=400, detail="Username already exists")
         roles = []
         if user.role_ids:
-            roles = db.query(Role).filter(Role.id.in_(user.role_ids)).all()
+            roles = _retry_operation(
+                lambda s: s.query(Role).filter(Role.id.in_(user.role_ids)).all(),
+                db,
+            )
         new_user = User(username=user.username, hashed_password=get_password_hash(user.password))
         new_user.roles = roles
         db.add(new_user)
@@ -308,7 +314,10 @@ def create_user(
 def list_users(current_user: User = Depends(require_permission("manage_users"))):
     db = SessionLocal()
     try:
-        users = db.query(User).options(joinedload(User.roles)).all()
+        users = _retry_operation(
+            lambda s: s.query(User).options(joinedload(User.roles)).all(),
+            db,
+        )
         return [{**_as_dict(u), "roles": [r.id for r in u.roles]} for u in users]
     finally:
         db.close()
@@ -318,7 +327,10 @@ def list_users(current_user: User = Depends(require_permission("manage_users")))
 def get_user(user_id: int, current_user: User = Depends(require_permission("manage_users"))):
     db = SessionLocal()
     try:
-        u = db.query(User).options(joinedload(User.roles)).get(user_id)
+        u = _retry_operation(
+            lambda s: s.query(User).options(joinedload(User.roles)).get(user_id),
+            db,
+        )
         if u is None:
             raise HTTPException(status_code=404, detail="Not found")
         return {**_as_dict(u), "roles": [r.id for r in u.roles]}
@@ -334,7 +346,10 @@ def update_user(
 ):
     db = SessionLocal()
     try:
-        obj = db.query(User).options(joinedload(User.roles)).get(user_id)
+        obj = _retry_operation(
+            lambda s: s.query(User).options(joinedload(User.roles)).get(user_id),
+            db,
+        )
         if obj is None:
             raise HTTPException(status_code=404, detail="Not found")
         if user.username is not None:
@@ -342,7 +357,10 @@ def update_user(
         if user.password is not None:
             obj.hashed_password = get_password_hash(user.password)
         if user.role_ids is not None:
-            obj.roles = db.query(Role).filter(Role.id.in_(user.role_ids)).all()
+            obj.roles = _retry_operation(
+                lambda s: s.query(Role).filter(Role.id.in_(user.role_ids)).all(),
+                db,
+            )
         _retry_commit(obj, db)
         return {**_as_dict(obj), "roles": [r.id for r in obj.roles]}
     finally:
@@ -353,7 +371,7 @@ def update_user(
 def delete_user(user_id: int, current_user: User = Depends(require_permission("manage_users"))):
     db = SessionLocal()
     try:
-        obj = db.query(User).get(user_id)
+        obj = _retry_operation(lambda s: s.query(User).get(user_id), db)
         if obj is None:
             raise HTTPException(status_code=404, detail="Not found")
         db.delete(obj)
@@ -370,11 +388,14 @@ def create_role(
 ):
     db = SessionLocal()
     try:
-        if db.query(Role).filter(Role.name == role.name).first():
+        if _retry_operation(lambda s: s.query(Role).filter(Role.name == role.name).first(), db):
             raise HTTPException(status_code=400, detail="Role already exists")
         perms = []
         if role.permission_ids:
-            perms = db.query(Permission).filter(Permission.id.in_(role.permission_ids)).all()
+            perms = _retry_operation(
+                lambda s: s.query(Permission).filter(Permission.id.in_(role.permission_ids)).all(),
+                db,
+            )
         new_role = Role(name=role.name, description=role.description)
         new_role.permissions = perms
         db.add(new_role)
@@ -391,7 +412,10 @@ def create_role(
 def list_roles(current_user: User = Depends(require_permission("manage_roles"))):
     db = SessionLocal()
     try:
-        roles = db.query(Role).options(joinedload(Role.permissions)).all()
+        roles = _retry_operation(
+            lambda s: s.query(Role).options(joinedload(Role.permissions)).all(),
+            db,
+        )
         return [{**_as_dict(r), "permissions": [p.id for p in r.permissions]} for r in roles]
     finally:
         db.close()
@@ -401,7 +425,10 @@ def list_roles(current_user: User = Depends(require_permission("manage_roles")))
 def get_role(role_id: int, current_user: User = Depends(require_permission("manage_roles"))):
     db = SessionLocal()
     try:
-        role = db.query(Role).options(joinedload(Role.permissions)).get(role_id)
+        role = _retry_operation(
+            lambda s: s.query(Role).options(joinedload(Role.permissions)).get(role_id),
+            db,
+        )
         if role is None:
             raise HTTPException(status_code=404, detail="Not found")
         return {**_as_dict(role), "permissions": [p.id for p in role.permissions]}
@@ -417,7 +444,10 @@ def update_role(
 ):
     db = SessionLocal()
     try:
-        obj = db.query(Role).options(joinedload(Role.permissions)).get(role_id)
+        obj = _retry_operation(
+            lambda s: s.query(Role).options(joinedload(Role.permissions)).get(role_id),
+            db,
+        )
         if obj is None:
             raise HTTPException(status_code=404, detail="Not found")
         if role.name is not None:
@@ -425,8 +455,9 @@ def update_role(
         if role.description is not None:
             obj.description = role.description
         if role.permission_ids is not None:
-            obj.permissions = (
-                db.query(Permission).filter(Permission.id.in_(role.permission_ids)).all()
+            obj.permissions = _retry_operation(
+                lambda s: s.query(Permission).filter(Permission.id.in_(role.permission_ids)).all(),
+                db,
             )
         _retry_commit(obj, db)
         return {**_as_dict(obj), "permissions": [p.id for p in obj.permissions]}
@@ -438,7 +469,7 @@ def update_role(
 def delete_role(role_id: int, current_user: User = Depends(require_permission("manage_roles"))):
     db = SessionLocal()
     try:
-        obj = db.query(Role).get(role_id)
+        obj = _retry_operation(lambda s: s.query(Role).get(role_id), db)
         if obj is None:
             raise HTTPException(status_code=404, detail="Not found")
         db.delete(obj)
@@ -455,7 +486,7 @@ def create_permission(
 ):
     db = SessionLocal()
     try:
-        if db.query(Permission).filter(Permission.name == perm.name).first():
+        if _retry_operation(lambda s: s.query(Permission).filter(Permission.name == perm.name).first(), db):
             raise HTTPException(status_code=400, detail="Permission already exists")
         new_perm = Permission(name=perm.name, description=perm.description)
         db.add(new_perm)
@@ -472,7 +503,7 @@ def create_permission(
 def list_permissions(current_user: User = Depends(require_permission("manage_permissions"))):
     db = SessionLocal()
     try:
-        perms = db.query(Permission).all()
+        perms = _retry_operation(lambda s: s.query(Permission).all(), db)
         return [_as_dict(p) for p in perms]
     finally:
         db.close()
@@ -484,7 +515,7 @@ def get_permission(
 ):
     db = SessionLocal()
     try:
-        perm = db.query(Permission).get(perm_id)
+        perm = _retry_operation(lambda s: s.query(Permission).get(perm_id), db)
         if perm is None:
             raise HTTPException(status_code=404, detail="Not found")
         return _as_dict(perm)
@@ -500,7 +531,7 @@ def update_permission(
 ):
     db = SessionLocal()
     try:
-        obj = db.query(Permission).get(perm_id)
+        obj = _retry_operation(lambda s: s.query(Permission).get(perm_id), db)
         if obj is None:
             raise HTTPException(status_code=404, detail="Not found")
         for k, v in perm.dict(exclude_unset=True).items():
@@ -517,7 +548,7 @@ def delete_permission(
 ):
     db = SessionLocal()
     try:
-        obj = db.query(Permission).get(perm_id)
+        obj = _retry_operation(lambda s: s.query(Permission).get(perm_id), db)
         if obj is None:
             raise HTTPException(status_code=404, detail="Not found")
         db.delete(obj)
@@ -553,6 +584,35 @@ def _retry_commit(obj, session):
             new_sess.close()
 
 
+def _retry_operation(func, session):
+    """Execute ``func(session)`` and retry once on ``OperationalError``.
+
+    If the first attempt raises ``OperationalError``, the session is
+    rolled back and closed, then the function is called again with a new
+    fresh session.  Any return value from ``func`` is returned.
+    """
+    try:
+        return func(session)
+    except OperationalError:
+        logger.warning(
+            "Lost DB connection during operation; retrying once", exc_info=True
+        )
+        try:
+            session.rollback()
+        except Exception:
+            pass
+        try:
+            session.close()
+        except Exception:
+            pass
+
+        new_sess = SessionLocal()
+        try:
+            return func(new_sess)
+        finally:
+            new_sess.close()
+
+
 def _as_dict(model_obj):
     """Return a dict of column values for a SQLAlchemy model instance.
 
@@ -577,11 +637,14 @@ def _as_dict(model_obj):
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     db = SessionLocal()
     try:
-        user = (
-            db.query(User)
-            .options(joinedload(User.roles))
-            .filter(User.username == form_data.username)
-            .first()
+        user = _retry_operation(
+            lambda s: (
+                s.query(User)
+                .options(joinedload(User.roles))
+                .filter(User.username == form_data.username)
+                .first()
+            ),
+            db,
         )
         if not user or not verify_password(form_data.password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Incorrect username or password")
