@@ -5,6 +5,7 @@ import io
 import re
 import json
 import base64
+import threading
 from datetime import datetime, timedelta
 import uuid
 
@@ -72,10 +73,12 @@ app.add_middleware(
 SNAPSHOTS_DIR = "snapshots"
 RAW_REQUEST_DIR = os.path.join(SNAPSHOTS_DIR, "raw_request")
 SPOT_LAST_DIR = "spot_last"  # where we keep the "last main_crop" per (camera, spot)
+REPORTS_JSON_DIR = "reports_json"  # directory for storing JSON reports
 
 os.makedirs(RAW_REQUEST_DIR, exist_ok=True)
 os.makedirs(SNAPSHOTS_DIR, exist_ok=True)
 os.makedirs(SPOT_LAST_DIR, exist_ok=True)
+os.makedirs(REPORTS_JSON_DIR, exist_ok=True)
 
 # ── Authentication setup ───────────────────────────────────────────────────
 SECRET_KEY = os.environ.get("SECRET_KEY", "changeme")
@@ -613,6 +616,18 @@ def _retry_operation(func, session):
             new_sess.close()
 
 
+def save_report_to_file(payload: dict, camera_id: int, spot_number: int, ts: str):
+    """Write parking report payload to a JSON file under ``REPORTS_JSON_DIR``."""
+    filename = os.path.join(
+        REPORTS_JSON_DIR, f"report_cam{camera_id}_spot{spot_number}_{ts}.json"
+    )
+    try:
+        with open(filename, "w") as f:
+            json.dump(payload, f)
+    except Exception:
+        logger.error("Failed to write report JSON", exc_info=True)
+
+
 def _as_dict(model_obj):
     """Return a dict of column values for a SQLAlchemy model instance.
 
@@ -673,7 +688,7 @@ async def receive_parking_data(
     3) Split parking_area into (location_code, api_code).
     4) Lookup camera_id, pole_id, camera_ip in DB (short‐lived session, with retry).
     5) If occupancy == 0 → EXIT: feature‐match vs. last‐saved crop → only close if truly gone.
-    6) If occupancy == 1 → ENTRY: check for existing open ticket; then insert report; save snapshot; queue OCR.
+    6) If occupancy == 1 → ENTRY: check for existing open ticket; then save report to JSON; save snapshot; queue OCR.
     """
 
     # ── 1) Read raw body & save to file ──
@@ -923,25 +938,21 @@ async def receive_parking_data(
                 )
                 return JSONResponse(status_code=200, content={"message": "Spot already occupied"})
 
-            # 6b) Insert into reports table
-            new_report = Report(
-                camera_id=camera_id,
-                event=payload["event"],
-                report_type=payload["report_type"],
-                timestamp=datetime.fromisoformat(payload["time"]),
-                payload=payload,
-            )
-            db2.add(new_report)
-            _retry_commit(new_report, db2)
+            # 6b) Save report to JSON file asynchronously
+            threading.Thread(
+                target=save_report_to_file,
+                args=(payload, camera_id, spot_number, ts),
+                daemon=True,
+            ).start()
 
         except SQLAlchemyError as sa_err:
             try:
                 db2.rollback()
             except:
                 pass
-            logger.error("Database error on report insert", exc_info=True)
+            logger.error("Database error during entry handling", exc_info=True)
             raise HTTPException(
-                status_code=500, detail=f"Database error on report insert: {sa_err}"
+                status_code=500, detail=f"Database error on entry: {sa_err}"
             )
         finally:
             db2.close()
