@@ -266,6 +266,18 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     return user
 
 
+def require_permission(permission_name: str):
+    """Dependency that checks the current user has a given permission."""
+
+    def dependency(current_user: User = Depends(get_current_user)):
+        for role in current_user.roles:
+            if any(p.name == permission_name for p in role.permissions):
+                return current_user
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+
+    return dependency
+
+
 @app.post("/users")
 def create_user(
     user: UserCreate,
@@ -513,14 +525,6 @@ def delete_permission(perm_id: int, current_user: User = Depends(require_permiss
         db.close()
 
 
-def require_permission(permission_name: str):
-    def dependency(current_user: User = Depends(get_current_user)):
-        for role in current_user.roles:
-            if any(p.name == permission_name for p in role.permissions):
-                return current_user
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-
-    return dependency
 
 
 def _retry_commit(obj, session):
