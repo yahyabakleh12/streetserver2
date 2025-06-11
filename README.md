@@ -56,6 +56,45 @@ endpoints:
 curl -H "Authorization: Bearer <token>" http://localhost:8000/tickets
 ```
 
+### Roles and permissions
+
+StreetServer2 implements role-based access control (RBAC). Each user may belong
+to one or more roles. Roles are assigned permissions which gate access to the
+management endpoints. The application defines three permission names used by the
+API:
+
+- `manage_users`
+- `manage_roles`
+- `manage_permissions`
+
+The following endpoints are available for RBAC management (all require an
+authorized user with the appropriate permission):
+
+- `/users` – create, list, retrieve, update and delete users
+- `/roles` – create, list, retrieve, update and delete roles
+- `/permissions` – create, list, retrieve, update and delete permissions
+
+Example workflow to set up a new user:
+
+```bash
+# create a role that can manage users
+curl -X POST http://localhost:8000/roles \
+  -H "Authorization: Bearer <admin_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "admin", "permission_ids": [1,2,3]}'
+
+# create the user and assign the role by id
+curl -X POST http://localhost:8000/users \
+  -H "Authorization: Bearer <admin_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "alice", "password": "secret", "role_ids": [1]}'
+
+# obtain a login token for the new account
+curl -X POST http://localhost:8000/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=alice&password=secret"
+```
+
 ### Listing tickets
 
 Use the `/tickets` endpoint to retrieve issued tickets. It supports pagination
