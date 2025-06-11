@@ -17,8 +17,9 @@ in `config.py` act as defaults if the variables are not provided.
 
 Set the following variables as needed before running the server:
 
-- `DATABASE_URL` – MySQL connection string. If unset it is built from `DB_USER`,
-  `DB_PASS`, `DB_HOST`, and `DB_NAME` in `config.py`.
+- `DATABASE_URL` – MySQL connection string using the PyMySQL driver
+  (`mysql+pymysql`). If unset it is built from `DB_USER`, `DB_PASS`,
+  `DB_HOST`, and `DB_NAME` in `config.py`.
 - `OCR_TOKEN` – token for the OCR service.
 - `YOLO_MODEL_PATH` – path to the YOLO license plate model (can also be changed in
   `config.py`).
