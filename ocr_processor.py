@@ -342,8 +342,8 @@ def process_plate_and_issue_ticket(
 
                 # d) Spawn thread to fetch camera clip for manual review
                 def fetch_and_update_clip(rid: int, cam_ip: str, user: str, pwd: str, ev_time: datetime):
-                    start_dt = ev_time - timedelta(seconds=8)
-                    end_dt   = ev_time + timedelta(seconds=8)
+                    start_dt = ev_time - timedelta(seconds=15)
+                    end_dt   = ev_time + timedelta(seconds=5)
                     clip_path = request_camera_clip(
                         camera_ip    = cam_ip,
                         username     = user,
