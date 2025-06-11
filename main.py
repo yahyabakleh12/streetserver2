@@ -35,6 +35,7 @@ from models import (
     Permission,
 )
 from ocr_processor import process_plate_and_issue_ticket
+from camera_clip import request_camera_clip
 from logger import logger
 from utils import is_same_image
 
@@ -1246,6 +1247,64 @@ def get_camera(cam_id: int, current_user: User = Depends(get_current_user)):
         return _as_dict(obj)
     finally:
         db.close()
+
+
+@app.get("/cameras/{cam_id}/clip")
+def get_camera_clip(
+    cam_id: int,
+    start: str,
+    end: str,
+    current_user: User = Depends(get_current_user),
+):
+    """Fetch a video clip from a camera between ``start`` and ``end``."""
+
+    try:
+        start_dt = datetime.fromisoformat(start)
+        end_dt = datetime.fromisoformat(end)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid datetime format")
+
+    if end_dt <= start_dt:
+        raise HTTPException(status_code=400, detail="end must be after start")
+
+    db = SessionLocal()
+    try:
+        row = db.execute(
+            text(
+                """
+                SELECT c.p_ip, l.camera_user, l.camera_pass
+                FROM cameras c
+                JOIN poles p ON c.pole_id = p.id
+                JOIN locations l ON p.location_id = l.id
+                WHERE c.id = :cam_id
+                LIMIT 1
+                """
+            ),
+            {"cam_id": cam_id},
+        ).fetchone()
+
+        if row is None:
+            raise HTTPException(status_code=404, detail="Camera not found")
+
+        cam_ip, user, pwd = row
+
+    finally:
+        db.close()
+
+    clip_path = request_camera_clip(
+        camera_ip=cam_ip,
+        username=user or "",
+        password=pwd or "",
+        start_dt=start_dt,
+        end_dt=end_dt,
+        segment_name=start_dt.strftime("%Y%m%d%H%M%S"),
+        unique_tag=str(cam_id),
+    )
+
+    if not clip_path or not os.path.isfile(clip_path):
+        raise HTTPException(status_code=500, detail="Failed to fetch clip")
+
+    return FileResponse(clip_path)
 
 
 @app.put("/cameras/{cam_id}")
