@@ -892,7 +892,7 @@ async def receive_parking_data(
             if open_ticket:
                 open_ticket.exit_time = datetime.fromisoformat(payload["time"])
                 _retry_commit(open_ticket, db2)
-                logger.debug("Closed ticket id=%d at %s", open_ticket.id, payload["time"])
+                logger.debug("Closed ticket id=%d at %s camera %f spot %d", open_ticket.id, payload["time"],camera_id,spot_number)
 
                 if open_ticket.parkonic_trip_id is not None:
                     try:

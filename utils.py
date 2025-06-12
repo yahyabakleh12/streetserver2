@@ -37,7 +37,7 @@ def is_same_image(
       True  if images are “same” under these criteria,
       False otherwise.
     """
-
+    return False
     # 1) Load grayscale
     img1 = cv2.imread(img_path1, cv2.IMREAD_GRAYSCALE)
     img2 = cv2.imread(img_path2, cv2.IMREAD_GRAYSCALE)

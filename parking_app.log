@@ -1,288 +1,823 @@
-requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='parkonic.cloud', port=443): Read timed out. (read timeout=10)
-2025-06-11 14:53:53 DEBUG    [parking_app:104] - Spot 2 camera 5: same car detected → skip OCR/ticket
-2025-06-11 14:53:59 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:54:01 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"3fab3545-d629-44b2-87f6-761f556e9a72.jpg\\",\\"datetime\\":\\"2025-06-11 14:54:35.351\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
-2025-06-11 14:54:01 DEBUG    [parking_app:158] - After first json.loads: str
-2025-06-11 14:54:01 DEBUG    [parking_app:170] - After second json.loads → dict
-2025-06-11 14:54:01 DEBUG    [parking_app:184] - OCR confidance: 0
-2025-06-11 14:54:01 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
-2025-06-11 14:54:01 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=10, status=UNREAD
-2025-06-11 14:54:01 DEBUG    [parking_app:322] - Using existing manual_review id=12723 for UNREAD plate
-2025-06-11 14:54:01 DEBUG    [parking_app:337] - Inserted UNREAD ticket into tickets: id=12940
-2025-06-11 14:54:01 DEBUG    [parking_app:49] - Attempt 1/3: requesting clip video_clips/clip_20250611_145349_145405_12723.mp4 from 192.168.169.67
-2025-06-11 14:54:03 DEBUG    [parking_app:104] - Spot 1 camera 11: same car detected → skip OCR/ticket
-2025-06-11 14:54:04 DEBUG    [parking_app:933] - Spot 2 on camera 6 already occupied (ticket id=12908)
-2025-06-11 14:54:05 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=4
-2025-06-11 14:54:07 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 14:54:08 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=2
-2025-06-11 14:54:14 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:54:18 DEBUG    [parking_app:905] - No open ticket to close for camera=1, spot=3
-2025-06-11 14:54:22 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=2
-2025-06-11 14:54:27 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 14:54:30 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 14:54:37 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:54:46 DEBUG    [parking_app:905] - No open ticket to close for camera=23, spot=3
-2025-06-11 14:54:51 DEBUG    [parking_app:887] - Closed ticket id=12778 at 2025-06-11 14:55:10
-2025-06-11 14:54:53 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 14:54:54 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 14:55:16 DEBUG    [parking_app:104] - Spot 2 camera 5: same car detected → skip OCR/ticket
-2025-06-11 14:55:17 DEBUG    [parking_app:62] - Successfully saved clip to video_clips/clip_20250611_145349_145405_12723.mp4
-2025-06-11 14:55:17 DEBUG    [parking_app:363] - Updated manual_reviews.clip_path=video_clips/clip_20250611_145349_145405_12723.mp4 for id=12723
-2025-06-11 14:55:19 DEBUG    [parking_app:933] - Spot 4 on camera 4 already occupied (ticket id=12659)
-2025-06-11 14:55:20 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 14:55:20 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=1
-2025-06-11 14:55:21 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:55:23 DEBUG    [parking_app:104] - Spot 3 camera 1: same car detected → skip OCR/ticket
-2025-06-11 14:55:30 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=2
-2025-06-11 14:55:34 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 14:55:35 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:55:35 DEBUG    [parking_app:933] - Spot 4 on camera 23 already occupied (ticket id=12904)
-2025-06-11 14:55:37 DEBUG    [parking_app:887] - Closed ticket id=12659 at 2025-06-11 14:56:01
-2025-06-11 14:55:46 DEBUG    [parking_app:104] - Spot 2 camera 5: same car detected → skip OCR/ticket
-2025-06-11 14:55:48 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:55:49 DEBUG    [parking_app:905] - No open ticket to close for camera=29, spot=4
-2025-06-11 14:55:52 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"1407c5bd-2fca-4406-86fa-00ca950f7f0a.jpg\\",\\"datetime\\":\\"2025-06-11 14:56:26.601\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
-2025-06-11 14:55:52 DEBUG    [parking_app:158] - After first json.loads: str
-2025-06-11 14:55:52 DEBUG    [parking_app:170] - After second json.loads → dict
-2025-06-11 14:55:52 DEBUG    [parking_app:184] - OCR confidance: 0
-2025-06-11 14:55:52 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
-2025-06-11 14:55:52 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
-2025-06-11 14:55:52 DEBUG    [parking_app:322] - Using existing manual_review id=12724 for UNREAD plate
-2025-06-11 14:55:52 DEBUG    [parking_app:337] - Inserted UNREAD ticket into tickets: id=12941
-2025-06-11 14:55:52 DEBUG    [parking_app:49] - Attempt 1/3: requesting clip video_clips/clip_20250611_145605_145621_12724.mp4 from 192.168.169.85
-2025-06-11 14:55:54 DEBUG    [parking_app:62] - Successfully saved clip to video_clips/clip_20250611_145605_145621_12724.mp4
-2025-06-11 14:55:54 DEBUG    [parking_app:363] - Updated manual_reviews.clip_path=video_clips/clip_20250611_145605_145621_12724.mp4 for id=12724
-2025-06-11 14:56:01 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=2
-2025-06-11 14:56:01 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:56:04 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 14:56:04 DEBUG    [parking_app:933] - Spot 1 on camera 23 already occupied (ticket id=12901)
-2025-06-11 14:56:14 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:56:15 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 14:56:17 DEBUG    [parking_app:933] - Spot 2 on camera 23 already occupied (ticket id=12902)
-2025-06-11 14:56:18 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 14:56:27 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:56:29 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 14:56:31 DEBUG    [parking_app:104] - Spot 6 camera 23: same car detected → skip OCR/ticket
-2025-06-11 14:56:32 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=29, status=UNREAD
-2025-06-11 14:56:32 DEBUG    [parking_app:322] - Using existing manual_review id=12725 for UNREAD plate
-2025-06-11 14:56:32 DEBUG    [parking_app:337] - Inserted UNREAD ticket into tickets: id=12942
-2025-06-11 14:56:32 DEBUG    [parking_app:49] - Attempt 1/3: requesting clip video_clips/clip_20250611_145648_145704_12725.mp4 from 192.168.169.53
-2025-06-11 14:56:36 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=10, Spot=1
-2025-06-11 14:56:40 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:56:44 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 14:56:45 DEBUG    [parking_app:933] - Spot 7 on camera 23 already occupied (ticket id=12918)
-2025-06-11 14:56:47 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=4
-2025-06-11 14:56:50 DEBUG    [parking_app:933] - Spot 1 on camera 10 already occupied (ticket id=12940)
-2025-06-11 14:57:00 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:57:05 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 14:57:08 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=4
-2025-06-11 14:57:08 DEBUG    [parking_app:933] - Spot 3 on camera 29 already occupied (ticket id=12880)
-2025-06-11 14:57:19 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:57:28 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 14:58:13 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 14:58:17 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:58:20 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 14:58:26 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 14:58:27 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:58:32 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 14:58:39 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:58:39 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 14:58:45 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 14:58:51 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:58:53 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 14:58:58 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=12, Spot=2
-2025-06-11 14:59:00 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 14:59:04 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=1, Spot=4
-2025-06-11 14:59:05 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:59:07 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 14:59:10 DEBUG    [parking_app:104] - Spot 2 camera 12: same car detected → skip OCR/ticket
-2025-06-11 14:59:14 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 14:59:17 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:59:20 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 14:59:27 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 14:59:30 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 14:59:31 DEBUG    [parking_app:905] - No open ticket to close for camera=1, spot=2
-2025-06-11 14:59:33 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 14:59:42 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 14:59:44 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 14:59:49 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:00:01 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:00:02 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:00:08 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:00:10 DEBUG    [parking_app:933] - Spot 1 on camera 9 already occupied (ticket id=12708)
-2025-06-11 15:00:15 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:00:16 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:00:19 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:00:24 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:00:26 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:00:28 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:00:30 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:00:35 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:00:37 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:00:39 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:00:43 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:00:47 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:00:47 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:00:52 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:00:53 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:00:54 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:01:01 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:01:01 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:01:03 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:01:10 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:01:11 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:01:13 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:01:19 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:01:21 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:01:23 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:01:29 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:01:32 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:01:33 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:01:39 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:01:43 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:01:44 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:01:48 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:01:53 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:01:55 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:01:55 DEBUG    [parking_app:887] - Closed ticket id=12934 at 2025-06-11 15:02:24
-2025-06-11 15:01:57 DEBUG    [parking_app:905] - No open ticket to close for camera=19, spot=4
-2025-06-11 15:02:00 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:02:05 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:02:05 DEBUG    [parking_app:905] - No open ticket to close for camera=16, spot=4
-2025-06-11 15:02:06 DEBUG    [parking_app:933] - Spot 1 on camera 25 already occupied (ticket id=12931)
-2025-06-11 15:02:08 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:02:10 DEBUG    [parking_app:887] - Closed ticket id=12924 at 2025-06-11 15:02:35
-2025-06-11 15:02:12 DEBUG    [parking_app:905] - No open ticket to close for camera=15, spot=5
-2025-06-11 15:02:12 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:02:16 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=16, Spot=1
-2025-06-11 15:02:18 DEBUG    [parking_app:887] - Closed ticket id=12931 at 2025-06-11 15:02:44
-2025-06-11 15:02:19 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:02:19 DEBUG    [parking_app:905] - No open ticket to close for camera=20, spot=4
-2025-06-11 15:02:20 DEBUG    [parking_app:104] - Spot 2 camera 5: same car detected → skip OCR/ticket
-2025-06-11 15:02:23 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=19, status=UNREAD
-2025-06-11 15:02:23 DEBUG    [parking_app:322] - Using existing manual_review id=12726 for UNREAD plate
-2025-06-11 15:02:23 DEBUG    [parking_app:337] - Inserted UNREAD ticket into tickets: id=12943
-2025-06-11 15:02:23 DEBUG    [parking_app:49] - Attempt 1/3: requesting clip video_clips/clip_20250611_150240_150256_12726.mp4 from 192.168.169.76
-2025-06-11 15:02:24 DEBUG    [parking_app:104] - Spot 5 camera 15: same car detected → skip OCR/ticket
-2025-06-11 15:02:24 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:02:25 DEBUG    [parking_app:62] - Successfully saved clip to video_clips/clip_20250611_150240_150256_12726.mp4
-2025-06-11 15:02:25 DEBUG    [parking_app:363] - Updated manual_reviews.clip_path=video_clips/clip_20250611_150240_150256_12726.mp4 for id=12726
-2025-06-11 15:02:27 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=16, Spot=3
-2025-06-11 15:02:28 DEBUG    [parking_app:933] - Spot 2 on camera 8 already occupied (ticket id=12912)
-2025-06-11 15:02:32 DEBUG    [parking_app:104] - Spot 4 camera 20: same car detected → skip OCR/ticket
-2025-06-11 15:02:33 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:02:33 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=2
-2025-06-11 15:02:35 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=19, Spot=5
-2025-06-11 15:02:36 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:02:38 DEBUG    [parking_app:104] - Spot 4 camera 16: same car detected → skip OCR/ticket
-2025-06-11 15:02:40 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=8, Spot=2
-2025-06-11 15:02:44 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:02:46 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:02:47 DEBUG    [parking_app:905] - No open ticket to close for camera=19, spot=1
-2025-06-11 15:02:47 DEBUG    [parking_app:887] - Closed ticket id=12928 at 2025-06-11 15:03:12
-2025-06-11 15:02:48 DEBUG    [parking_app:104] - Spot 3 camera 16: same car detected → skip OCR/ticket
-2025-06-11 15:02:48 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:02:55 DEBUG    [parking_app:905] - No open ticket to close for camera=20, spot=6
-2025-06-11 15:02:59 DEBUG    [parking_app:905] - No open ticket to close for camera=15, spot=5
-2025-06-11 15:02:59 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:03:00 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:03:00 DEBUG    [parking_app:104] - Spot 1 camera 16: same car detected → skip OCR/ticket
-2025-06-11 15:03:00 DEBUG    [parking_app:104] - Spot 4 camera 19: same car detected → skip OCR/ticket
-2025-06-11 15:03:01 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=1, Spot=6
-2025-06-11 15:03:01 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:03:03 DEBUG    [parking_app:887] - Closed ticket id=12918 at 2025-06-11 15:03:27
-2025-06-11 15:03:13 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"666d4acb-ca3f-42ed-a3d4-f597d6cef476.jpg\\",\\"datetime\\":\\"2025-06-11 15:03:47.820\\",\\"Time_ms\\":\\"297\\",\\"citycode\\":212920,\\"category\\":\\"X\\",\\"text\\":\\"60589\\",\\"cityName\\":\\"AE-DU\\",\\"platetype\\":\\"COMMON\\",\\"confidance\\":47,\\"fileName\\":\\"666d4acb-ca3f-42ed-a3d4-f597d6cef476.jpg\\",\\"backcolor\\":16777215,\\"textcolor\\":16777215,\\"plate_detail\\":[{\\"character\\":\\"X\\",\\"conf\\":99,\\"x1\\":345,\\"x2\\":351,\\"x3\\":350,\\"x4\\":344,\\"y1\\":333,\\"y2\\":333,\\"y3\\":342,\\"y4\\":341},{\\"character\\":\\"6\\",\\"conf\\":99,\\"x1\\":375,\\"x2\\":380,\\"x3\\":379,\\"x4\\":374,\\"y1\\":327,\\"y2\\":327,\\"y3\\":341,\\"y4\\":341},{\\"character\\":\\"0\\",\\"conf\\":100,\\"x1\\":381,\\"x2\\":387,\\"x3\\":386,\\"x4\\":380,\\"y1\\":327,\\"y2\\":327,\\"y3\\":341,\\"y4\\":341},{\\"character\\":\\"5\\",\\"conf\\":99,\\"x1\\":388,\\"x2\\":393,\\"x3\\":393,\\"x4\\":387,\\"y1\\":327,\\"y2\\":327,\\"y3\\":341,\\"y4\\":341},{\\"character\\":\\"8\\",\\"conf\\":98,\\"x1\\":395,\\"x2\\":400,\\"x3\\":399,\\"x4\\":394,\\"y1\\":328,\\"y2\\":328,\\"y3\\":342,\\"y4\\":341},{\\"character\\":\\"9\\",\\"conf\\":99,\\"x1\\":401,\\"x2\\":406,\\"x3\\":405,\\"x4\\":400,\\"y1\\":328,\\"y2\\":328,\\"y3\\":342,\\"y4\\":342}],\\"x1\\":338,\\"x2\\":426,\\"x3\\":425,\\"x4\\":337,\\"y1\\":323,\\"y2\\":326,\\"y3\\":345,\\"y4\\":342,\\"status\\":true}"'
-2025-06-11 15:03:13 DEBUG    [parking_app:158] - After first json.loads: str
-2025-06-11 15:03:13 DEBUG    [parking_app:170] - After second json.loads → dict
-2025-06-11 15:03:13 DEBUG    [parking_app:184] - OCR confidance: 47
-2025-06-11 15:03:13 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=20, status=READ
-2025-06-11 15:03:13 INFO     [parking_app:63] - [PARK-IN] Sending payload: {'token': 'dBOs11IDXwseQCb3bLvHxNv0Gx4HLC21UQ', 'parkin_time': '2025-06-11 15:03:34', 'plate_code': 'X', 'plate_number': '60589', 'emirates': 'Dubai', 'conf': '47', 'spot_number': 6, 'pole_id': 586}
-2025-06-11 15:03:14 DEBUG    [parking_app:887] - Closed ticket id=12936 at 2025-06-11 15:03:35
-2025-06-11 15:03:14 DEBUG    [parking_app:275] - park_in_request returned: {"message":"TOKEN NOT VALID","status":false}
-2025-06-11 15:03:14 ERROR    [parking_app:300] - park_in_request failed
-Traceback (most recent call last):
-  File "C:\Users\USER\Documents\streetserver2\ocr_processor.py", line 277, in process_plate_and_issue_ticket
-    trip_id = ticket_resp.get("trip_id")
-AttributeError: 'str' object has no attribute 'get'
-2025-06-11 15:03:15 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=16, Spot=1
-2025-06-11 15:03:16 DEBUG    [parking_app:104] - Spot 5 camera 15: same car detected → skip OCR/ticket
-2025-06-11 15:03:16 DEBUG    [parking_app:104] - Spot 2 camera 5: same car detected → skip OCR/ticket
-2025-06-11 15:03:17 DEBUG    [parking_app:104] - Spot 1 camera 19: same car detected → skip OCR/ticket
-2025-06-11 15:03:18 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:03:18 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=1, Spot=3
-2025-06-11 15:03:18 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:03:19 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=6
-2025-06-11 15:03:26 DEBUG    [parking_app:933] - Spot 1 on camera 6 already occupied (ticket id=12894)
-2025-06-11 15:03:27 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=16, Spot=3
-2025-06-11 15:03:30 DEBUG    [parking_app:887] - Closed ticket id=12708 at 2025-06-11 15:03:55
-2025-06-11 15:03:32 DEBUG    [parking_app:905] - No open ticket to close for camera=19, spot=1
-2025-06-11 15:03:33 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=1, Spot=1
-2025-06-11 15:03:33 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:03:33 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=2
-2025-06-11 15:03:33 DEBUG    [parking_app:104] - Spot 1 camera 21: same car detected → skip OCR/ticket
-2025-06-11 15:03:35 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:03:35 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=5
-2025-06-11 15:03:42 DEBUG    [parking_app:104] - Spot 1 camera 16: same car detected → skip OCR/ticket
-2025-06-11 15:03:42 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=6, Spot=1
-2025-06-11 15:03:45 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=19, Spot=4
-2025-06-11 15:03:45 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=9, Spot=3
-2025-06-11 15:03:46 DEBUG    [parking_app:933] - Spot 6 on camera 1 already occupied (ticket id=12926)
-2025-06-11 15:03:47 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:03:47 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:03:49 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=4
-2025-06-11 15:03:50 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:03:55 DEBUG    [parking_app:104] - Spot 3 camera 16: same car detected → skip OCR/ticket
-2025-06-11 15:03:58 DEBUG    [parking_app:933] - Spot 1 on camera 6 already occupied (ticket id=12894)
-2025-06-11 15:04:01 DEBUG    [parking_app:104] - Spot 5 camera 1: same car detected → skip OCR/ticket
-2025-06-11 15:04:02 DEBUG    [parking_app:104] - Spot 1 camera 19: same car detected → skip OCR/ticket
-2025-06-11 15:04:02 DEBUG    [parking_app:104] - Spot 3 camera 24: same car detected → skip OCR/ticket
-2025-06-11 15:04:02 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:04:03 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=12, Spot=1
-2025-06-11 15:04:04 DEBUG    [parking_app:887] - Closed ticket id=12380 at 2025-06-11 15:04:26
-2025-06-11 15:04:05 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"bc216776-cc0c-4a1f-874d-97ce21c758c4.jpg\\",\\"datetime\\":\\"2025-06-11 15:04:39.351\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
-2025-06-11 15:04:05 DEBUG    [parking_app:158] - After first json.loads: str
-2025-06-11 15:04:05 DEBUG    [parking_app:170] - After second json.loads → dict
-2025-06-11 15:04:05 DEBUG    [parking_app:184] - OCR confidance: 0
-2025-06-11 15:04:05 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
-2025-06-11 15:04:05 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=9, status=UNREAD
-2025-06-11 15:04:05 DEBUG    [parking_app:322] - Using existing manual_review id=12728 for UNREAD plate
-2025-06-11 15:04:05 DEBUG    [parking_app:337] - Inserted UNREAD ticket into tickets: id=12944
-2025-06-11 15:04:05 DEBUG    [parking_app:49] - Attempt 1/3: requesting clip video_clips/clip_20250611_150417_150433_12728.mp4 from 192.168.169.66
-2025-06-11 15:04:05 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=23, Spot=2
-2025-06-11 15:04:06 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:04:18 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"50b5653e-ae6f-46b0-954c-9a014672964a.jpg\\",\\"datetime\\":\\"2025-06-11 15:04:52.367\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
-2025-06-11 15:04:18 DEBUG    [parking_app:158] - After first json.loads: str
-2025-06-11 15:04:18 DEBUG    [parking_app:170] - After second json.loads → dict
-2025-06-11 15:04:18 DEBUG    [parking_app:184] - OCR confidance: 0
-2025-06-11 15:04:18 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
-2025-06-11 15:04:18 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=21, status=UNREAD
-2025-06-11 15:04:18 DEBUG    [parking_app:322] - Using existing manual_review id=12729 for UNREAD plate
-2025-06-11 15:04:18 DEBUG    [parking_app:337] - Inserted UNREAD ticket into tickets: id=12945
-2025-06-11 15:04:18 DEBUG    [parking_app:49] - Attempt 1/3: requesting clip video_clips/clip_20250611_150426_150442_12729.mp4 from 192.168.169.83
-2025-06-11 15:04:19 DEBUG    [parking_app:933] - Spot 1 on camera 12 already occupied (ticket id=12929)
-2025-06-11 15:04:20 DEBUG    [parking_app:104] - Spot 3 camera 1: same car detected → skip OCR/ticket
-2025-06-11 15:04:20 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=9, Spot=5
-2025-06-11 15:04:21 DEBUG    [parking_app:104] - Spot 4 camera 19: same car detected → skip OCR/ticket
-2025-06-11 15:04:22 DEBUG    [parking_app:104] - Spot 2 camera 5: same car detected → skip OCR/ticket
-2025-06-11 15:04:22 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=24, Spot=3
-2025-06-11 15:04:24 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:04:24 DEBUG    [parking_app:887] - Closed ticket id=12941 at 2025-06-11 15:04:43
-2025-06-11 15:04:26 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:04:36 DEBUG    [parking_app:933] - Spot 1 on camera 1 already occupied (ticket id=12900)
-2025-06-11 15:04:36 DEBUG    [parking_app:104] - Spot 3 camera 9: same car detected → skip OCR/ticket
-2025-06-11 15:04:40 DEBUG    [parking_app:104] - Spot 4 camera 24: same car detected → skip OCR/ticket
-2025-06-11 15:04:44 DEBUG    [parking_app:104] - Spot 7 camera 23: same car detected → skip OCR/ticket
-2025-06-11 15:04:46 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
-2025-06-11 15:04:54 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=21, Spot=3
-2025-06-11 15:05:02 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=29, Spot=5
-2025-06-11 15:05:04 DEBUG    [parking_app:933] - Spot 1 on camera 18 already occupied (ticket id=12919)
-2025-06-11 15:05:04 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=1, Spot=1
-2025-06-11 15:05:07 DEBUG    [parking_app:104] - Spot 5 camera 9: same car detected → skip OCR/ticket
-2025-06-11 15:05:13 DEBUG    [parking_app:933] - Spot 1 on camera 5 already occupied (ticket id=12932)
-2025-06-11 15:05:14 DEBUG    [parking_app:905] - No open ticket to close for camera=24, spot=4
-2025-06-11 15:05:30 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=4, Spot=1
-2025-06-11 15:05:32 DEBUG    [parking_app:933] - Spot 5 on camera 29 already occupied (ticket id=12829)
-2025-06-11 15:05:36 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=18, Spot=1
-2025-06-11 15:05:40 DEBUG    [parking_app:104] - Spot 6 camera 23: same car detected → skip OCR/ticket
-2025-06-11 15:05:43 DEBUG    [parking_app:933] - Spot 1 on camera 1 already occupied (ticket id=12900)
-2025-06-11 15:05:45 DEBUG    [parking_app:858] - EXIT report ignored (false‐clear). Camera=5, Spot=1
+2025-06-12 09:55:12 DEBUG    [passlib.registry:296] - registered 'bcrypt' handler: <class 'passlib.handlers.bcrypt.bcrypt'>
+2025-06-12 09:55:29 DEBUG    [parking_app:913] - No open ticket to close for camera=23, spot=5
+2025-06-12 09:55:40 DEBUG    [parking_app:913] - No open ticket to close for camera=23, spot=6
+2025-06-12 09:55:51 DEBUG    [parking_app:913] - No open ticket to close for camera=23, spot=7
+2025-06-12 09:56:07 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"8eb53ae2-f4f1-4771-b495-255a43435f6e.jpg\\",\\"datetime\\":\\"2025-06-12 09:56:42.789\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 09:56:07 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 09:56:07 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 09:56:07 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 09:56:07 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 09:56:07 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 09:56:07 DEBUG    [parking_app:333] - Using existing manual_review id=2 for UNREAD plate
+2025-06-12 09:56:07 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=2
+2025-06-12 09:56:07 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_095617_095637_2.mp4 from 192.168.169.85
+2025-06-12 09:56:10 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_095617_095637_2.mp4
+2025-06-12 09:56:10 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_095617_095637_2.mp4 for id=2
+2025-06-12 09:56:17 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"815f88c8-8b68-42e4-b999-e3ce2e5c7e87.jpg\\",\\"datetime\\":\\"2025-06-12 09:56:52.773\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 09:56:17 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 09:56:17 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 09:56:17 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 09:56:17 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 09:56:17 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 09:56:17 DEBUG    [parking_app:333] - Using existing manual_review id=3 for UNREAD plate
+2025-06-12 09:56:17 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=3
+2025-06-12 09:56:17 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_095629_095649_3.mp4 from 192.168.169.85
+2025-06-12 09:56:19 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_095629_095649_3.mp4
+2025-06-12 09:56:19 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_095629_095649_3.mp4 for id=3
+2025-06-12 09:56:27 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=1)
+2025-06-12 09:56:41 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"c1cba7fb-155f-4f39-8284-0a944d628965.jpg\\",\\"datetime\\":\\"2025-06-12 09:57:16.101\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 09:56:41 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 09:56:41 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 09:56:41 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 09:56:41 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 09:56:41 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 09:56:41 DEBUG    [parking_app:333] - Using existing manual_review id=4 for UNREAD plate
+2025-06-12 09:56:41 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=4
+2025-06-12 09:56:41 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_095652_095712_4.mp4 from 192.168.169.85
+2025-06-12 09:56:43 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_095652_095712_4.mp4
+2025-06-12 09:56:43 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_095652_095712_4.mp4 for id=4
+2025-06-12 09:56:53 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"780880d7-507b-4271-b2bc-00e665419c19.jpg\\",\\"datetime\\":\\"2025-06-12 09:57:28.336\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 09:56:53 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 09:56:53 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 09:56:53 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 09:56:53 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 09:56:53 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 09:56:53 DEBUG    [parking_app:333] - Using existing manual_review id=5 for UNREAD plate
+2025-06-12 09:56:53 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=5
+2025-06-12 09:56:53 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_095704_095724_5.mp4 from 192.168.169.85
+2025-06-12 09:56:55 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_095704_095724_5.mp4
+2025-06-12 09:56:55 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_095704_095724_5.mp4 for id=5
+2025-06-12 09:57:05 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"05137345-7fd8-47be-b6b8-2a56121f3c1d.jpg\\",\\"datetime\\":\\"2025-06-12 09:57:40.226\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 09:57:05 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 09:57:05 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 09:57:05 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 09:57:05 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 09:57:05 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 09:57:05 DEBUG    [parking_app:333] - Using existing manual_review id=6 for UNREAD plate
+2025-06-12 09:57:05 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=6
+2025-06-12 09:57:05 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_095716_095736_6.mp4 from 192.168.169.85
+2025-06-12 09:57:07 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_095716_095736_6.mp4
+2025-06-12 09:57:07 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_095716_095736_6.mp4 for id=6
+2025-06-12 09:57:15 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"fbb19892-a9b3-466e-ad5f-4bb8dd0d8d54.jpg\\",\\"datetime\\":\\"2025-06-12 09:57:50.414\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 09:57:15 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 09:57:15 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 09:57:15 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 09:57:15 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 09:57:15 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 09:57:15 DEBUG    [parking_app:333] - Using existing manual_review id=7 for UNREAD plate
+2025-06-12 09:57:15 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=7
+2025-06-12 09:57:15 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_095728_095748_7.mp4 from 192.168.169.85
+2025-06-12 09:57:17 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_095728_095748_7.mp4
+2025-06-12 09:57:17 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_095728_095748_7.mp4 for id=7
+2025-06-12 09:57:25 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=2)
+2025-06-12 09:57:36 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 09:57:48 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=1)
+2025-06-12 09:58:00 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=4)
+2025-06-12 09:58:12 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 09:58:25 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=6)
+2025-06-12 09:58:36 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=7)
+2025-06-12 09:58:49 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=2)
+2025-06-12 09:59:01 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 09:59:14 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=1)
+2025-06-12 09:59:27 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=4)
+2025-06-12 09:59:40 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 09:59:53 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=6)
+2025-06-12 10:00:05 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=7)
+2025-06-12 10:00:18 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=4
+2025-06-12 10:00:30 DEBUG    [parking_app:895] - Closed ticket id=1 at 2025-06-12 10:00:58
+2025-06-12 10:00:42 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=2
+2025-06-12 10:00:55 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=4)
+2025-06-12 10:01:09 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"ddfad282-af40-40d3-bd88-75c73b8c7973.jpg\\",\\"datetime\\":\\"2025-06-12 10:01:44.822\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:01:09 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:01:09 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:01:09 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:01:09 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:01:09 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:01:09 DEBUG    [parking_app:333] - Using existing manual_review id=8 for UNREAD plate
+2025-06-12 10:01:09 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=8
+2025-06-12 10:01:09 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_100120_100140_8.mp4 from 192.168.169.85
+2025-06-12 10:01:11 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_100120_100140_8.mp4
+2025-06-12 10:01:11 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_100120_100140_8.mp4 for id=8
+2025-06-12 10:01:20 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:01:32 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=3
+2025-06-12 10:01:44 DEBUG    [parking_app:895] - Closed ticket id=2 at 2025-06-12 10:02:12
+2025-06-12 10:01:57 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=8)
+2025-06-12 10:02:09 DEBUG    [parking_app:104] - Spot 1 camera 23: same car detected → skip OCR/ticket
+2025-06-12 10:02:22 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=7
+2025-06-12 10:02:34 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=6
+2025-06-12 10:02:46 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=2
+2025-06-12 10:02:59 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=3
+2025-06-12 10:03:11 DEBUG    [parking_app:913] - No open ticket to close for camera=23, spot=1
+2025-06-12 10:03:24 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=7)
+2025-06-12 10:03:37 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=6)
+2025-06-12 10:03:49 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:04:01 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=8)
+2025-06-12 10:04:16 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"d78032a9-ef91-40cb-8ef5-5fb79cf90aab.jpg\\",\\"datetime\\":\\"2025-06-12 10:04:51.306\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:04:16 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:04:16 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:04:16 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:04:16 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:04:16 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:04:16 DEBUG    [parking_app:333] - Using existing manual_review id=9 for UNREAD plate
+2025-06-12 10:04:16 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=9
+2025-06-12 10:04:16 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_100427_100447_9.mp4 from 192.168.169.85
+2025-06-12 10:04:18 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_100427_100447_9.mp4
+2025-06-12 10:04:18 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_100427_100447_9.mp4 for id=9
+2025-06-12 10:05:09 DEBUG    [parking_app:895] - Closed ticket id=6 at 2025-06-12 10:05:37
+2025-06-12 10:07:58 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=7
+2025-06-12 10:08:10 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:08:23 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=3
+2025-06-12 10:08:35 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=4
+2025-06-12 10:08:47 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=2
+2025-06-12 10:08:59 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=1
+2025-06-12 10:09:11 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=7)
+2025-06-12 10:09:24 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:09:36 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=8)
+2025-06-12 10:09:49 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=4)
+2025-06-12 10:09:57 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:10:05 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=9)
+2025-06-12 10:10:17 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"ba1f5a82-98a5-4b60-91e5-5d4c49a5e5a9.jpg\\",\\"datetime\\":\\"2025-06-12 10:10:52.213\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:10:17 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:10:17 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:10:17 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:10:17 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:10:17 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:10:17 DEBUG    [parking_app:333] - Using existing manual_review id=10 for UNREAD plate
+2025-06-12 10:10:17 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=10
+2025-06-12 10:10:17 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_101030_101050_10.mp4 from 192.168.169.85
+2025-06-12 10:10:18 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_101030_101050_10.mp4
+2025-06-12 10:10:18 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_101030_101050_10.mp4 for id=10
+2025-06-12 10:10:22 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:10:31 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:10:39 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:10:47 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:10:56 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:11:04 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:11:13 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:11:21 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:11:29 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:11:37 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:11:46 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:11:53 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:12:02 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:12:10 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:12:18 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:12:27 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:12:35 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:12:43 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:12:51 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=7
+2025-06-12 10:13:00 DEBUG    [parking_app:895] - Closed ticket id=8 at 2025-06-12 10:13:31
+2025-06-12 10:13:10 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:13:20 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:13:31 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:13:41 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:13:52 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:14:04 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:14:17 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=6
+2025-06-12 10:14:29 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=2
+2025-06-12 10:14:42 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=10)
+2025-06-12 10:14:54 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:15:06 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:15:19 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:15:33 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"a5bb1717-005f-4aa3-848c-65cb8e849945.jpg\\",\\"datetime\\":\\"2025-06-12 10:16:08.885\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:15:33 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:15:33 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:15:33 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:15:33 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:15:33 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:15:33 DEBUG    [parking_app:333] - Using existing manual_review id=11 for UNREAD plate
+2025-06-12 10:15:33 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=11
+2025-06-12 10:15:33 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_101544_101604_11.mp4 from 192.168.169.85
+2025-06-12 10:15:36 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_101544_101604_11.mp4
+2025-06-12 10:15:36 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_101544_101604_11.mp4 for id=11
+2025-06-12 10:15:43 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=9)
+2025-06-12 10:15:56 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:16:05 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=11)
+2025-06-12 10:16:12 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=4)
+2025-06-12 10:16:21 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:16:29 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=10)
+2025-06-12 10:16:38 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=1
+2025-06-12 10:16:46 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=2
+2025-06-12 10:16:55 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=3
+2025-06-12 10:17:03 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=4
+2025-06-12 10:17:11 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=5
+2025-06-12 10:17:19 DEBUG    [parking_app:866] - EXIT report ignored (false‐clear). Camera=23, Spot=6
+2025-06-12 10:17:27 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=9)
+2025-06-12 10:17:35 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:17:43 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=11)
+2025-06-12 10:17:47 DEBUG    [passlib.registry:296] - registered 'bcrypt' handler: <class 'passlib.handlers.bcrypt.bcrypt'>
+2025-06-12 10:17:52 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=4)
+2025-06-12 10:18:00 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:18:08 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=10)
+2025-06-12 10:18:17 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=7)
+2025-06-12 10:18:25 DEBUG    [parking_app:895] - Closed ticket id=7 at 2025-06-12 10:18:56
+2025-06-12 10:18:35 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:18:35 DEBUG    [parking_app:333] - Using existing manual_review id=12 for UNREAD plate
+2025-06-12 10:18:35 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=12
+2025-06-12 10:18:35 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_101849_101909_12.mp4 from 192.168.169.85
+2025-06-12 10:18:36 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_101849_101909_12.mp4
+2025-06-12 10:18:36 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_101849_101909_12.mp4 for id=12
+2025-06-12 10:18:41 DEBUG    [parking_app:895] - Closed ticket id=12 at 2025-06-12 10:19:13
+2025-06-12 10:18:49 DEBUG    [parking_app:895] - Closed ticket id=10 at 2025-06-12 10:19:21
+2025-06-12 10:18:58 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:18:58 DEBUG    [parking_app:333] - Using existing manual_review id=13 for UNREAD plate
+2025-06-12 10:18:58 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=13
+2025-06-12 10:18:58 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_101914_101934_13.mp4 from 192.168.169.85
+2025-06-12 10:18:59 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_101914_101934_13.mp4
+2025-06-12 10:18:59 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_101914_101934_13.mp4 for id=13
+2025-06-12 10:19:35 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"a3ede341-64f2-4cc4-8555-d84100d22793.jpg\\",\\"datetime\\":\\"2025-06-12 10:20:09.981\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:19:35 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:19:35 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:19:35 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:19:35 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:19:35 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:19:35 DEBUG    [parking_app:333] - Using existing manual_review id=14 for UNREAD plate
+2025-06-12 10:19:35 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=14
+2025-06-12 10:19:35 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_101949_102009_14.mp4 from 192.168.169.85
+2025-06-12 10:19:36 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_101949_102009_14.mp4
+2025-06-12 10:19:36 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_101949_102009_14.mp4 for id=14
+2025-06-12 10:19:59 DEBUG    [parking_app:895] - Closed ticket id=13 at 2025-06-12 10:20:31
+2025-06-12 10:20:07 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:20:07 DEBUG    [parking_app:333] - Using existing manual_review id=15 for UNREAD plate
+2025-06-12 10:20:07 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=15
+2025-06-12 10:20:07 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102024_102044_15.mp4 from 192.168.169.85
+2025-06-12 10:20:09 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102024_102044_15.mp4
+2025-06-12 10:20:09 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102024_102044_15.mp4 for id=15
+2025-06-12 10:20:13 DEBUG    [passlib.registry:296] - registered 'bcrypt' handler: <class 'passlib.handlers.bcrypt.bcrypt'>
+2025-06-12 10:20:50 DEBUG    [passlib.registry:296] - registered 'bcrypt' handler: <class 'passlib.handlers.bcrypt.bcrypt'>
+2025-06-12 10:21:23 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"05d53191-baff-48ae-88bf-92d748d76a47.jpg\\",\\"datetime\\":\\"2025-06-12 10:21:58.653\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:21:23 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:21:23 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:21:23 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:21:23 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:21:23 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:21:23 DEBUG    [parking_app:333] - Using existing manual_review id=1 for UNREAD plate
+2025-06-12 10:21:23 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=1
+2025-06-12 10:21:23 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102135_102155_1.mp4 from 192.168.169.85
+2025-06-12 10:21:24 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102135_102155_1.mp4
+2025-06-12 10:21:24 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102135_102155_1.mp4 for id=1
+2025-06-12 10:21:29 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"19aaaf51-f89a-413a-b8f2-14a63dca8c6e.jpg\\",\\"datetime\\":\\"2025-06-12 10:22:04.653\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:21:29 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:21:29 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:21:29 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:21:29 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:21:29 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:21:29 DEBUG    [parking_app:333] - Using existing manual_review id=2 for UNREAD plate
+2025-06-12 10:21:29 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=2
+2025-06-12 10:21:29 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102144_102204_2.mp4 from 192.168.169.85
+2025-06-12 10:21:30 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102144_102204_2.mp4
+2025-06-12 10:21:30 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102144_102204_2.mp4 for id=2
+2025-06-12 10:21:36 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"a68d2271-98fc-472c-aa65-97da54dafeb0.jpg\\",\\"datetime\\":\\"2025-06-12 10:22:11.481\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:21:36 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:21:36 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:21:36 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:21:36 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:21:36 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:21:36 DEBUG    [parking_app:333] - Using existing manual_review id=3 for UNREAD plate
+2025-06-12 10:21:36 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=3
+2025-06-12 10:21:36 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102152_102212_3.mp4 from 192.168.169.85
+2025-06-12 10:21:37 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102152_102212_3.mp4
+2025-06-12 10:21:37 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102152_102212_3.mp4 for id=3
+2025-06-12 10:21:44 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"f805f56f-0246-4403-a6b9-7dc1e3717126.jpg\\",\\"datetime\\":\\"2025-06-12 10:22:19.716\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:21:44 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:21:44 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:21:44 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:21:44 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:21:44 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:21:44 DEBUG    [parking_app:333] - Using existing manual_review id=4 for UNREAD plate
+2025-06-12 10:21:44 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=4
+2025-06-12 10:21:44 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102159_102219_4.mp4 from 192.168.169.85
+2025-06-12 10:21:46 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102159_102219_4.mp4
+2025-06-12 10:21:46 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102159_102219_4.mp4 for id=4
+2025-06-12 10:21:51 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:21:51 DEBUG    [parking_app:333] - Using existing manual_review id=5 for UNREAD plate
+2025-06-12 10:21:51 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=5
+2025-06-12 10:21:51 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102207_102227_5.mp4 from 192.168.169.85
+2025-06-12 10:21:52 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102207_102227_5.mp4
+2025-06-12 10:21:52 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102207_102227_5.mp4 for id=5
+2025-06-12 10:22:01 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"53fd6528-3746-40dc-a848-b2d65fdb2e03.jpg\\",\\"datetime\\":\\"2025-06-12 10:22:36.216\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:22:01 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:22:01 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:22:01 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:22:01 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:22:01 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:22:01 DEBUG    [parking_app:333] - Using existing manual_review id=6 for UNREAD plate
+2025-06-12 10:22:01 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=6
+2025-06-12 10:22:01 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102216_102236_6.mp4 from 192.168.169.85
+2025-06-12 10:22:02 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102216_102236_6.mp4
+2025-06-12 10:22:02 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102216_102236_6.mp4 for id=6
+2025-06-12 10:22:08 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"952820f9-3808-48e5-9e42-7ec0952c25a1.jpg\\",\\"datetime\\":\\"2025-06-12 10:22:43.904\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:22:08 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:22:08 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:22:08 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:22:08 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:22:08 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:22:08 DEBUG    [parking_app:333] - Using existing manual_review id=7 for UNREAD plate
+2025-06-12 10:22:08 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=7
+2025-06-12 10:22:08 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102224_102244_7.mp4 from 192.168.169.85
+2025-06-12 10:22:10 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102224_102244_7.mp4
+2025-06-12 10:22:10 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102224_102244_7.mp4 for id=7
+2025-06-12 10:22:14 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=1)
+2025-06-12 10:22:22 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=2)
+2025-06-12 10:22:30 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:22:38 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=4)
+2025-06-12 10:22:47 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=5)
+2025-06-12 10:22:55 DEBUG    [parking_app:895] - Closed ticket id=5 at 2025-06-12 10:23:27 camera 23.000000 spot 7
+2025-06-12 10:23:03 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:23:03 DEBUG    [parking_app:333] - Using existing manual_review id=8 for UNREAD plate
+2025-06-12 10:23:03 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=8
+2025-06-12 10:23:03 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102320_102340_8.mp4 from 192.168.169.85
+2025-06-12 10:23:05 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102320_102340_8.mp4
+2025-06-12 10:23:05 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102320_102340_8.mp4 for id=8
+2025-06-12 10:23:38 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=6)
+2025-06-12 10:23:48 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=7)
+2025-06-12 10:23:59 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=1)
+2025-06-12 10:24:09 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=2)
+2025-06-12 10:24:19 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=3)
+2025-06-12 10:24:27 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=4)
+2025-06-12 10:24:37 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=8)
+2025-06-12 10:24:48 DEBUG    [parking_app:895] - Closed ticket id=6 at 2025-06-12 10:25:17 camera 23.000000 spot 1
+2025-06-12 10:24:58 DEBUG    [parking_app:895] - Closed ticket id=7 at 2025-06-12 10:25:28 camera 23.000000 spot 2
+2025-06-12 10:25:08 DEBUG    [parking_app:895] - Closed ticket id=1 at 2025-06-12 10:25:38 camera 23.000000 spot 3
+2025-06-12 10:25:19 DEBUG    [parking_app:895] - Closed ticket id=2 at 2025-06-12 10:25:48 camera 23.000000 spot 4
+2025-06-12 10:25:30 DEBUG    [parking_app:895] - Closed ticket id=3 at 2025-06-12 10:25:59 camera 23.000000 spot 5
+2025-06-12 10:25:40 DEBUG    [parking_app:895] - Closed ticket id=4 at 2025-06-12 10:26:10 camera 23.000000 spot 6
+2025-06-12 10:25:51 DEBUG    [parking_app:895] - Closed ticket id=8 at 2025-06-12 10:26:20 camera 23.000000 spot 7
+2025-06-12 10:26:03 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"b3667fd0-dec3-4359-a7fc-0c0783d4f8dc.jpg\\",\\"datetime\\":\\"2025-06-12 10:26:38.282\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:26:03 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:26:03 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:26:03 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:26:03 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:26:03 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:26:03 DEBUG    [parking_app:333] - Using existing manual_review id=9 for UNREAD plate
+2025-06-12 10:26:03 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=9
+2025-06-12 10:26:03 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102616_102636_9.mp4 from 192.168.169.85
+2025-06-12 10:26:05 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102616_102636_9.mp4
+2025-06-12 10:26:05 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102616_102636_9.mp4 for id=9
+2025-06-12 10:26:13 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"642e4fca-7cec-4cef-9033-6cd5602c221a.jpg\\",\\"datetime\\":\\"2025-06-12 10:26:48.735\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:26:13 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:26:13 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:26:13 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:26:13 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:26:13 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:26:13 DEBUG    [parking_app:333] - Using existing manual_review id=10 for UNREAD plate
+2025-06-12 10:26:13 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=10
+2025-06-12 10:26:13 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102626_102646_10.mp4 from 192.168.169.85
+2025-06-12 10:26:15 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102626_102646_10.mp4
+2025-06-12 10:26:15 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102626_102646_10.mp4 for id=10
+2025-06-12 10:26:25 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"ea0cd3ba-209b-4bbe-9fdd-5c63bc864190.jpg\\",\\"datetime\\":\\"2025-06-12 10:27:00.922\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:26:25 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:26:25 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:26:25 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:26:25 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:26:25 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:26:25 DEBUG    [parking_app:333] - Using existing manual_review id=11 for UNREAD plate
+2025-06-12 10:26:25 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=11
+2025-06-12 10:26:25 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102637_102657_11.mp4 from 192.168.169.85
+2025-06-12 10:26:27 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102637_102657_11.mp4
+2025-06-12 10:26:27 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102637_102657_11.mp4 for id=11
+2025-06-12 10:26:34 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"406a4ac2-3a8d-44ef-8cec-5cd2747bf1fb.jpg\\",\\"datetime\\":\\"2025-06-12 10:27:09.688\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:26:34 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:26:34 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:26:34 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:26:34 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:26:34 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:26:34 DEBUG    [parking_app:333] - Using existing manual_review id=12 for UNREAD plate
+2025-06-12 10:26:34 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=12
+2025-06-12 10:26:34 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102647_102707_12.mp4 from 192.168.169.85
+2025-06-12 10:26:36 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102647_102707_12.mp4
+2025-06-12 10:26:36 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102647_102707_12.mp4 for id=12
+2025-06-12 10:26:46 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"9749319e-756a-4f1e-b68f-e82433353c45.jpg\\",\\"datetime\\":\\"2025-06-12 10:27:21.751\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:26:46 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:26:46 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:26:46 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:26:46 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:26:46 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:26:46 DEBUG    [parking_app:333] - Using existing manual_review id=13 for UNREAD plate
+2025-06-12 10:26:46 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=13
+2025-06-12 10:26:46 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102657_102717_13.mp4 from 192.168.169.85
+2025-06-12 10:26:48 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102657_102717_13.mp4
+2025-06-12 10:26:48 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102657_102717_13.mp4 for id=13
+2025-06-12 10:26:59 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"89d22ba6-69d3-4486-9bcb-8b1c8ebce792.jpg\\",\\"datetime\\":\\"2025-06-12 10:27:34.110\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:26:59 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:26:59 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:26:59 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:26:59 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:26:59 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:26:59 DEBUG    [parking_app:333] - Using existing manual_review id=14 for UNREAD plate
+2025-06-12 10:26:59 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=14
+2025-06-12 10:26:59 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102710_102730_14.mp4 from 192.168.169.85
+2025-06-12 10:27:01 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102710_102730_14.mp4
+2025-06-12 10:27:01 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102710_102730_14.mp4 for id=14
+2025-06-12 10:27:09 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:27:09 DEBUG    [parking_app:333] - Using existing manual_review id=15 for UNREAD plate
+2025-06-12 10:27:09 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=15
+2025-06-12 10:27:09 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_102722_102742_15.mp4 from 192.168.169.85
+2025-06-12 10:27:12 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_102722_102742_15.mp4
+2025-06-12 10:27:12 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_102722_102742_15.mp4 for id=15
+2025-06-12 10:27:22 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=9)
+2025-06-12 10:27:34 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=10)
+2025-06-12 10:27:46 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=11)
+2025-06-12 10:27:59 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=12)
+2025-06-12 10:28:14 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=13)
+2025-06-12 10:28:31 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=14)
+2025-06-12 10:28:47 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=15)
+2025-06-12 10:29:04 DEBUG    [parking_app:895] - Closed ticket id=9 at 2025-06-12 10:29:28 camera 23.000000 spot 1
+2025-06-12 10:29:20 DEBUG    [parking_app:895] - Closed ticket id=10 at 2025-06-12 10:29:44 camera 23.000000 spot 2
+2025-06-12 10:29:36 DEBUG    [parking_app:895] - Closed ticket id=11 at 2025-06-12 10:30:01 camera 23.000000 spot 3
+2025-06-12 10:29:53 DEBUG    [parking_app:895] - Closed ticket id=12 at 2025-06-12 10:30:17 camera 23.000000 spot 4
+2025-06-12 10:30:10 DEBUG    [parking_app:895] - Closed ticket id=13 at 2025-06-12 10:30:34 camera 23.000000 spot 5
+2025-06-12 10:30:26 DEBUG    [parking_app:895] - Closed ticket id=14 at 2025-06-12 10:30:51 camera 23.000000 spot 6
+2025-06-12 10:30:43 DEBUG    [parking_app:895] - Closed ticket id=15 at 2025-06-12 10:31:07 camera 23.000000 spot 7
+2025-06-12 10:31:01 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"d96fdc8d-02ec-4da4-9ec3-00906e819789.jpg\\",\\"datetime\\":\\"2025-06-12 10:31:36.333\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:31:01 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:31:01 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:31:01 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:31:01 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:31:01 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:31:01 DEBUG    [parking_app:333] - Using existing manual_review id=16 for UNREAD plate
+2025-06-12 10:31:01 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=16
+2025-06-12 10:31:01 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103109_103129_16.mp4 from 192.168.169.85
+2025-06-12 10:31:04 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103109_103129_16.mp4
+2025-06-12 10:31:04 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103109_103129_16.mp4 for id=16
+2025-06-12 10:31:18 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"715b8622-0631-4ca1-830d-2d2835a8c84c.jpg\\",\\"datetime\\":\\"2025-06-12 10:31:53.474\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:31:18 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:31:18 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:31:18 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:31:18 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:31:18 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:31:18 DEBUG    [parking_app:333] - Using existing manual_review id=17 for UNREAD plate
+2025-06-12 10:31:18 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=17
+2025-06-12 10:31:18 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103125_103145_17.mp4 from 192.168.169.85
+2025-06-12 10:31:21 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103125_103145_17.mp4
+2025-06-12 10:31:21 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103125_103145_17.mp4 for id=17
+2025-06-12 10:31:34 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"2fee5db8-122a-46ea-be44-185fe0f3a808.jpg\\",\\"datetime\\":\\"2025-06-12 10:32:09.286\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:31:34 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:31:34 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:31:34 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:31:34 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:31:34 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:31:34 DEBUG    [parking_app:333] - Using existing manual_review id=18 for UNREAD plate
+2025-06-12 10:31:34 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=18
+2025-06-12 10:31:34 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103142_103202_18.mp4 from 192.168.169.85
+2025-06-12 10:31:37 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103142_103202_18.mp4
+2025-06-12 10:31:37 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103142_103202_18.mp4 for id=18
+2025-06-12 10:31:49 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"29a06617-f8b2-4e67-8648-8cc462012354.jpg\\",\\"datetime\\":\\"2025-06-12 10:32:24.692\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:31:49 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:31:49 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:31:49 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:31:49 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:31:49 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:31:49 DEBUG    [parking_app:333] - Using existing manual_review id=19 for UNREAD plate
+2025-06-12 10:31:49 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=19
+2025-06-12 10:31:49 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103158_103218_19.mp4 from 192.168.169.85
+2025-06-12 10:31:53 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103158_103218_19.mp4
+2025-06-12 10:31:53 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103158_103218_19.mp4 for id=19
+2025-06-12 10:32:07 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"1e206b29-bc73-4240-a4d2-7ad10e520d18.jpg\\",\\"datetime\\":\\"2025-06-12 10:32:42.114\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:32:07 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:32:07 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:32:07 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:32:07 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:32:07 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:32:07 DEBUG    [parking_app:333] - Using existing manual_review id=20 for UNREAD plate
+2025-06-12 10:32:07 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=20
+2025-06-12 10:32:07 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103213_103233_20.mp4 from 192.168.169.85
+2025-06-12 10:32:09 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103213_103233_20.mp4
+2025-06-12 10:32:09 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103213_103233_20.mp4 for id=20
+2025-06-12 10:32:22 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"319f447e-333f-4096-8540-31ac7a790eae.jpg\\",\\"datetime\\":\\"2025-06-12 10:32:57.911\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:32:22 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:32:22 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:32:22 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:32:22 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:32:22 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:32:22 DEBUG    [parking_app:333] - Using existing manual_review id=21 for UNREAD plate
+2025-06-12 10:32:22 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=21
+2025-06-12 10:32:22 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103230_103250_21.mp4 from 192.168.169.85
+2025-06-12 10:32:25 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103230_103250_21.mp4
+2025-06-12 10:32:25 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103230_103250_21.mp4 for id=21
+2025-06-12 10:32:37 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:32:37 DEBUG    [parking_app:333] - Using existing manual_review id=22 for UNREAD plate
+2025-06-12 10:32:37 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=22
+2025-06-12 10:32:37 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103246_103306_22.mp4 from 192.168.169.85
+2025-06-12 10:32:40 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103246_103306_22.mp4
+2025-06-12 10:32:40 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103246_103306_22.mp4 for id=22
+2025-06-12 10:32:52 DEBUG    [parking_app:941] - Spot 1 on camera 23 already occupied (ticket id=16)
+2025-06-12 10:33:08 DEBUG    [parking_app:941] - Spot 2 on camera 23 already occupied (ticket id=17)
+2025-06-12 10:33:24 DEBUG    [parking_app:941] - Spot 3 on camera 23 already occupied (ticket id=18)
+2025-06-12 10:33:41 DEBUG    [parking_app:941] - Spot 4 on camera 23 already occupied (ticket id=19)
+2025-06-12 10:33:57 DEBUG    [parking_app:941] - Spot 5 on camera 23 already occupied (ticket id=20)
+2025-06-12 10:34:14 DEBUG    [parking_app:941] - Spot 6 on camera 23 already occupied (ticket id=21)
+2025-06-12 10:34:30 DEBUG    [parking_app:941] - Spot 7 on camera 23 already occupied (ticket id=22)
+2025-06-12 10:34:47 DEBUG    [parking_app:895] - Closed ticket id=16 at 2025-06-12 10:35:11 camera 23.000000 spot 1
+2025-06-12 10:35:04 DEBUG    [parking_app:895] - Closed ticket id=17 at 2025-06-12 10:35:28 camera 23.000000 spot 2
+2025-06-12 10:35:20 DEBUG    [parking_app:895] - Closed ticket id=18 at 2025-06-12 10:35:45 camera 23.000000 spot 3
+2025-06-12 10:35:36 DEBUG    [parking_app:895] - Closed ticket id=19 at 2025-06-12 10:36:01 camera 23.000000 spot 4
+2025-06-12 10:35:53 DEBUG    [parking_app:895] - Closed ticket id=20 at 2025-06-12 10:36:17 camera 23.000000 spot 5
+2025-06-12 10:36:10 DEBUG    [parking_app:895] - Closed ticket id=21 at 2025-06-12 10:36:33 camera 23.000000 spot 6
+2025-06-12 10:36:26 DEBUG    [parking_app:895] - Closed ticket id=22 at 2025-06-12 10:36:50 camera 23.000000 spot 7
+2025-06-12 10:36:44 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"c7a253a1-9f6e-430b-b03d-b31bf32882b2.jpg\\",\\"datetime\\":\\"2025-06-12 10:37:19.647\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:36:44 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:36:44 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:36:44 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:36:44 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:36:44 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:36:44 DEBUG    [parking_app:333] - Using existing manual_review id=23 for UNREAD plate
+2025-06-12 10:36:44 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=23
+2025-06-12 10:36:44 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103651_103711_23.mp4 from 192.168.169.85
+2025-06-12 10:36:47 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103651_103711_23.mp4
+2025-06-12 10:36:47 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103651_103711_23.mp4 for id=23
+2025-06-12 10:37:00 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"e0a3b3c4-fc32-4a48-a52a-f8fca9061d29.jpg\\",\\"datetime\\":\\"2025-06-12 10:37:35.334\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:37:00 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:37:00 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:37:00 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:37:00 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:37:00 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:37:00 DEBUG    [parking_app:333] - Using existing manual_review id=24 for UNREAD plate
+2025-06-12 10:37:00 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=24
+2025-06-12 10:37:00 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103708_103728_24.mp4 from 192.168.169.85
+2025-06-12 10:37:03 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103708_103728_24.mp4
+2025-06-12 10:37:03 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103708_103728_24.mp4 for id=24
+2025-06-12 10:37:17 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"9740eecc-4097-44c8-b141-82442e769e4b.jpg\\",\\"datetime\\":\\"2025-06-12 10:37:52.537\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:37:17 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:37:17 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:37:17 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:37:17 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:37:17 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:37:17 DEBUG    [parking_app:333] - Using existing manual_review id=25 for UNREAD plate
+2025-06-12 10:37:17 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=25
+2025-06-12 10:37:17 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103724_103744_25.mp4 from 192.168.169.85
+2025-06-12 10:37:20 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103724_103744_25.mp4
+2025-06-12 10:37:20 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103724_103744_25.mp4 for id=25
+2025-06-12 10:37:32 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"2cb02358-bbcf-453e-869a-b6b1d10c39a8.jpg\\",\\"datetime\\":\\"2025-06-12 10:38:07.053\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:37:32 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:37:32 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:37:32 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:37:32 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:37:32 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:37:32 DEBUG    [parking_app:333] - Using existing manual_review id=26 for UNREAD plate
+2025-06-12 10:37:32 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=26
+2025-06-12 10:37:32 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103740_103800_26.mp4 from 192.168.169.85
+2025-06-12 10:37:35 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103740_103800_26.mp4
+2025-06-12 10:37:35 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103740_103800_26.mp4 for id=26
+2025-06-12 10:37:48 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"84a847b8-11a5-43f2-a0a4-fcc1b38a549b.jpg\\",\\"datetime\\":\\"2025-06-12 10:38:23.147\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:37:48 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:37:48 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:37:48 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:37:48 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:37:48 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:37:48 DEBUG    [parking_app:333] - Using existing manual_review id=27 for UNREAD plate
+2025-06-12 10:37:48 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=27
+2025-06-12 10:37:48 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103755_103815_27.mp4 from 192.168.169.85
+2025-06-12 10:37:50 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103755_103815_27.mp4
+2025-06-12 10:37:50 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103755_103815_27.mp4 for id=27
+2025-06-12 10:38:04 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"4f1730c7-90f8-4c14-9cc1-e33c568081b6.jpg\\",\\"datetime\\":\\"2025-06-12 10:38:39.600\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:38:04 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:38:04 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:38:04 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:38:04 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:38:04 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:38:04 DEBUG    [parking_app:333] - Using existing manual_review id=28 for UNREAD plate
+2025-06-12 10:38:04 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=28
+2025-06-12 10:38:04 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103812_103832_28.mp4 from 192.168.169.85
+2025-06-12 10:38:07 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103812_103832_28.mp4
+2025-06-12 10:38:07 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103812_103832_28.mp4 for id=28
+2025-06-12 10:38:18 DEBUG    [parking_app:895] - Closed ticket id=28 at 2025-06-12 10:38:43 camera 23.000000 spot 7
+2025-06-12 10:38:36 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"0556195a-2bf3-4b38-bd51-995a5fe3532c.jpg\\",\\"datetime\\":\\"2025-06-12 10:39:11.584\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:38:36 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:38:36 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:38:36 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:38:36 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:38:36 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:38:36 DEBUG    [parking_app:333] - Using existing manual_review id=29 for UNREAD plate
+2025-06-12 10:38:36 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=29
+2025-06-12 10:38:36 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103844_103904_29.mp4 from 192.168.169.85
+2025-06-12 10:38:39 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103844_103904_29.mp4
+2025-06-12 10:38:39 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103844_103904_29.mp4 for id=29
+2025-06-12 10:38:50 DEBUG    [parking_app:895] - Closed ticket id=29 at 2025-06-12 10:39:15 camera 23.000000 spot 7
+2025-06-12 10:39:08 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"b0371a2c-e8c2-412b-996d-8dd859eb99f3.jpg\\",\\"datetime\\":\\"2025-06-12 10:39:43.772\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:39:08 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:39:08 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:39:08 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:39:08 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:39:08 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:39:08 DEBUG    [parking_app:333] - Using existing manual_review id=30 for UNREAD plate
+2025-06-12 10:39:08 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=30
+2025-06-12 10:39:08 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103916_103936_30.mp4 from 192.168.169.85
+2025-06-12 10:39:11 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103916_103936_30.mp4
+2025-06-12 10:39:11 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103916_103936_30.mp4 for id=30
+2025-06-12 10:39:22 DEBUG    [parking_app:895] - Closed ticket id=30 at 2025-06-12 10:39:47 camera 23.000000 spot 7
+2025-06-12 10:39:40 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"498442cb-e180-42ef-8098-8bd455eff810.jpg\\",\\"datetime\\":\\"2025-06-12 10:40:15.975\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:39:40 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:39:40 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:39:40 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:39:40 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:39:40 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:39:40 DEBUG    [parking_app:333] - Using existing manual_review id=31 for UNREAD plate
+2025-06-12 10:39:40 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=31
+2025-06-12 10:39:40 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_103948_104008_31.mp4 from 192.168.169.85
+2025-06-12 10:39:44 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_103948_104008_31.mp4
+2025-06-12 10:39:44 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_103948_104008_31.mp4 for id=31
+2025-06-12 10:39:55 DEBUG    [parking_app:895] - Closed ticket id=31 at 2025-06-12 10:40:20 camera 23.000000 spot 7
+2025-06-12 10:40:13 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"7e0eb10b-96a9-4ee7-ab41-7c795f05f74a.jpg\\",\\"datetime\\":\\"2025-06-12 10:40:48.819\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:40:13 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:40:13 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:40:13 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:40:13 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:40:13 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:40:13 DEBUG    [parking_app:333] - Using existing manual_review id=32 for UNREAD plate
+2025-06-12 10:40:13 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=32
+2025-06-12 10:40:13 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104021_104041_32.mp4 from 192.168.169.85
+2025-06-12 10:40:17 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104021_104041_32.mp4
+2025-06-12 10:40:17 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104021_104041_32.mp4 for id=32
+2025-06-12 10:40:28 DEBUG    [parking_app:895] - Closed ticket id=26 at 2025-06-12 10:40:52 camera 23.000000 spot 5
+2025-06-12 10:40:46 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"5cf08461-f416-4794-a06f-49eb60514dcd.jpg\\",\\"datetime\\":\\"2025-06-12 10:41:21.975\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:40:46 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:40:46 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:40:46 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:40:46 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:40:46 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:40:46 DEBUG    [parking_app:333] - Using existing manual_review id=33 for UNREAD plate
+2025-06-12 10:40:46 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=33
+2025-06-12 10:40:46 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104054_104114_33.mp4 from 192.168.169.85
+2025-06-12 10:40:49 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104054_104114_33.mp4
+2025-06-12 10:40:49 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104054_104114_33.mp4 for id=33
+2025-06-12 10:41:01 DEBUG    [parking_app:895] - Closed ticket id=32 at 2025-06-12 10:41:25 camera 23.000000 spot 7
+2025-06-12 10:41:26 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"2f1cd529-cf15-4792-91a0-9c905a7d4d32.jpg\\",\\"datetime\\":\\"2025-06-12 10:42:01.680\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:41:26 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:41:26 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:41:26 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:41:26 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:41:26 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:41:26 DEBUG    [parking_app:333] - Using existing manual_review id=34 for UNREAD plate
+2025-06-12 10:41:26 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=34
+2025-06-12 10:41:26 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104127_104147_34.mp4 from 192.168.169.85
+2025-06-12 10:41:30 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104127_104147_34.mp4
+2025-06-12 10:41:30 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104127_104147_34.mp4 for id=34
+2025-06-12 10:41:36 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"390595d2-56e0-4c0a-a122-7164fa46c1fe.jpg\\",\\"datetime\\":\\"2025-06-12 10:42:11.446\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:41:36 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:41:36 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:41:36 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:41:36 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:41:36 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:41:36 DEBUG    [parking_app:333] - Using existing manual_review id=35 for UNREAD plate
+2025-06-12 10:41:36 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=35
+2025-06-12 10:41:36 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104144_104204_35.mp4 from 192.168.169.85
+2025-06-12 10:41:39 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104144_104204_35.mp4
+2025-06-12 10:41:39 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104144_104204_35.mp4 for id=35
+2025-06-12 10:41:51 DEBUG    [parking_app:895] - Closed ticket id=33 at 2025-06-12 10:42:15 camera 23.000000 spot 5
+2025-06-12 10:42:06 DEBUG    [parking_app:895] - Closed ticket id=23 at 2025-06-12 10:42:32 camera 23.000000 spot 2
+2025-06-12 10:42:22 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"9736982d-cc1c-4250-99b0-c9d8e1c6dc21.jpg\\",\\"datetime\\":\\"2025-06-12 10:42:57.102\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:42:22 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:42:22 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:42:22 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:42:22 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:42:22 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:42:22 DEBUG    [parking_app:333] - Using existing manual_review id=36 for UNREAD plate
+2025-06-12 10:42:22 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=36
+2025-06-12 10:42:22 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104232_104252_36.mp4 from 192.168.169.85
+2025-06-12 10:42:23 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104232_104252_36.mp4
+2025-06-12 10:42:23 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104232_104252_36.mp4 for id=36
+2025-06-12 10:42:30 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"f9ab45f9-077f-496b-a6b5-3622fc2d7d27.jpg\\",\\"datetime\\":\\"2025-06-12 10:43:05.758\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:42:30 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:42:30 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:42:30 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:42:30 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:42:30 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:42:30 DEBUG    [parking_app:333] - Using existing manual_review id=37 for UNREAD plate
+2025-06-12 10:42:30 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=37
+2025-06-12 10:42:30 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104244_104304_37.mp4 from 192.168.169.85
+2025-06-12 10:42:32 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104244_104304_37.mp4
+2025-06-12 10:42:32 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104244_104304_37.mp4 for id=37
+2025-06-12 10:42:32 DEBUG    [parking_app:895] - Closed ticket id=34 at 2025-06-12 10:43:08 camera 23.000000 spot 7
+2025-06-12 10:42:39 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:42:39 DEBUG    [parking_app:333] - Using existing manual_review id=38 for UNREAD plate
+2025-06-12 10:42:39 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=38
+2025-06-12 10:42:39 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104257_104317_38.mp4 from 192.168.169.85
+2025-06-12 10:42:40 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104257_104317_38.mp4
+2025-06-12 10:42:40 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104257_104317_38.mp4 for id=38
+2025-06-12 10:42:49 DEBUG    [parking_app:895] - Closed ticket id=38 at 2025-06-12 10:43:19 camera 23.000000 spot 7
+2025-06-12 10:42:59 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:42:59 DEBUG    [parking_app:333] - Using existing manual_review id=39 for UNREAD plate
+2025-06-12 10:42:59 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=39
+2025-06-12 10:42:59 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104314_104334_39.mp4 from 192.168.169.85
+2025-06-12 10:43:01 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104314_104334_39.mp4
+2025-06-12 10:43:01 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104314_104334_39.mp4 for id=39
+2025-06-12 10:43:10 DEBUG    [parking_app:895] - Closed ticket id=39 at 2025-06-12 10:43:40 camera 23.000000 spot 7
+2025-06-12 10:43:21 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:43:21 DEBUG    [parking_app:333] - Using existing manual_review id=40 for UNREAD plate
+2025-06-12 10:43:21 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=40
+2025-06-12 10:43:21 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104335_104355_40.mp4 from 192.168.169.85
+2025-06-12 10:43:23 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104335_104355_40.mp4
+2025-06-12 10:43:23 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104335_104355_40.mp4 for id=40
+2025-06-12 10:43:32 DEBUG    [parking_app:895] - Closed ticket id=40 at 2025-06-12 10:44:01 camera 23.000000 spot 7
+2025-06-12 10:43:43 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:43:43 DEBUG    [parking_app:333] - Using existing manual_review id=41 for UNREAD plate
+2025-06-12 10:43:43 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=41
+2025-06-12 10:43:43 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104357_104417_41.mp4 from 192.168.169.85
+2025-06-12 10:43:45 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104357_104417_41.mp4
+2025-06-12 10:43:45 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104357_104417_41.mp4 for id=41
+2025-06-12 10:43:54 DEBUG    [parking_app:895] - Closed ticket id=41 at 2025-06-12 10:44:23 camera 23.000000 spot 7
+2025-06-12 10:44:05 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:44:05 DEBUG    [parking_app:333] - Using existing manual_review id=42 for UNREAD plate
+2025-06-12 10:44:05 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=42
+2025-06-12 10:44:05 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104419_104439_42.mp4 from 192.168.169.85
+2025-06-12 10:44:07 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104419_104439_42.mp4
+2025-06-12 10:44:07 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104419_104439_42.mp4 for id=42
+2025-06-12 10:44:18 DEBUG    [parking_app:895] - Closed ticket id=36 at 2025-06-12 10:44:46 camera 23.000000 spot 5
+2025-06-12 10:44:31 DEBUG    [parking_app:895] - Closed ticket id=24 at 2025-06-12 10:44:58 camera 23.000000 spot 3
+2025-06-12 10:44:43 DEBUG    [parking_app:895] - Closed ticket id=37 at 2025-06-12 10:45:11 camera 23.000000 spot 2
+2025-06-12 10:44:56 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:44:56 DEBUG    [parking_app:333] - Using existing manual_review id=43 for UNREAD plate
+2025-06-12 10:44:56 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=43
+2025-06-12 10:44:56 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104509_104529_43.mp4 from 192.168.169.85
+2025-06-12 10:44:58 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104509_104529_43.mp4
+2025-06-12 10:44:58 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104509_104529_43.mp4 for id=43
+2025-06-12 10:45:07 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:45:07 DEBUG    [parking_app:333] - Using existing manual_review id=44 for UNREAD plate
+2025-06-12 10:45:07 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=44
+2025-06-12 10:45:07 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104521_104541_44.mp4 from 192.168.169.85
+2025-06-12 10:45:09 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104521_104541_44.mp4
+2025-06-12 10:45:09 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104521_104541_44.mp4 for id=44
+2025-06-12 10:45:20 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:45:20 DEBUG    [parking_app:333] - Using existing manual_review id=45 for UNREAD plate
+2025-06-12 10:45:20 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=45
+2025-06-12 10:45:20 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104533_104553_45.mp4 from 192.168.169.85
+2025-06-12 10:45:23 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104533_104553_45.mp4
+2025-06-12 10:45:23 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104533_104553_45.mp4 for id=45
+2025-06-12 10:45:33 DEBUG    [parking_app:895] - Closed ticket id=42 at 2025-06-12 10:46:00 camera 23.000000 spot 7
+2025-06-12 10:45:46 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:45:46 DEBUG    [parking_app:333] - Using existing manual_review id=46 for UNREAD plate
+2025-06-12 10:45:46 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=46
+2025-06-12 10:45:46 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104558_104618_46.mp4 from 192.168.169.85
+2025-06-12 10:45:48 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104558_104618_46.mp4
+2025-06-12 10:45:48 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104558_104618_46.mp4 for id=46
+2025-06-12 10:45:59 DEBUG    [parking_app:895] - Closed ticket id=35 at 2025-06-12 10:46:26 camera 23.000000 spot 1
+2025-06-12 10:46:12 DEBUG    [parking_app:895] - Closed ticket id=44 at 2025-06-12 10:46:39 camera 23.000000 spot 3
+2025-06-12 10:46:24 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:46:24 DEBUG    [parking_app:333] - Using existing manual_review id=47 for UNREAD plate
+2025-06-12 10:46:24 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=47
+2025-06-12 10:46:24 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104637_104657_47.mp4 from 192.168.169.85
+2025-06-12 10:46:27 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104637_104657_47.mp4
+2025-06-12 10:46:27 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104637_104657_47.mp4 for id=47
+2025-06-12 10:46:37 DEBUG    [parking_app:895] - Closed ticket id=43 at 2025-06-12 10:47:05 camera 23.000000 spot 5
+2025-06-12 10:46:50 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:46:51 DEBUG    [parking_app:333] - Using existing manual_review id=48 for UNREAD plate
+2025-06-12 10:46:51 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=48
+2025-06-12 10:46:51 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104703_104723_48.mp4 from 192.168.169.85
+2025-06-12 10:46:53 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104703_104723_48.mp4
+2025-06-12 10:46:53 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104703_104723_48.mp4 for id=48
+2025-06-12 10:47:05 DEBUG    [parking_app:151] - Raw OCR response: '"{\\"uuid\\":\\"2f9c3b86-a781-40e0-955f-e23377f60c9f.jpg\\",\\"datetime\\":\\"2025-06-12 10:47:40.462\\",\\"Time_ms\\":null,\\"citycode\\":0,\\"category\\":null,\\"text\\":null,\\"cityName\\":null,\\"platetype\\":null,\\"confidance\\":0,\\"fileName\\":null,\\"backcolor\\":0,\\"textcolor\\":0,\\"plate_detail\\":[],\\"x1\\":0,\\"x2\\":0,\\"x3\\":0,\\"x4\\":0,\\"y1\\":0,\\"y2\\":0,\\"y3\\":0,\\"y4\\":0,\\"status\\":false}"'
+2025-06-12 10:47:05 DEBUG    [parking_app:158] - After first json.loads: str
+2025-06-12 10:47:05 DEBUG    [parking_app:170] - After second json.loads → dict
+2025-06-12 10:47:05 DEBUG    [parking_app:184] - OCR confidance: 0
+2025-06-12 10:47:05 DEBUG    [parking_app:203] - Confidence 0 < 5 → UNREAD
+2025-06-12 10:47:05 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:47:05 DEBUG    [parking_app:333] - Using existing manual_review id=49 for UNREAD plate
+2025-06-12 10:47:05 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=49
+2025-06-12 10:47:05 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104716_104736_49.mp4 from 192.168.169.85
+2025-06-12 10:47:07 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104716_104736_49.mp4
+2025-06-12 10:47:07 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104716_104736_49.mp4 for id=49
+2025-06-12 10:47:16 DEBUG    [parking_app:895] - Closed ticket id=48 at 2025-06-12 10:47:43 camera 23.000000 spot 3
+2025-06-12 10:47:29 DEBUG    [parking_app:895] - Closed ticket id=46 at 2025-06-12 10:47:56 camera 23.000000 spot 7
+2025-06-12 10:47:42 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:47:42 DEBUG    [parking_app:333] - Using existing manual_review id=50 for UNREAD plate
+2025-06-12 10:47:42 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=50
+2025-06-12 10:47:42 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104754_104814_50.mp4 from 192.168.169.85
+2025-06-12 10:47:44 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104754_104814_50.mp4
+2025-06-12 10:47:44 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104754_104814_50.mp4 for id=50
+2025-06-12 10:47:55 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:47:55 DEBUG    [parking_app:333] - Using existing manual_review id=51 for UNREAD plate
+2025-06-12 10:47:55 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=51
+2025-06-12 10:47:55 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104808_104828_51.mp4 from 192.168.169.85
+2025-06-12 10:47:57 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104808_104828_51.mp4
+2025-06-12 10:47:57 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104808_104828_51.mp4 for id=51
+2025-06-12 10:48:07 DEBUG    [parking_app:895] - Closed ticket id=45 at 2025-06-12 10:48:35 camera 23.000000 spot 2
+2025-06-12 10:48:23 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:48:23 DEBUG    [parking_app:333] - Using existing manual_review id=52 for UNREAD plate
+2025-06-12 10:48:23 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=52
+2025-06-12 10:48:23 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104833_104853_52.mp4 from 192.168.169.85
+2025-06-12 10:48:26 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104833_104853_52.mp4
+2025-06-12 10:48:26 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104833_104853_52.mp4 for id=52
+2025-06-12 10:48:40 DEBUG    [parking_app:895] - Closed ticket id=50 at 2025-06-12 10:49:03 camera 23.000000 spot 7
+2025-06-12 10:48:57 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:48:57 DEBUG    [parking_app:333] - Using existing manual_review id=53 for UNREAD plate
+2025-06-12 10:48:57 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=53
+2025-06-12 10:48:57 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104906_104926_53.mp4 from 192.168.169.85
+2025-06-12 10:49:00 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104906_104926_53.mp4
+2025-06-12 10:49:00 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104906_104926_53.mp4 for id=53
+2025-06-12 10:49:14 DEBUG    [parking_app:895] - Closed ticket id=53 at 2025-06-12 10:49:38 camera 23.000000 spot 7
+2025-06-12 10:49:31 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:49:31 DEBUG    [parking_app:333] - Using existing manual_review id=54 for UNREAD plate
+2025-06-12 10:49:31 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=54
+2025-06-12 10:49:31 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_104939_104959_54.mp4 from 192.168.169.85
+2025-06-12 10:49:35 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_104939_104959_54.mp4
+2025-06-12 10:49:35 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_104939_104959_54.mp4 for id=54
+2025-06-12 10:49:48 DEBUG    [parking_app:895] - Closed ticket id=49 at 2025-06-12 10:50:12 camera 23.000000 spot 5
+2025-06-12 10:50:04 DEBUG    [parking_app:237] - Inserted into plate_logs: camera_id=23, status=UNREAD
+2025-06-12 10:50:04 DEBUG    [parking_app:333] - Using existing manual_review id=55 for UNREAD plate
+2025-06-12 10:50:04 DEBUG    [parking_app:348] - Inserted UNREAD ticket into tickets: id=55
+2025-06-12 10:50:04 DEBUG    [parking_app:62] - Attempt 1/3: requesting clip video_clips/clip_20250612_105013_105033_55.mp4 from 192.168.169.85
+2025-06-12 10:50:07 DEBUG    [parking_app:79] - Successfully saved clip to video_clips/clip_20250612_105013_105033_55.mp4
+2025-06-12 10:50:07 DEBUG    [parking_app:374] - Updated manual_reviews.clip_path=video_clips/clip_20250612_105013_105033_55.mp4 for id=55
+2025-06-12 10:50:22 DEBUG    [parking_app:895] - Closed ticket id=55 at 2025-06-12 10:50:45 camera 23.000000 spot 5
+2025-06-12 10:57:12 DEBUG    [passlib.registry:296] - registered 'bcrypt' handler: <class 'passlib.handlers.bcrypt.bcrypt'>
