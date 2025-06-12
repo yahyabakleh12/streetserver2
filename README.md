@@ -182,6 +182,19 @@ location using `/location-stats`.
 curl http://localhost:8000/location-stats -H "Authorization: Bearer <token>"
 ```
 
+### Managing parking spots
+
+Create a new spot using `/spots` and list spots for a camera with
+`/cameras/{id}/spots`.
+
+```bash
+curl -X POST http://localhost:8000/spots \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"camera_id": 1, "spot_number": 1, "bbox_x1": 0, "bbox_y1": 0,
+       "bbox_x2": 100, "bbox_y2": 50}'
+```
+
 ## License
 
 This project is released under the terms of the MIT License. See [LICENSE](LICENSE) for the full text.
