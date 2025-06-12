@@ -211,6 +211,7 @@ CREATE TABLE `tickets` (
   `entry_time` datetime NOT NULL,
   `exit_time` datetime DEFAULT NULL,
   `parkonic_trip_id` int(11) DEFAULT NULL,
+  `image_base64` longtext DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

@@ -10,6 +10,7 @@ from sqlalchemy import (
     JSON,
     ForeignKey,
     Table,
+    Text,
 )
 from sqlalchemy.orm import relationship
 from db import Base
@@ -192,6 +193,7 @@ class Ticket(Base):
     entry_time       = Column(DateTime,   nullable=False)
     exit_time        = Column(DateTime,   nullable=True)
     parkonic_trip_id = Column(Integer,    nullable=True)
+    image_base64    = Column(Text,        nullable=True)
     created_at       = Column(DateTime, default=datetime.utcnow)
 
     camera    = relationship("Camera", back_populates="tickets")
