@@ -29,7 +29,14 @@ def park_out_request(token: str, parkout_time: str, spot_number: int, pole_id: i
         "pole_id": pole_id,
         "trip_id": str(trip_id)
     }
-    return send_request_with_retry(url, payload)
+    resp = send_request_with_retry(url, payload)
+    if isinstance(resp, str):
+        try:
+            resp = json.loads(resp)
+        except Exception:
+            logger.error("[PARK-OUT] JSON decode failed", exc_info=True)
+            resp = {}
+    return resp
 
 
 def park_in_request(
@@ -61,7 +68,14 @@ def park_in_request(
     # Only log non–image fields
     log_data = {k: v for k, v in payload.items() if k != "images"}
     logger.info("[PARK-IN] Sending payload: %s", log_data)
-    return send_request_with_retry(url, payload)
+    resp = send_request_with_retry(url, payload)
+    if isinstance(resp, str):
+        try:
+            resp = json.loads(resp)
+        except Exception:
+            logger.error("[PARK-IN] JSON decode failed", exc_info=True)
+            resp = {}
+    return resp
 
 
 def get_trip_request(token: str, spot_number: int, pole_id: int):
@@ -75,7 +89,14 @@ def get_trip_request(token: str, spot_number: int, pole_id: int):
         "pole_id": pole_id
     }
     logger.info("[GET-TRIP] Sending payload: %s", payload)
-    return send_request_with_retry(url, payload)
+    resp = send_request_with_retry(url, payload)
+    if isinstance(resp, str):
+        try:
+            resp = json.loads(resp)
+        except Exception:
+            logger.error("[GET-TRIP] JSON decode failed", exc_info=True)
+            resp = {}
+    return resp
 
 
 def save_correction_files(
