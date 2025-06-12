@@ -4,6 +4,18 @@ import cv2
 import numpy as np
 
 
+def _avg_hash(gray: np.ndarray, hash_size: int = 8) -> np.ndarray:
+    """Return average hash of image as boolean array."""
+    img = cv2.resize(gray, (hash_size, hash_size), interpolation=cv2.INTER_AREA)
+    avg = img.mean()
+    return (img > avg).astype(np.uint8)
+
+
+def _hash_diff(h1: np.ndarray, h2: np.ndarray) -> int:
+    """Compute Hamming distance between two binary hashes."""
+    return int(np.count_nonzero(h1 != h2))
+
+
 def is_same_image(
     img_path1: str,
     img_path2: str,
@@ -17,12 +29,14 @@ def is_same_image(
 
     Steps:
       1) Load both images in grayscale.
-      2) Detect SIFT keypoints/descriptors.
-      3) Use FLANN to find KNN matches (k=2).
-      4) Apply Lowe's ratio test to keep “good matches.”
-      5) If #good_matches < min_match_count, immediately return False.
-      6) Run cv2.findHomography with RANSAC on the matched keypoints.
-      7) Count inliers (mask returned by findHomography). If
+      2) Resize them to a reasonable maximum size.
+      3) Quickly compare using an average hash; if hashes are almost equal,
+         consider the images identical.
+      4) Detect SIFT keypoints/descriptors.
+      5) Use FLANN to find KNN matches (k=2) and apply Lowe’s ratio test.
+      6) If #good_matches < min_match_count, immediately return False.
+      7) Run cv2.findHomography with RANSAC on the matched keypoints.
+      8) Count inliers (mask returned by findHomography). If
          inliers / good_matches ≥ inlier_ratio_thresh, return True.
          Otherwise return False.
 
@@ -55,6 +69,17 @@ def is_same_image(
 
     img1 = resize_max(img1, 800)
     img2 = resize_max(img2, 800)
+
+    # Early checks using simple hashing. Identical arrays or nearly identical
+    # average hashes indicate the images are the same without running the more
+    # expensive feature matcher.
+    if img1.shape == img2.shape:
+        if np.array_equal(img1, img2):
+            return True
+        h1 = _avg_hash(img1)
+        h2 = _avg_hash(img2)
+        if _hash_diff(h1, h2) <= 5:
+            return True
 
     # 2) Detect SIFT keypoints and descriptors
     sift = cv2.SIFT_create()
