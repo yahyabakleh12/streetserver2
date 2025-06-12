@@ -3,7 +3,6 @@
 import os
 import shutil
 import base64
-import threading
 import json
 from datetime import datetime, timedelta
 
@@ -358,7 +357,7 @@ def process_plate_and_issue_ticket(
                 new_review_tx.ticket_id = new_ticket.id
                 db_session.commit()
 
-                # d) Spawn thread to fetch camera clip for manual review
+                # d) Fetch camera clip for manual review in the current background task
                 def fetch_and_update_clip(rid: int, cam_ip: str, user: str, pwd: str, ev_time: datetime):
                     start_dt = ev_time - timedelta(seconds=15)
                     end_dt   = ev_time + timedelta(seconds=5)
@@ -384,17 +383,18 @@ def process_plate_and_issue_ticket(
                         else:
                             logger.error("Could not obtain clip for manual review id=%d", rid)
                     except Exception:
-                        logger.error("Exception in fetch_and_update_clip thread", exc_info=True)
+                        logger.error("Exception in fetch_and_update_clip", exc_info=True)
                         session_t.rollback()
                     finally:
                         session_t.close()
 
-                thread = threading.Thread(
-                    target=fetch_and_update_clip,
-                    args=(review_id, camera_ip, camera_user, camera_pass, datetime.fromisoformat(payload["time"]))
+                fetch_and_update_clip(
+                    review_id,
+                    camera_ip,
+                    camera_user,
+                    camera_pass,
+                    datetime.fromisoformat(payload["time"]),
                 )
-                thread.daemon = True
-                thread.start()
 
             except Exception:
                 logger.error("manual_reviews INSERT failed", exc_info=True)
