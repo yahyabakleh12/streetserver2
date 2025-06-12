@@ -195,6 +195,15 @@ curl -X POST http://localhost:8000/spots \
        "bbox_x2": 100, "bbox_y2": 50}'
 ```
 
+### Fetching camera frames
+
+Grab the latest snapshot from a camera using `/cameras/{id}/frame`.
+
+```bash
+curl http://localhost:8000/cameras/1/frame \
+  -H "Authorization: Bearer <token>" -o frame.jpg
+```
+
 ## License
 
 This project is released under the terms of the MIT License. See [LICENSE](LICENSE) for the full text.
