@@ -285,7 +285,14 @@ def process_plate_and_issue_ticket(
                 )
                 logger.debug("park_in_request returned: %s", ticket_resp)
 
-                trip_id = ticket_resp.get("trip_id")
+                if isinstance(ticket_resp, str):
+                    try:
+                        ticket_resp = json.loads(ticket_resp)
+                    except Exception:
+                        logger.error("Failed to parse ticket_resp", exc_info=True)
+                        ticket_resp = {}
+
+                trip_id = ticket_resp.get("trip_id") if isinstance(ticket_resp, dict) else None
                 # trip_id = 123098198234
                 if trip_id is None:
                     logger.debug("No trip_id returned → skip ticket insert")
