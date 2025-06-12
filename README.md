@@ -184,8 +184,8 @@ curl http://localhost:8000/location-stats -H "Authorization: Bearer <token>"
 
 ### Managing parking spots
 
-Create a new spot using `/spots` and list spots for a camera with
-`/cameras/{id}/spots`.
+Create a new spot using `/spots`, retrieve a spot with `/spots/{id}`, and
+list spots for a camera with `/cameras/{id}/spots`.
 
 ```bash
 curl -X POST http://localhost:8000/spots \
