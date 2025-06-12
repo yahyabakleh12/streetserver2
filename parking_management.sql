@@ -181,6 +181,22 @@ CREATE TABLE `reports` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `clip_requests`
+--
+
+CREATE TABLE `clip_requests` (
+  `id` int(11) NOT NULL,
+  `camera_id` int(11) NOT NULL,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime NOT NULL,
+  `status` enum('PENDING','COMPLETED','FAILED') NOT NULL DEFAULT 'PENDING',
+  `clip_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tickets`
 --
 
@@ -352,6 +368,13 @@ ALTER TABLE `reports`
   ADD KEY `camera_id` (`camera_id`);
 
 --
+-- Indexes for table `clip_requests`
+--
+ALTER TABLE `clip_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `camera_id` (`camera_id`);
+
+--
 -- Indexes for table `tickets`
 --
 ALTER TABLE `tickets`
@@ -442,6 +465,12 @@ ALTER TABLE `reports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `clip_requests`
+--
+ALTER TABLE `clip_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `tickets`
 --
 ALTER TABLE `tickets`
@@ -507,6 +536,12 @@ ALTER TABLE `poles`
 --
 ALTER TABLE `reports`
   ADD CONSTRAINT `reports_ibfk_2` FOREIGN KEY (`camera_id`) REFERENCES `cameras` (`id`);
+
+--
+-- Constraints for table `clip_requests`
+--
+ALTER TABLE `clip_requests`
+  ADD CONSTRAINT `clip_requests_ibfk_1` FOREIGN KEY (`camera_id`) REFERENCES `cameras` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `tickets`
