@@ -236,6 +236,23 @@ class PermissionUpdate(BaseModel):
     description: str | None = None
 
 
+class SpotCreate(BaseModel):
+    camera_id: int
+    spot_number: int
+    bbox_x1: int
+    bbox_y1: int
+    bbox_x2: int
+    bbox_y2: int
+
+
+class SpotUpdate(BaseModel):
+    spot_number: int | None = None
+    bbox_x1: int | None = None
+    bbox_y1: int | None = None
+    bbox_x2: int | None = None
+    bbox_y2: int | None = None
+
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -1453,6 +1470,48 @@ def delete_camera(cam_id: int, current_user: User = Depends(get_current_user)):
         db.delete(obj)
         _retry_commit(obj, db)
         return {"status": "deleted"}
+    finally:
+        db.close()
+
+
+@app.post("/spots")
+def create_spot(
+    spot: SpotCreate,
+    current_user: User = Depends(get_current_user),
+):
+    db = SessionLocal()
+    try:
+        if not db.query(Camera.id).filter(Camera.id == spot.camera_id).first():
+            raise HTTPException(status_code=404, detail="Camera not found")
+        new_obj = Spot(**spot.dict())
+        db.add(new_obj)
+        _retry_commit(new_obj, db)
+        return {"id": new_obj.id}
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DB error: {e}")
+    finally:
+        db.close()
+
+
+@app.get("/spots")
+def list_spots(current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+    try:
+        objs = db.query(Spot).order_by(desc(Spot.id)).all()
+        return [_as_dict(o) for o in objs]
+    finally:
+        db.close()
+
+
+@app.get("/cameras/{cam_id}/spots")
+def list_camera_spots(cam_id: int, current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+    try:
+        if not db.query(Camera.id).filter(Camera.id == cam_id).first():
+            raise HTTPException(status_code=404, detail="Camera not found")
+        objs = db.query(Spot).filter(Spot.camera_id == cam_id).order_by(asc(Spot.spot_number)).all()
+        return [_as_dict(o) for o in objs]
     finally:
         db.close()
 
