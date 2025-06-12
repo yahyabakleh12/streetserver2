@@ -71,7 +71,14 @@ def test_create_and_list_spots(client, sample_camera):
     spot_id = resp.json()["id"]
 
     session = SessionLocal()
-    assert session.query(Spot).get(spot_id) is not None
+    spot_row = session.query(Spot).get(spot_id)
+    assert spot_row is not None
+    assert spot_row.camera_id == sample_camera
+    assert spot_row.spot_number == 1
+    assert spot_row.bbox_x1 == 0
+    assert spot_row.bbox_y1 == 0
+    assert spot_row.bbox_x2 == 10
+    assert spot_row.bbox_y2 == 10
     session.close()
 
     resp = client.get(f"/cameras/{sample_camera}/spots")
