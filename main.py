@@ -181,6 +181,7 @@ class TicketUpdate(BaseModel):
     entry_time: datetime | None = None
     exit_time: datetime | None = None
     parkonic_trip_id: int | None = None
+    image_base64: str | None = None
 
 
 class ReportUpdate(BaseModel):

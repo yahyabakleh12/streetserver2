@@ -219,6 +219,13 @@ def process_plate_and_issue_ticket(
         else:
             shutil.copy(main_crop_path, final_plate_path)
 
+        ticket_image_b64 = None
+        try:
+            with open(final_plate_path, "rb") as f:
+                ticket_image_b64 = base64.b64encode(f.read()).decode("utf-8")
+        except Exception:
+            logger.error("Failed to read final plate image for ticket", exc_info=True)
+
         # 6) Insert into plate_logs
         new_plate_log = PlateLog(
             camera_id    = camera_id,
@@ -304,7 +311,8 @@ def process_plate_and_issue_ticket(
                         plate_city       = plate_city,
                         confidence       = conf_val,
                         entry_time       = datetime.fromisoformat(payload["time"]),
-                        parkonic_trip_id = trip_id
+                        parkonic_trip_id = trip_id,
+                        image_base64     = ticket_image_b64
                     )
                     logger.debug("About to insert new_ticket: %s", new_ticket)
                     db_session.add(new_ticket)
@@ -347,7 +355,8 @@ def process_plate_and_issue_ticket(
                     plate_city       = plate_city or "",
                     confidence       = conf_val or 0,
                     entry_time       = datetime.fromisoformat(payload["time"]),
-                    parkonic_trip_id = None
+                    parkonic_trip_id = None,
+                    image_base64     = ticket_image_b64
                 )
                 db_session.add(new_ticket)
                 db_session.commit()
