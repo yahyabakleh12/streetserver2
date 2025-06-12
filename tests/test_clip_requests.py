@@ -56,14 +56,6 @@ def sample_camera(tmp_path):
     session.close()
     return cam.id
 
-class DummyThread:
-    def __init__(self, target, args=(), kwargs=None, daemon=None):
-        self.target = target
-        self.args = args
-        self.kwargs = kwargs or {}
-    def start(self):
-        self.target(*self.args, **self.kwargs)
-
 
 def test_clip_request_flow(client, sample_camera, tmp_path):
     clip_file = tmp_path / "clip.mp4"
@@ -71,8 +63,7 @@ def test_clip_request_flow(client, sample_camera, tmp_path):
     start = datetime(2025, 1, 1, 0, 0, 0)
     end = datetime(2025, 1, 1, 0, 0, 10)
     with patch("main.request_camera_clip", return_value=str(clip_file)), \
-         patch("main.is_valid_mp4", return_value=True), \
-         patch("main.threading.Thread", DummyThread):
+         patch("main.is_valid_mp4", return_value=True):
         resp = client.post(
             "/clip-requests",
             json={"camera_id": sample_camera, "start": start.isoformat(), "end": end.isoformat()},

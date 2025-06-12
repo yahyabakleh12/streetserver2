@@ -5,7 +5,6 @@ import io
 import re
 import json
 import base64
-import threading
 from datetime import datetime, timedelta
 import uuid
 
@@ -947,11 +946,9 @@ async def receive_parking_data(
                 return JSONResponse(status_code=200, content={"message": "Spot already occupied"})
 
             # 6b) Save report to JSON file asynchronously
-            threading.Thread(
-                target=save_report_to_file,
-                args=(payload, camera_id, spot_number, ts),
-                daemon=True,
-            ).start()
+            background_tasks.add_task(
+                save_report_to_file, payload, camera_id, spot_number, ts
+            )
 
         except SQLAlchemyError as sa_err:
             try:
