@@ -3,6 +3,7 @@
 import time
 import uuid
 import requests
+import cv2
 from datetime import datetime
 from logger import logger
 import os
@@ -89,8 +90,19 @@ def request_camera_clip(
 
 
 def fetch_camera_frame(camera_ip: str, username: str, password: str) -> bytes:
-    """Return a JPEG snapshot from the camera."""
-    url = f"http://{camera_ip}/cgi-bin/snapshot.cgi"
-    r = requests.get(url, auth=(username, password), timeout=10)
-    r.raise_for_status()
-    return r.content
+    """Return a JPEG snapshot from the camera using RTSP."""
+
+    rtsp_url = f"rtsp://{username}:{password}@{camera_ip}:554/"
+    cap = cv2.VideoCapture(rtsp_url)
+    if not cap.isOpened():
+        raise RuntimeError("Failed to open RTSP stream")
+    try:
+        ret, frame = cap.read()
+        if not ret:
+            raise RuntimeError("Failed to read frame from RTSP stream")
+        ok, buf = cv2.imencode(".jpg", frame)
+        if not ok:
+            raise RuntimeError("Failed to encode frame as JPEG")
+        return buf.tobytes()
+    finally:
+        cap.release()
