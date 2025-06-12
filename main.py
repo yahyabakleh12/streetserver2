@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import uuid
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import ClientDisconnect
 from sqlalchemy import text, asc, desc, func
@@ -35,7 +35,7 @@ from models import (
     Permission,
 )
 from ocr_processor import process_plate_and_issue_ticket
-from camera_clip import request_camera_clip, is_valid_mp4
+from camera_clip import request_camera_clip, is_valid_mp4, fetch_camera_frame
 from logger import logger
 from utils import is_same_image
 
@@ -1327,6 +1327,46 @@ def get_camera_clip(
         raise HTTPException(status_code=500, detail="Failed to fetch clip")
 
     return FileResponse(clip_path)
+
+
+@app.get("/cameras/{cam_id}/frame")
+def get_camera_frame(
+    cam_id: int,
+    current_user: User = Depends(get_current_user),
+):
+    """Return a JPEG frame captured from the camera."""
+
+    db = SessionLocal()
+    try:
+        row = db.execute(
+            text(
+                """
+                SELECT c.p_ip, l.camera_user, l.camera_pass
+                FROM cameras c
+                JOIN poles p ON c.pole_id = p.id
+                JOIN locations l ON p.location_id = l.id
+                WHERE c.id = :cam_id
+                LIMIT 1
+                """
+            ),
+            {"cam_id": cam_id},
+        ).fetchone()
+
+        if row is None:
+            raise HTTPException(status_code=404, detail="Camera not found")
+
+        cam_ip, user, pwd = row
+
+    finally:
+        db.close()
+
+    try:
+        frame_bytes = fetch_camera_frame(cam_ip, user or "", pwd or "")
+    except Exception:
+        logger.error("Failed fetching camera frame", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch frame")
+
+    return Response(content=frame_bytes, media_type="image/jpeg")
 
 
 def _process_clip_request(req_id: int, cam_ip: str, user: str, pwd: str, start_dt: datetime, end_dt: datetime):

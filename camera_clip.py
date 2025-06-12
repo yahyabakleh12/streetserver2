@@ -86,3 +86,11 @@ def request_camera_clip(
             else:
                 logger.error(f"All {max_retries+1} attempts to fetch clip failed.")
                 return None
+
+
+def fetch_camera_frame(camera_ip: str, username: str, password: str) -> bytes:
+    """Return a JPEG snapshot from the camera."""
+    url = f"http://{camera_ip}/cgi-bin/snapshot.cgi"
+    r = requests.get(url, auth=(username, password), timeout=10)
+    r.raise_for_status()
+    return r.content
