@@ -29,6 +29,7 @@ from models import (
     Pole,
     Location,
     ManualReview,
+    ClipRequest,
     Zone,
     User,
     Role,
@@ -193,6 +194,12 @@ class ReportUpdate(BaseModel):
 
 class ManualReviewUpdate(BaseModel):
     review_status: str | None = None
+
+
+class ClipRequestCreate(BaseModel):
+    camera_id: int
+    start: datetime
+    end: datetime
 
 
 class UserCreate(BaseModel):
@@ -1305,6 +1312,118 @@ def get_camera_clip(
         raise HTTPException(status_code=500, detail="Failed to fetch clip")
 
     return FileResponse(clip_path)
+
+
+def _process_clip_request(req_id: int, cam_ip: str, user: str, pwd: str, start_dt: datetime, end_dt: datetime):
+    """Background task to fetch clip and update ClipRequest row."""
+    clip_path = request_camera_clip(
+        camera_ip=cam_ip,
+        username=user or "",
+        password=pwd or "",
+        start_dt=start_dt,
+        end_dt=end_dt,
+        segment_name=start_dt.strftime("%Y%m%d%H%M%S"),
+        unique_tag=str(req_id),
+    )
+    session = SessionLocal()
+    try:
+        req = session.query(ClipRequest).get(req_id)
+        if req:
+            if clip_path and os.path.isfile(clip_path) and is_valid_mp4(clip_path):
+                req.status = "COMPLETED"
+                req.clip_path = clip_path
+            else:
+                req.status = "FAILED"
+            session.commit()
+    except Exception:
+        logger.error("Failed updating clip request %d", req_id, exc_info=True)
+        session.rollback()
+    finally:
+        session.close()
+
+
+@app.post("/clip-requests")
+def create_clip_request(
+    data: ClipRequestCreate,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+):
+    """Create a camera clip request and process asynchronously."""
+
+    if data.end <= data.start:
+        raise HTTPException(status_code=400, detail="end must be after start")
+
+    db = SessionLocal()
+    try:
+        row = db.execute(
+            text(
+                """
+                SELECT c.p_ip, l.camera_user, l.camera_pass
+                FROM cameras c
+                JOIN poles p ON c.pole_id = p.id
+                JOIN locations l ON p.location_id = l.id
+                WHERE c.id = :cam_id
+                LIMIT 1
+                """
+            ),
+            {"cam_id": data.camera_id},
+        ).fetchone()
+
+        if row is None:
+            raise HTTPException(status_code=404, detail="Camera not found")
+
+        cam_ip, user, pwd = row
+
+        req = ClipRequest(
+            camera_id=data.camera_id,
+            start_time=data.start,
+            end_time=data.end,
+            status="PENDING",
+        )
+        db.add(req)
+        _retry_commit(req, db)
+        background_tasks.add_task(
+            _process_clip_request,
+            req.id,
+            cam_ip,
+            user or "",
+            pwd or "",
+            data.start,
+            data.end,
+        )
+        return {"id": req.id, "status": req.status}
+    finally:
+        db.close()
+
+
+@app.get("/clip-requests")
+def list_clip_requests(current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+    try:
+        objs = db.query(ClipRequest).order_by(desc(ClipRequest.created_at)).all()
+        return [ _as_dict(o) for o in objs ]
+    finally:
+        db.close()
+
+
+@app.delete("/clip-requests/{req_id}")
+def delete_clip_request(req_id: int, current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+    try:
+        obj = db.query(ClipRequest).get(req_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        path = obj.clip_path
+        db.delete(obj)
+        _retry_commit(obj, db)
+        if path and os.path.isfile(path):
+            try:
+                os.remove(path)
+            except Exception:
+                logger.error("Failed deleting clip file %s", path, exc_info=True)
+        return {"status": "deleted"}
+    finally:
+        db.close()
 
 
 @app.put("/cameras/{cam_id}")

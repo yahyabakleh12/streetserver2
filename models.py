@@ -148,6 +148,7 @@ class Camera(Base):
     tickets          = relationship("Ticket", back_populates="camera")
     manual_reviews   = relationship("ManualReview", back_populates="camera")
     pole             = relationship("Pole", back_populates="cameras")
+    clip_requests    = relationship("ClipRequest", back_populates="camera")
 
 
 class Report(Base):
@@ -213,5 +214,19 @@ class ManualReview(Base):
 
     camera    = relationship("Camera", back_populates="manual_reviews")
     ticket    = relationship("Ticket")
+
+
+class ClipRequest(Base):
+    __tablename__ = "clip_requests"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    camera_id  = Column(Integer, ForeignKey("cameras.id", ondelete="CASCADE"), nullable=False)
+    start_time = Column(DateTime, nullable=False)
+    end_time   = Column(DateTime, nullable=False)
+    status     = Column(Enum("PENDING", "COMPLETED", "FAILED", name="clip_request_status"), nullable=False, default="PENDING")
+    clip_path  = Column(String(255), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    camera = relationship("Camera", back_populates="clip_requests")
 
 
