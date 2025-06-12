@@ -27,6 +27,7 @@ from models import (
     Camera,
     Pole,
     Location,
+    Spot,
     ManualReview,
     ClipRequest,
     Zone,
