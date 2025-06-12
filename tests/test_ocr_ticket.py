@@ -9,7 +9,7 @@ TEST_DB = "sqlite:///./test.db"
 os.environ["DATABASE_URL"] = TEST_DB
 
 from db import Base, engine, SessionLocal
-from models import Location, Zone, Pole, Camera
+from models import Location, Zone, Pole, Camera, Ticket
 from ocr_processor import process_plate_and_issue_ticket
 
 # Setup database
@@ -68,7 +68,7 @@ def test_process_plate_with_json_ticket(tmp_path):
     with patch("ocr_processor.plate_model", DummyModel()), \
          patch("ocr_processor.is_same_image", return_value=False), \
          patch("ocr_processor.send_request_with_retry", return_value=ocr_wrapped), \
-         patch("api_client.send_request_with_retry", return_value=json.dumps({"trip_id": 1})):
+         patch("api_client.park_in_request", return_value={"trip_id": 1}) as mock_park:
         process_plate_and_issue_ticket(
             payload=payload,
             park_folder=str(tmp_path),
@@ -82,3 +82,9 @@ def test_process_plate_with_json_ticket(tmp_path):
             camera_pass="pass",
             parkonic_api_token="token",
         )
+
+    session = SessionLocal()
+    ticket = session.query(Ticket).first()
+    session.close()
+    assert ticket is not None
+    assert mock_park.call_args.kwargs["images"] == [ticket.image_base64]
