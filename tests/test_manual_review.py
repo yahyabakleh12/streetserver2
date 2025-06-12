@@ -1,4 +1,5 @@
 import os
+import base64
 from datetime import datetime
 
 import pytest
@@ -66,6 +67,8 @@ def sample_review(tmp_path):
     )
     session.add(ticket)
     session.commit()
+    ticket.image_base64 = base64.b64encode(b"imgdata").decode()
+    session.commit()
     img_path = tmp_path / "img.jpg"
     img_path.write_bytes(b"data")
     review = ManualReview(
@@ -111,6 +114,25 @@ def test_correct_manual_review_success(client, sample_review):
     assert review.review_status == "RESOLVED"
     assert review.plate_status == "READ"
     session.close()
+
+
+def test_correct_manual_review_uses_ticket_image(client, sample_review):
+    review_id, ticket_id = sample_review
+    session = SessionLocal()
+    ticket = session.query(Ticket).get(ticket_id)
+    img_b64 = ticket.image_base64
+    session.close()
+
+    payload = {
+        "plate_number": "IMG",
+        "plate_code": "99",
+        "plate_city": "DXB",
+        "confidence": 70,
+    }
+    with patch("api_client.park_in_request", return_value=None) as mock_park:
+        resp = client.post(f"/manual-reviews/{review_id}/correct", json=payload)
+    assert resp.status_code == 200
+    assert mock_park.call_args.kwargs["images"] == [img_b64]
 
 
 def test_correct_manual_review_not_found(client):

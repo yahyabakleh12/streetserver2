@@ -261,20 +261,23 @@ def process_plate_and_issue_ticket(
 
         # 7) If READ → create Ticket
         if plate_status == "READ":
-            img_list = []
-            try:
-                with open(annotated_path, "rb") as f:
-                    img_list.append(base64.b64encode(f.read()).decode("utf-8"))
-            except Exception:
-                logger.error("Failed to read annotated image for API", exc_info=True)
-            try:
-                with open(main_crop_path, "rb") as f:
-                    img_list.append(base64.b64encode(f.read()).decode("utf-8"))
-            except Exception:
-                logger.error("Failed to read cropped image for API", exc_info=True)
-            if not img_list:
-                with open(final_plate_path, "rb") as f:
-                    img_list = [base64.b64encode(f.read()).decode("utf-8")]
+            if ticket_image_b64:
+                img_list = [ticket_image_b64]
+            else:
+                img_list = []
+                try:
+                    with open(annotated_path, "rb") as f:
+                        img_list.append(base64.b64encode(f.read()).decode("utf-8"))
+                except Exception:
+                    logger.error("Failed to read annotated image for API", exc_info=True)
+                try:
+                    with open(main_crop_path, "rb") as f:
+                        img_list.append(base64.b64encode(f.read()).decode("utf-8"))
+                except Exception:
+                    logger.error("Failed to read cropped image for API", exc_info=True)
+                if not img_list:
+                    with open(final_plate_path, "rb") as f:
+                        img_list = [base64.b64encode(f.read()).decode("utf-8")]
 
             from api_client import park_in_request
             try:
