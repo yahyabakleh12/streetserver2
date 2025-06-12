@@ -1545,6 +1545,18 @@ def list_spots(current_user: User = Depends(get_current_user)):
         db.close()
 
 
+@app.get("/spots/{spot_id}")
+def get_spot(spot_id: int, current_user: User = Depends(get_current_user)):
+    db = SessionLocal()
+    try:
+        obj = db.query(Spot).get(spot_id)
+        if obj is None:
+            raise HTTPException(status_code=404, detail="Not found")
+        return _as_dict(obj)
+    finally:
+        db.close()
+
+
 @app.get("/cameras/{cam_id}/spots")
 def list_camera_spots(cam_id: int, current_user: User = Depends(get_current_user)):
     db = SessionLocal()

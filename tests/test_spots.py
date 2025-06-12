@@ -106,3 +106,29 @@ def test_create_spot_camera_not_found(client):
     )
     assert resp.status_code == 404
 
+
+def test_get_spot_and_not_found(client, sample_camera):
+    resp = client.post(
+        "/spots",
+        json={
+            "camera_id": sample_camera,
+            "spot_number": 2,
+            "bbox_x1": 5,
+            "bbox_y1": 5,
+            "bbox_x2": 15,
+            "bbox_y2": 15,
+        },
+    )
+    assert resp.status_code == 200
+    spot_id = resp.json()["id"]
+
+    resp = client.get(f"/spots/{spot_id}")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["id"] == spot_id
+    assert data["camera_id"] == sample_camera
+    assert data["spot_number"] == 2
+
+    resp = client.get("/spots/999")
+    assert resp.status_code == 404
+
