@@ -197,6 +197,24 @@ CREATE TABLE `clip_requests` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `spots`
+--
+
+CREATE TABLE `spots` (
+  `id` int(11) NOT NULL,
+  `camera_id` int(11) NOT NULL,
+  `spot_number` int(11) NOT NULL,
+  `bbox_x1` int(11) NOT NULL,
+  `bbox_y1` int(11) NOT NULL,
+  `bbox_x2` int(11) NOT NULL,
+  `bbox_y2` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tickets`
 --
 
@@ -376,6 +394,13 @@ ALTER TABLE `clip_requests`
   ADD KEY `camera_id` (`camera_id`);
 
 --
+-- Indexes for table `spots`
+--
+ALTER TABLE `spots`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `camera_id` (`camera_id`);
+
+--
 -- Indexes for table `tickets`
 --
 ALTER TABLE `tickets`
@@ -472,6 +497,11 @@ ALTER TABLE `clip_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `spots`
+--
+ALTER TABLE `spots`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 -- AUTO_INCREMENT for table `tickets`
 --
 ALTER TABLE `tickets`
@@ -543,6 +573,12 @@ ALTER TABLE `reports`
 --
 ALTER TABLE `clip_requests`
   ADD CONSTRAINT `clip_requests_ibfk_1` FOREIGN KEY (`camera_id`) REFERENCES `cameras` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `spots`
+--
+ALTER TABLE `spots`
+  ADD CONSTRAINT `spots_ibfk_1` FOREIGN KEY (`camera_id`) REFERENCES `cameras` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `tickets`

@@ -150,6 +150,23 @@ class Camera(Base):
     manual_reviews   = relationship("ManualReview", back_populates="camera")
     pole             = relationship("Pole", back_populates="cameras")
     clip_requests    = relationship("ClipRequest", back_populates="camera")
+    spots            = relationship("Spot", back_populates="camera")
+
+
+class Spot(Base):
+    __tablename__ = "spots"
+
+    id = Column(Integer, primary_key=True, index=True)
+    camera_id = Column(Integer, ForeignKey("cameras.id", ondelete="CASCADE"), nullable=False)
+    spot_number = Column(Integer, nullable=False)
+    bbox_x1 = Column(Integer, nullable=False)
+    bbox_y1 = Column(Integer, nullable=False)
+    bbox_x2 = Column(Integer, nullable=False)
+    bbox_y2 = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    camera = relationship("Camera", back_populates="spots")
 
 
 class Report(Base):
