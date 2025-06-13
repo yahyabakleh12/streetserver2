@@ -857,30 +857,23 @@ async def receive_parking_data(
             logger.error("Failed to decode snapshot for EXIT check", exc_info=True)
 
         if pil_img:
-            coords = [
-                (payload["coordinate_x1"], payload["coordinate_y1"]),
-                (payload["coordinate_x2"], payload["coordinate_y2"]),
-                (payload["coordinate_x3"], payload["coordinate_y3"]),
-                (payload["coordinate_x4"], payload["coordinate_y4"]),
-            ]
-            xs, ys = zip(*coords)
-            left, right = min(xs), max(xs)
-            top, bottom = min(ys), max(ys)
+            temp_path = os.path.join(SNAPSHOTS_DIR, f"temp_exit_{ts}.jpg")
+            pil_img.save(temp_path)
 
-            current_crop = pil_img.crop((left, top, right, bottom))
-            temp_crop_path = os.path.join(SNAPSHOTS_DIR, f"temp_crop_exit_{ts}.jpg")
-            current_crop.save(temp_crop_path)
-
-            # Compare against last‐seen “main_crop” for this (camera, spot)
+            # Compare against last full-frame image for this (camera, spot)
             last_image_path = os.path.join(SPOT_LAST_DIR, f"spot_{camera_id}_{spot_number}.jpg")
             if os.path.isfile(last_image_path):
                 try:
                     same = is_same_image(
-                        last_image_path, temp_crop_path, min_match_count=50, inlier_ratio_thresh=0.5
+                        last_image_path,
+                        temp_path,
+                        camera_id=camera_id,
+                        spot_number=spot_number,
+                        min_match_count=50,
+                        inlier_ratio_thresh=0.5,
                     )
                     if same:
-                        # The car is still there: ignore this phantom “0”
-                        os.remove(temp_crop_path)
+                        os.remove(temp_path)
                         logger.debug(
                             "EXIT report ignored (false‐clear). Camera=%d, Spot=%d",
                             camera_id,
@@ -893,8 +886,8 @@ async def receive_parking_data(
                     logger.error("Error in feature-match during EXIT check", exc_info=True)
 
             try:
-                os.remove(temp_crop_path)
-            except:
+                os.remove(temp_path)
+            except Exception:
                 pass
 
         # 5b) Proceed to close any open ticket
