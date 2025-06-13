@@ -5,3 +5,4 @@ spot_last/
 video_clips/
 reports_json/
 parking_app.log
+__pycache__/

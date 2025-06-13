@@ -5,20 +5,32 @@ import uuid
 import requests
 import cv2
 from datetime import datetime
+from typing import Optional
 from logger import logger
 import os
 
 
 def is_valid_mp4(path: str) -> bool:
-    """Return True if the file at ``path`` looks like a valid MP4."""
+    """Return True if the file at ``path`` can be opened and read as MP4."""
     if not os.path.isfile(path):
         return False
     try:
-        with open(path, "rb") as f:
-            header = f.read(8)
-        return len(header) >= 8 and header[4:8] == b"ftyp"
+        cap = cv2.VideoCapture(path)
+        if not cap.isOpened():
+            cap.release()
+            return False
+        ret, _ = cap.read()
+        cap.release()
+        if not ret:
+            os.remove(path)
+            return False
+        return True
     except Exception:
         logger.error("Failed validating MP4 %s", path, exc_info=True)
+        try:
+            os.remove(path)
+        except Exception:
+            pass
         return False
 
 VIDEO_CLIPS_DIR = "video_clips"
@@ -33,20 +45,19 @@ def request_camera_clip(
     end_dt: datetime,
     segment_name: str,
     unique_tag: str | None = None,
-) -> str:
+) -> Optional[str]:
     """
     Attempt up to 3 times (0, +5s, +5s) to fetch a 20 s MP4 from the camera.
     Uses a 30 second read timeout each attempt.
     Returns the saved filepath on success, or None on permanent failure.
     """
-    params = {
+    base_params = {
         "dw":        "sd",
         "filename":  segment_name,
         "starttime": start_dt.strftime("%Y-%m-%d %H:%M:%S"),
         "endtime":   end_dt.strftime("%Y-%m-%d %H:%M:%S"),
         "index":     0,
         "sid":       0,
-        "uuid":      str(uuid.uuid4()),
     }
     out_name = (
         f"{VIDEO_CLIPS_DIR}/clip_"
@@ -59,8 +70,11 @@ def request_camera_clip(
 
     max_retries = 2
     for attempt in range(max_retries + 1):
+        params = base_params | {"uuid": str(uuid.uuid4())}
         try:
-            logger.debug(f"Attempt {attempt+1}/{max_retries+1}: requesting clip {out_name} from {camera_ip}")
+            logger.debug(
+                f"Attempt {attempt+1}/{max_retries+1}: requesting clip {out_name} from {camera_ip}"
+            )
             with requests.get(
                 url,
                 params=params,
