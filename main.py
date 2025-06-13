@@ -35,7 +35,7 @@ from models import (
     Role,
     Permission,
 )
-from ocr_processor import process_plate_and_issue_ticket
+from ocr_processor import process_plate_and_issue_ticket, spot_has_car
 from camera_clip import request_camera_clip, is_valid_mp4, fetch_camera_frame
 from logger import logger
 from utils import is_same_image
@@ -848,7 +848,32 @@ async def receive_parking_data(
 
     # ── 5) If occupancy == 0 → attempt to “EXIT” ──
     if payload["occupancy"] == 0:
-        # 5a) Decode snapshot and crop to the parking polygon (for feature‐matching)
+        # 5a) Capture a current frame and check if the spot still contains a car
+        frame_bytes = None
+        try:
+            frame_bytes = fetch_camera_frame(camera_ip, cam_user, cam_pass)
+        except Exception:
+            logger.error("Failed to fetch camera frame for EXIT check", exc_info=True)
+
+        if frame_bytes is None:
+            try:
+                frame_bytes = base64.b64decode(payload["snapshot"])
+            except Exception:
+                frame_bytes = None
+
+        if frame_bytes is not None:
+            try:
+                if spot_has_car(frame_bytes, camera_id=camera_id, spot_number=spot_number):
+                    logger.debug(
+                        "EXIT report ignored - spot still occupied. Camera=%d, Spot=%d",
+                        camera_id,
+                        spot_number,
+                    )
+                    return JSONResponse(status_code=200, content={"message": "Spot still occupied"})
+            except Exception:
+                logger.error("Error checking spot occupancy", exc_info=True)
+
+        # 5b) Decode snapshot and crop to the parking polygon (for feature‐matching)
         try:
             raw_bytes = base64.b64decode(payload["snapshot"])
             pil_img = Image.open(io.BytesIO(raw_bytes))

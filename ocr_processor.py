@@ -4,6 +4,7 @@ import os
 import shutil
 import base64
 import json
+import io
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -32,6 +33,38 @@ os.makedirs(SPOT_LAST_DIR,      exist_ok=True)
 
 # Load YOLO model (CPU)
 plate_model = YOLO(YOLO_MODEL_PATH)
+
+
+def spot_has_car(image: Image.Image | bytes, camera_id: int, spot_number: int) -> bool:
+    """Return True if the cropped spot contains a car based on YOLO detection."""
+    if isinstance(image, bytes):
+        img = Image.open(io.BytesIO(image))
+    else:
+        img = image
+
+    db = SessionLocal()
+    try:
+        spot = (
+            db.query(Spot)
+            .filter_by(camera_id=camera_id, spot_number=spot_number)
+            .first()
+        )
+    finally:
+        db.close()
+
+    if spot is None:
+        return False
+
+    left, top, right, bottom = (
+        spot.bbox_x1,
+        spot.bbox_y1,
+        spot.bbox_x2,
+        spot.bbox_y2,
+    )
+    crop = img.crop((left, top, right, bottom))
+    arr = np.array(crop)
+    results = plate_model(arr)
+    return bool(results and results[0].boxes)
 
 
 def process_plate_and_issue_ticket(
