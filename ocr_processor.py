@@ -64,7 +64,14 @@ def spot_has_car(image: Image.Image | bytes, camera_id: int, spot_number: int) -
     crop = img.crop((left, top, right, bottom))
     arr = np.array(crop)
     results = plate_model(arr)
-    return bool(results and results[0].boxes)
+    if results and results[0].boxes:
+        classes = results[0].boxes.cls
+        try:
+            cls_list = classes.tolist()
+        except Exception:
+            cls_list = list(classes)
+        return 2 in cls_list
+    return False
 
 
 def process_plate_and_issue_ticket(
