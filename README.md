@@ -38,6 +38,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 The API exposes a `/post` endpoint that accepts JSON payloads describing parking events. This endpoint is intended for camera devices and does **not** require authentication.
+When a device reports an exit (`occupancy` set to `0`), the application now grabs the latest frame from the camera and checks the spot using the plate detector. If a plate is still visible the ticket remains open and the endpoint responds that the spot is still occupied.
 
 ### Authentication
 
