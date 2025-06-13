@@ -65,12 +65,13 @@ def spot_has_car(image: Image.Image | bytes, camera_id: int, spot_number: int) -
     arr = np.array(crop)
     results = plate_model(arr)
     if results and results[0].boxes:
-        classes = results[0].boxes.cls
-        try:
-            cls_list = classes.tolist()
-        except Exception:
-            cls_list = list(classes)
-        return 2 in cls_list
+        return True
+        # classes = results[0].boxes.cls
+        # try:
+        #     cls_list = classes.tolist()
+        # except Exception:
+        #     cls_list = list(classes)
+        # return 2 in cls_list
     return False
 
 
@@ -139,24 +140,24 @@ def process_plate_and_issue_ticket(
         spot_key = f"spot_{camera_id}_{spot_number}.jpg"
         last_image_path = os.path.join(SPOT_LAST_DIR, spot_key)
 
-        if os.path.isfile(last_image_path):
-            try:
-                same = is_same_image(
-                    last_image_path,
-                    snapshot_path,
-                    camera_id=camera_id,
-                    spot_number=spot_number,
-                    min_match_count=50,
-                    inlier_ratio_thresh=0.5,
-                )
-                if same:
-                    logger.debug(
-                        "Spot %d camera %d: same car detected → skip OCR/ticket",
-                        spot_number, camera_id
-                    )
-                    return
-            except Exception:
-                logger.error("Error in feature-matching", exc_info=True)
+        # if os.path.isfile(last_image_path):
+        #     try:
+        #         same = is_same_image(
+        #             last_image_path,
+        #             snapshot_path,
+        #             camera_id=camera_id,
+        #             spot_number=spot_number,
+        #             min_match_count=50,
+        #             inlier_ratio_thresh=0.5,
+        #         )
+        #         if same:
+        #             logger.debug(
+        #                 "Spot %d camera %d: same car detected → skip OCR/ticket",
+        #                 spot_number, camera_id
+        #             )
+        #             return
+        #     except Exception:
+        #         logger.error("Error in feature-matching", exc_info=True)
 
         # Overwrite last-seen image with the full snapshot
         try:

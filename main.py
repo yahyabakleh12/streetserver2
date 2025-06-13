@@ -863,6 +863,7 @@ async def receive_parking_data(
 
         if frame_bytes is not None:
             try:
+                print( spot_has_car(frame_bytes, camera_id=camera_id, spot_number=spot_number))
                 if spot_has_car(frame_bytes, camera_id=camera_id, spot_number=spot_number):
                     logger.debug(
                         "EXIT report ignored - spot still occupied. Camera=%d, Spot=%d",
@@ -885,30 +886,30 @@ async def receive_parking_data(
             temp_path = os.path.join(SNAPSHOTS_DIR, f"temp_exit_{ts}.jpg")
             pil_img.save(temp_path)
 
-            # Compare against last full-frame image for this (camera, spot)
-            last_image_path = os.path.join(SPOT_LAST_DIR, f"spot_{camera_id}_{spot_number}.jpg")
-            if os.path.isfile(last_image_path):
-                try:
-                    same = is_same_image(
-                        last_image_path,
-                        temp_path,
-                        camera_id=camera_id,
-                        spot_number=spot_number,
-                        min_match_count=50,
-                        inlier_ratio_thresh=0.5,
-                    )
-                    if same:
-                        os.remove(temp_path)
-                        logger.debug(
-                            "EXIT report ignored (false‐clear). Camera=%d, Spot=%d",
-                            camera_id,
-                            spot_number,
-                        )
-                        return JSONResponse(
-                            status_code=200, content={"message": "False‐clear; skip EXIT"}
-                        )
-                except Exception:
-                    logger.error("Error in feature-match during EXIT check", exc_info=True)
+            # # Compare against last full-frame image for this (camera, spot)
+            # last_image_path = os.path.join(SPOT_LAST_DIR, f"spot_{camera_id}_{spot_number}.jpg")
+            # if os.path.isfile(last_image_path):
+                # try:
+                #     same = is_same_image(
+                #         last_image_path,
+                #         temp_path,
+                #         camera_id=camera_id,
+                #         spot_number=spot_number,
+                #         min_match_count=50,
+                #         inlier_ratio_thresh=0.5,
+                #     )
+                #     if same:
+                #         os.remove(temp_path)
+                #         logger.debug(
+                #             "EXIT report ignored (false‐clear). Camera=%d, Spot=%d",
+                #             camera_id,
+                #             spot_number,
+                #         )
+                #         return JSONResponse(
+                #             status_code=200, content={"message": "False‐clear; skip EXIT"}
+                #         )
+                # except Exception:
+                #     logger.error("Error in feature-match during EXIT check", exc_info=True)
 
             try:
                 os.remove(temp_path)
