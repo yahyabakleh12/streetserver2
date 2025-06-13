@@ -63,7 +63,7 @@ def spot_has_car(image: Image.Image | bytes, camera_id: int, spot_number: int) -
     )
     crop = img.crop((left, top, right, bottom))
     arr = np.array(crop)
-    results = plate_model(arr)
+    results = plate_model(arr,conf=7)
     if results and results[0].boxes:
         return True
         # classes = results[0].boxes.cls
