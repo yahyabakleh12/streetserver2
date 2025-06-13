@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import numpy as np
 from PIL import Image, ImageDraw
 
-from camera_clip import request_camera_clip
+from camera_clip import request_camera_clip, fetch_camera_frame
 from network import send_request_with_retry
 
 from config import OCR_TOKEN, YOLO_MODEL_PATH
@@ -211,9 +211,93 @@ def process_plate_and_issue_ticket(
                     else:
                         logger.debug("Confidence %d < 5 → UNREAD", confidance_value)
                         plate_status = "UNREAD"
+
                 except Exception:
                     logger.error("Failed to extract from ocr_json", exc_info=True)
                     plate_status = "UNREAD"
+
+        # Fallback: capture a fresh frame and retry detection/OCR if unread
+        if plate_status == "UNREAD":
+            try:
+                frame_bytes = fetch_camera_frame(camera_ip, camera_user or "", camera_pass or "")
+                retry_snapshot = os.path.join(park_folder, f"retry_snapshot_{ts}.jpg")
+                with open(retry_snapshot, "wb") as f:
+                    f.write(frame_bytes)
+                img = Image.open(retry_snapshot)
+                draw = ImageDraw.Draw(img)
+                draw.rectangle([left, top, right, bottom], outline="red", width=3)
+                annotated_path = os.path.join(park_folder, f"annotated_retry_{ts}.jpg")
+                img.save(annotated_path)
+                main_crop = img.crop((left, top, right, bottom))
+                main_crop_path = os.path.join(park_folder, f"main_crop_retry_{ts}.jpg")
+                main_crop.save(main_crop_path)
+
+                arr = np.array(main_crop)
+                results = plate_model(arr)
+                if results and results[0].boxes:
+                    x1p, y1p, x2p, y2p = results[0].boxes.xyxy[0].tolist()
+                    x1i, y1i, x2i, y2i = map(int, (x1p, y1p, x2p, y2p))
+                    plate_crop = main_crop.crop((x1i, y1i, x2i, y2i))
+
+                    tmp_candidate_path = os.path.join(park_folder, f"plate_candidate_retry_{ts}.jpg")
+                    plate_crop.save(tmp_candidate_path)
+
+                    with open(tmp_candidate_path, "rb") as f:
+                        plate_bytes = f.read()
+                    plate_b64 = base64.b64encode(plate_bytes).decode("utf-8")
+                    ocr_payload = {
+                        "token": OCR_TOKEN,
+                        "base64": plate_b64,
+                        "pole_id": pole_id,
+                    }
+                    ocr_response = send_request_with_retry(
+                        "https://parkonic.cloud/ParkonicJLT/anpr/engine/process",
+                        ocr_payload,
+                    )
+
+                    logger.debug(f"Retry OCR response: {ocr_response!r}")
+
+                    intermediate = None
+                    if isinstance(ocr_response, str):
+                        try:
+                            intermediate = json.loads(ocr_response)
+                        except Exception:
+                            logger.error("First json.loads failed on retry", exc_info=True)
+                            intermediate = None
+                    if isinstance(intermediate, str):
+                        try:
+                            ocr_json = json.loads(intermediate)
+                        except Exception:
+                            logger.error("Second json.loads failed on retry", exc_info=True)
+                            ocr_json = None
+                    elif isinstance(intermediate, dict):
+                        ocr_json = intermediate
+                    else:
+                        ocr_json = None
+
+                    if isinstance(ocr_json, dict):
+                        try:
+                            confidance_value = int(ocr_json.get("confidance", 0))
+                            if confidance_value >= 5:
+                                plate_status = "READ"
+                                plate_number = ocr_json.get("text", "")
+                                plate_code = ocr_json.get("category", "")
+                                city_code = ocr_json.get("cityName", "")
+                                conf_val = confidance_value
+                                city_map = {
+                                    "AE-AZ": "Abu Dhabi",
+                                    "AE-DU": "Dubai",
+                                    "AE-SH": "Sharjah",
+                                    "AE-AJ": "Ajman",
+                                    "AE-RK": "RAK",
+                                    "AE-FU": "Fujairah",
+                                    "AE-UQ": "UAQ",
+                                }
+                                plate_city = city_map.get(city_code, "Unknown")
+                        except Exception:
+                            logger.error("Failed to extract from retry ocr_json", exc_info=True)
+            except Exception:
+                logger.error("Retry capture or OCR failed", exc_info=True)
 
         # 5) Save final plate image
         os.makedirs(PLATES_READ_DIR,   exist_ok=True)
