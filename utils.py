@@ -19,8 +19,11 @@ def _hash_diff(h1: np.ndarray, h2: np.ndarray) -> int:
 def is_same_image(
     img_path1: str,
     img_path2: str,
+    *,
+    camera_id: int | None = None,
+    spot_number: int | None = None,
     min_match_count: int = 50,
-    inlier_ratio_thresh: float = 0.5
+    inlier_ratio_thresh: float = 0.5,
 ) -> bool:
     """
     Compare two images using SIFT feature matching + RANSAC-based homography.
@@ -41,11 +44,14 @@ def is_same_image(
          Otherwise return False.
 
     Arguments:
-      img_path1, img_path2    : filepaths to the two images to compare.
-      min_match_count         : minimum number of “good matches” before
-                                attempting homography. Defaults to 50.
-      inlier_ratio_thresh     : fraction of inliers vs. good_matches to
-                                consider “same” (e.g. 0.5 = 50%). Defaults to 0.5.
+      img_path1, img_path2 : filepaths to the two images to compare.
+      camera_id, spot_number : optional identifiers for a parking spot. If
+        provided, the bounding box will be looked up in the database and both
+        images will be cropped prior to comparison.
+      min_match_count      : minimum number of “good matches” before attempting
+        homography. Defaults to 50.
+      inlier_ratio_thresh  : fraction of inliers vs. good_matches to consider
+        “same” (e.g. 0.5 = 50%). Defaults to 0.5.
 
     Returns:
       True  if images are “same” under these criteria,
@@ -69,6 +75,39 @@ def is_same_image(
 
     img1 = resize_max(img1, 800)
     img2 = resize_max(img2, 800)
+
+    # Optional crop based on parking spot bbox looked up from DB
+    if camera_id is not None and spot_number is not None:
+        try:
+            from db import SessionLocal
+            from models import Spot
+
+            db = SessionLocal()
+            spot = (
+                db.query(Spot)
+                .filter_by(camera_id=camera_id, spot_number=spot_number)
+                .first()
+            )
+        finally:
+            try:
+                db.close()
+            except Exception:
+                pass
+
+        if spot:
+            x1, y1, x2, y2 = int(spot.bbox_x1), int(spot.bbox_y1), int(spot.bbox_x2), int(spot.bbox_y2)
+
+            h, w = img1.shape[:2]
+            x1a, x2a = max(0, min(x1, w)), max(0, min(x2, w))
+            y1a, y2a = max(0, min(y1, h)), max(0, min(y2, h))
+            if x2a > x1a and y2a > y1a:
+                img1 = img1[y1a:y2a, x1a:x2a]
+
+            h2, w2 = img2.shape[:2]
+            x1b, x2b = max(0, min(x1, w2)), max(0, min(x2, w2))
+            y1b, y2b = max(0, min(y1, h2)), max(0, min(y2, h2))
+            if x2b > x1b and y2b > y1b:
+                img2 = img2[y1b:y2b, x1b:x2b]
 
     # Early checks using simple hashing. Identical arrays or nearly identical
     # average hashes indicate the images are the same without running the more

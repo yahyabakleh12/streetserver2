@@ -14,7 +14,7 @@ from network import send_request_with_retry
 
 from config import OCR_TOKEN, YOLO_MODEL_PATH
 
-from models import PlateLog, Ticket, ManualReview
+from models import PlateLog, Ticket, ManualReview, Spot
 from db import SessionLocal
 from logger import logger
 from utils import is_same_image
@@ -66,15 +66,23 @@ def process_plate_and_issue_ticket(
         img = Image.open(snapshot_path)
         draw = ImageDraw.Draw(img)
 
-        coords = [
-            (payload["coordinate_x1"], payload["coordinate_y1"]),
-            (payload["coordinate_x2"], payload["coordinate_y2"]),
-            (payload["coordinate_x3"], payload["coordinate_y3"]),
-            (payload["coordinate_x4"], payload["coordinate_y4"])
-        ]
-        xs, ys = zip(*coords)
-        left, right = min(xs), max(xs)
-        top, bottom = min(ys), max(ys)
+        spot = (
+            db_session.query(Spot)
+            .filter_by(camera_id=camera_id, spot_number=spot_number)
+            .first()
+        )
+        if spot is None:
+            logger.error(
+                "Spot %d on camera %d not found in DB", spot_number, camera_id
+            )
+            return
+
+        left, top, right, bottom = (
+            spot.bbox_x1,
+            spot.bbox_y1,
+            spot.bbox_x2,
+            spot.bbox_y2,
+        )
 
         annotated_path = os.path.join(park_folder, f"annotated_{ts}.jpg")
         draw.rectangle([left, top, right, bottom], outline="red", width=3)
@@ -95,9 +103,11 @@ def process_plate_and_issue_ticket(
             try:
                 same = is_same_image(
                     last_image_path,
-                    main_crop_path,
+                    snapshot_path,
+                    camera_id=camera_id,
+                    spot_number=spot_number,
                     min_match_count=50,
-                    inlier_ratio_thresh=0.5
+                    inlier_ratio_thresh=0.5,
                 )
                 if same:
                     logger.debug(
@@ -108,9 +118,9 @@ def process_plate_and_issue_ticket(
             except Exception:
                 logger.error("Error in feature-matching", exc_info=True)
 
-        # Overwrite last-seen image
+        # Overwrite last-seen image with the full snapshot
         try:
-            shutil.copy(main_crop_path, last_image_path)
+            shutil.copy(snapshot_path, last_image_path)
         except Exception:
             logger.error("Failed to update last-seen image", exc_info=True)
 
