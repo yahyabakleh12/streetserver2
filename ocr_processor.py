@@ -63,7 +63,7 @@ def spot_has_car(image: Image.Image | bytes, camera_id: int, spot_number: int) -
     )
     crop = img.crop((left, top, right, bottom))
     arr = np.array(crop)
-    results = plate_model(arr,conf=7)
+    results = plate_model(arr)
     if results and results[0].boxes:
         return True
         # classes = results[0].boxes.cls
@@ -239,16 +239,7 @@ def process_plate_and_issue_ticket(
                         city_code    = ocr_json.get("cityName", "")
                         conf_val     = confidance_value
 
-                        city_map = {
-                            "AE-AZ": "Abu Dhabi",
-                            "AE-DU": "Dubai",
-                            "AE-SH": "Sharjah",
-                            "AE-AJ": "Ajman",
-                            "AE-RK": "RAK",
-                            "AE-FU": "Fujairah",
-                            "AE-UQ": "UAQ"
-                        }
-                        plate_city = city_map.get(city_code, "Unknown")
+                        plate_city = city_code
                     else:
                         logger.debug("Confidence %d < 5 → UNREAD", confidance_value)
                         plate_status = "UNREAD"
