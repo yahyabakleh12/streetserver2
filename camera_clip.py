@@ -149,8 +149,8 @@ def fetch_exit_frame(
 ) -> bytes:
     """Return a JPEG frame from 1 second before ``event_time`` via clip download."""
 
-    start_dt = event_time - timedelta(seconds=1)
-    end_dt = start_dt + timedelta(seconds=1)
+    start_dt = event_time - timedelta(seconds=0)
+    end_dt = start_dt + timedelta(seconds=5)
 
     clip_path = request_camera_clip(
         camera_ip=camera_ip,
