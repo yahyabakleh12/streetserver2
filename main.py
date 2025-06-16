@@ -40,7 +40,7 @@ from camera_clip import (
     request_camera_clip,
     is_valid_mp4,
     fetch_camera_frame,
-    fetch_exit_frame,
+    fetch_exit_frame
 )
 from logger import logger
 from utils import is_same_image
@@ -856,12 +856,23 @@ async def receive_parking_data(
         # 5a) Capture a current frame and check if the spot still contains a car
         frame_bytes = None
         try:
-            frame_bytes = fetch_exit_frame(
-                camera_ip,
-                cam_user,
-                cam_pass,
-                datetime.fromisoformat(payload["time"]),
-            )
+            # frame_bytes = request_camera_clip_for_one_frame(
+            #     camera_ip,
+            #     cam_user,
+            #     cam_pass,
+            #     datetime.fromisoformat(payload["time"]),
+            # )
+            start_dt = datetime.fromisoformat(payload["time"]) - timedelta(seconds=0)
+            end_dt   = datetime.fromisoformat(payload["time"]) + timedelta(seconds=5)
+            frame_bytes = request_camera_clip(
+                        camera_ip,
+                        cam_user,
+                        cam_pass,
+                        start_dt     = start_dt,
+                        end_dt       = end_dt,
+                        segment_name = datetime.fromisoformat(payload["time"]).strftime("%Y%m%d%H%M%S"),
+                        unique_tag   = str(spot_number),
+                    )
         except Exception:
             logger.error("Failed to fetch camera frame for EXIT check", exc_info=True)
 
