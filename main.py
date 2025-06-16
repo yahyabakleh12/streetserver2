@@ -7,6 +7,7 @@ import json
 import base64
 from datetime import datetime, timedelta
 import uuid
+import asyncio
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse, FileResponse, Response
@@ -50,6 +51,17 @@ from config import API_POLE_ID, API_LOCATION_ID
 from pydantic import BaseModel
 
 app = FastAPI()
+
+# Per-spot locks to queue requests sequentially
+spot_locks: dict[tuple[int, int], asyncio.Lock] = {}
+
+def _get_spot_lock(cam_id: int, spot_num: int) -> asyncio.Lock:
+    key = (cam_id, spot_num)
+    lock = spot_locks.get(key)
+    if lock is None:
+        lock = asyncio.Lock()
+        spot_locks[key] = lock
+    return lock
 
 # 1. Determine which origins are allowed to access the API.
 #    By default a couple of development IPs are whitelisted, but this can be
@@ -659,6 +671,153 @@ def save_report_to_file(payload: dict, camera_id: int, spot_number: int, ts: str
         logger.error("Failed to write report JSON", exc_info=True)
 
 
+async def _process_plate_task(
+    payload: dict,
+    park_folder: str,
+    ts: str,
+    camera_id: int,
+    pole_id: int,
+    api_pole_id: int | None,
+    spot_number: int,
+    camera_ip: str,
+    camera_user: str,
+    camera_pass: str,
+    parkonic_api_token: str,
+):
+    """Run plate processing sequentially per spot."""
+    lock = _get_spot_lock(camera_id, spot_number)
+    async with lock:
+        await asyncio.to_thread(
+            process_plate_and_issue_ticket,
+            payload,
+            park_folder,
+            ts,
+            camera_id,
+            pole_id,
+            api_pole_id,
+            spot_number,
+            camera_ip,
+            camera_user,
+            camera_pass,
+            parkonic_api_token,
+        )
+
+
+def _exit_flow(
+    payload: dict,
+    ts: str,
+    camera_id: int,
+    api_pole_id: int | None,
+    spot_number: int,
+    camera_ip: str,
+    cam_user: str,
+    cam_pass: str,
+    parkonic_api_token: str,
+):
+    """Handle EXIT logic synchronously."""
+    frame_bytes = None
+    try:
+        start_dt = datetime.fromisoformat(payload["time"]) - timedelta(seconds=0)
+        end_dt = datetime.fromisoformat(payload["time"]) + timedelta(seconds=5)
+        frame_bytes = request_camera_clip(
+            camera_ip,
+            cam_user,
+            cam_pass,
+            start_dt=start_dt,
+            end_dt=end_dt,
+            segment_name=datetime.fromisoformat(payload["time"]).strftime("%Y%m%d%H%M%S"),
+            unique_tag=str(spot_number),
+        )
+    except Exception:
+        logger.error("Failed to fetch camera frame for EXIT check", exc_info=True)
+
+    if frame_bytes is None:
+        try:
+            frame_bytes = base64.b64decode(payload["snapshot"])
+        except Exception:
+            frame_bytes = None
+
+    if frame_bytes is not None:
+        try:
+            if spot_has_car(frame_bytes, camera_id=camera_id, spot_number=spot_number):
+                logger.debug(
+                    "EXIT report ignored - spot still occupied. Camera=%d, Spot=%d",
+                    camera_id,
+                    spot_number,
+                )
+                return JSONResponse(status_code=200, content={"message": "Spot still occupied"})
+        except Exception:
+            logger.error("Error checking spot occupancy", exc_info=True)
+
+    try:
+        raw_bytes = base64.b64decode(payload["snapshot"])
+        pil_img = Image.open(io.BytesIO(raw_bytes))
+    except Exception:
+        pil_img = None
+        logger.error("Failed to decode snapshot for EXIT check", exc_info=True)
+
+    if pil_img:
+        temp_path = os.path.join(SNAPSHOTS_DIR, f"temp_exit_{ts}.jpg")
+        pil_img.save(temp_path)
+        try:
+            os.remove(temp_path)
+        except Exception:
+            pass
+
+    db2 = SessionLocal()
+    try:
+        open_ticket = (
+            db2.query(Ticket)
+            .filter_by(camera_id=camera_id, spot_number=spot_number, exit_time=None)
+            .order_by(Ticket.entry_time.desc())
+            .first()
+        )
+
+        if open_ticket:
+            open_ticket.exit_time = datetime.fromisoformat(payload["time"])
+            _retry_commit(open_ticket, db2)
+            logger.debug(
+                "Closed ticket id=%d at %s camera %f spot %d",
+                open_ticket.id,
+                payload["time"],
+                camera_id,
+                spot_number,
+            )
+
+            if open_ticket.parkonic_trip_id is not None:
+                try:
+                    from api_client import park_out_request
+
+                    park_out_request(
+                        token=parkonic_api_token or "",
+                        parkout_time=payload["time"],
+                        spot_number=spot_number,
+                        pole_id=api_pole_id,
+                        trip_id=open_ticket.parkonic_trip_id,
+                    )
+                except Exception:
+                    logger.error("park_out_request failed", exc_info=True)
+
+            return JSONResponse(status_code=200, content={"message": "Exit recorded"})
+        else:
+            logger.debug(
+                "No open ticket to close for camera=%d, spot=%d",
+                camera_id,
+                spot_number,
+            )
+            return JSONResponse(status_code=200, content={"message": "No open ticket to close"})
+
+    except SQLAlchemyError as e:
+        try:
+            db2.rollback()
+        except Exception:
+            pass
+        logger.error("Database error on EXIT", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Database error on exit: {e}")
+    finally:
+        db2.close()
+
+
 def _as_dict(model_obj):
     """Return a dict of column values for a SQLAlchemy model instance.
 
@@ -853,6 +1012,20 @@ async def receive_parking_data(
 
     # ── 5) If occupancy == 0 → attempt to “EXIT” ──
     if payload["occupancy"] == 0:
+        lock = _get_spot_lock(camera_id, spot_number)
+        async with lock:
+            return await asyncio.to_thread(
+                _exit_flow,
+                payload,
+                ts,
+                camera_id,
+                api_pole_id,
+                spot_number,
+                camera_ip,
+                cam_user,
+                cam_pass,
+                parkonic_api_token,
+            )
         # 5a) Capture a current frame and check if the spot still contains a car
         frame_bytes = None
         try:
@@ -1036,7 +1209,7 @@ async def receive_parking_data(
 
         # 6d) Enqueue OCR/ticket logic in the background
         background_tasks.add_task(
-            process_plate_and_issue_ticket,
+            _process_plate_task,
             payload,
             park_folder,
             ts,
