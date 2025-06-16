@@ -717,16 +717,11 @@ def _exit_flow(
     """Handle EXIT logic synchronously."""
     frame_bytes = None
     try:
-        start_dt = datetime.fromisoformat(payload["time"]) - timedelta(seconds=0)
-        end_dt = datetime.fromisoformat(payload["time"]) + timedelta(seconds=5)
-        frame_bytes = request_camera_clip(
-            camera_ip,
-            cam_user,
-            cam_pass,
-            start_dt=start_dt,
-            end_dt=end_dt,
-            segment_name=datetime.fromisoformat(payload["time"]).strftime("%Y%m%d%H%M%S"),
-            unique_tag=str(spot_number),
+        frame_bytes = fetch_exit_frame(
+            camera_ip=camera_ip,
+            username=cam_user,
+            password=cam_pass,
+            event_time=datetime.fromisoformat(payload["time"]),
         )
     except Exception:
         logger.error("Failed to fetch camera frame for EXIT check", exc_info=True)
