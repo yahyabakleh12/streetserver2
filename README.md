@@ -23,6 +23,7 @@ Set the following variables as needed before running the server:
 - `OCR_TOKEN` – token for the OCR service.
 - `YOLO_MODEL_PATH` – path to the YOLO license plate model (can also be changed in
   `config.py`).
+- `REAL_ESRGAN_MODEL_PATH` – path to the RealESRGAN weights used for plate image enhancement.
 - `CORS_ORIGINS`  – comma-separated list of origins allowed to access the API.
   Use `*` to allow requests from any host.
 
