@@ -122,6 +122,25 @@ def fetch_camera_frame(camera_ip: str, username: str, password: str) -> bytes:
         cap.release()
 
 
+def frame_from_video(path: str) -> bytes:
+    """Return the first frame of a video file encoded as JPEG bytes."""
+
+    cap = cv2.VideoCapture(path)
+    if not cap.isOpened():
+        cap.release()
+        raise RuntimeError(f"Failed to open video {path}")
+    try:
+        ret, frame = cap.read()
+        if not ret:
+            raise RuntimeError("Failed to read frame from video")
+        ok, buf = cv2.imencode(".jpg", frame)
+        if not ok:
+            raise RuntimeError("Failed to encode frame as JPEG")
+        return buf.tobytes()
+    finally:
+        cap.release()
+
+
 def fetch_exit_frame(
     camera_ip: str,
     username: str,
@@ -144,25 +163,10 @@ def fetch_exit_frame(
     if not clip_path:
         raise RuntimeError("Failed to fetch exit clip")
 
-    cap = cv2.VideoCapture(clip_path)
-    if not cap.isOpened():
-        cap.release()
-        try:
-            os.remove(clip_path)
-        except Exception:
-            pass
-        raise RuntimeError("Failed to open exit clip")
-
     try:
-        ret, frame = cap.read()
-        if not ret:
-            raise RuntimeError("Failed to read frame from exit clip")
-        ok, buf = cv2.imencode(".jpg", frame)
-        if not ok:
-            raise RuntimeError("Failed to encode frame as JPEG")
-        return buf.tobytes()
+        frame_bytes = frame_from_video(clip_path)
+        return frame_bytes
     finally:
-        cap.release()
         try:
             os.remove(clip_path)
         except Exception:
