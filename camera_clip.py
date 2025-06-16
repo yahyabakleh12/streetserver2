@@ -4,7 +4,7 @@ import time
 import uuid
 import requests
 import cv2
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from logger import logger
 import os
@@ -120,3 +120,50 @@ def fetch_camera_frame(camera_ip: str, username: str, password: str) -> bytes:
         return buf.tobytes()
     finally:
         cap.release()
+
+
+def fetch_exit_frame(
+    camera_ip: str,
+    username: str,
+    password: str,
+    event_time: datetime,
+) -> bytes:
+    """Return a JPEG frame from 1 second before ``event_time`` via clip download."""
+
+    start_dt = event_time - timedelta(seconds=1)
+    end_dt = start_dt + timedelta(seconds=1)
+
+    clip_path = request_camera_clip(
+        camera_ip=camera_ip,
+        username=username,
+        password=password,
+        start_dt=start_dt,
+        end_dt=end_dt,
+        segment_name=start_dt.strftime("%Y%m%d%H%M%S"),
+    )
+    if not clip_path:
+        raise RuntimeError("Failed to fetch exit clip")
+
+    cap = cv2.VideoCapture(clip_path)
+    if not cap.isOpened():
+        cap.release()
+        try:
+            os.remove(clip_path)
+        except Exception:
+            pass
+        raise RuntimeError("Failed to open exit clip")
+
+    try:
+        ret, frame = cap.read()
+        if not ret:
+            raise RuntimeError("Failed to read frame from exit clip")
+        ok, buf = cv2.imencode(".jpg", frame)
+        if not ok:
+            raise RuntimeError("Failed to encode frame as JPEG")
+        return buf.tobytes()
+    finally:
+        cap.release()
+        try:
+            os.remove(clip_path)
+        except Exception:
+            pass
