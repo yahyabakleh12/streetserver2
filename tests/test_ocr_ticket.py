@@ -68,6 +68,7 @@ def test_process_plate_with_json_ticket(tmp_path):
     with patch("ocr_processor.plate_model", DummyModel()), \
          patch("ocr_processor.is_same_image", return_value=False), \
          patch("ocr_processor.send_request_with_retry", return_value=ocr_wrapped), \
+         patch("image_enhancer.enhance_image_array", side_effect=lambda x: x), \
          patch("api_client.park_in_request", return_value={"trip_id": 1}) as mock_park:
         process_plate_and_issue_ticket(
             payload=payload,
@@ -130,6 +131,7 @@ def test_process_plate_retry_frame(tmp_path):
          patch("ocr_processor.is_same_image", return_value=False), \
          patch("ocr_processor.send_request_with_retry", side_effect=[unread, read]), \
          patch("ocr_processor.fetch_camera_frame", return_value=snapshot.read_bytes()), \
+         patch("image_enhancer.enhance_image_array", side_effect=lambda x: x), \
          patch("api_client.park_in_request", return_value={"trip_id": 2}):
         process_plate_and_issue_ticket(
             payload=payload,

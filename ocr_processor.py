@@ -8,12 +8,14 @@ import io
 from datetime import datetime, timedelta
 
 import numpy as np
+import cv2
 from PIL import Image, ImageDraw
 
 from camera_clip import request_camera_clip, fetch_camera_frame
 from network import send_request_with_retry
 
 from config import OCR_TOKEN, YOLO_MODEL_PATH
+from image_enhancer import enhance_image_array
 
 from models import PlateLog, Ticket, ManualReview, Spot
 from db import SessionLocal
@@ -180,6 +182,14 @@ def process_plate_and_issue_ticket(
             x1i, y1i, x2i, y2i = map(int, (x1p, y1p, x2p, y2p))
             plate_crop = main_crop.crop((x1i, y1i, x2i, y2i))
 
+            # Enhance crop before sending to OCR
+            try:
+                arr_bgr = cv2.cvtColor(np.array(plate_crop), cv2.COLOR_RGB2BGR)
+                arr_bgr = enhance_image_array(arr_bgr)
+                plate_crop = Image.fromarray(cv2.cvtColor(arr_bgr, cv2.COLOR_BGR2RGB))
+            except Exception:
+                logger.error("Plate enhancement failed", exc_info=True)
+
             tmp_candidate_path = os.path.join(park_folder, f"plate_candidate_{ts}.jpg")
             plate_crop.save(tmp_candidate_path)
 
@@ -270,6 +280,13 @@ def process_plate_and_issue_ticket(
                     x1p, y1p, x2p, y2p = results[0].boxes.xyxy[0].tolist()
                     x1i, y1i, x2i, y2i = map(int, (x1p, y1p, x2p, y2p))
                     plate_crop = main_crop.crop((x1i, y1i, x2i, y2i))
+
+                    try:
+                        arr_bgr = cv2.cvtColor(np.array(plate_crop), cv2.COLOR_RGB2BGR)
+                        arr_bgr = enhance_image_array(arr_bgr)
+                        plate_crop = Image.fromarray(cv2.cvtColor(arr_bgr, cv2.COLOR_BGR2RGB))
+                    except Exception:
+                        logger.error("Plate enhancement failed", exc_info=True)
 
                     tmp_candidate_path = os.path.join(park_folder, f"plate_candidate_retry_{ts}.jpg")
                     plate_crop.save(tmp_candidate_path)

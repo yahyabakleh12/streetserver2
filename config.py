@@ -31,6 +31,12 @@ OCR_TOKEN = os.environ.get(
 # ─────────────────────────────────────────────────────────────────────────────
 YOLO_MODEL_PATH = "models/car.pt"
 
+# RealESRGAN model weights path
+REAL_ESRGAN_MODEL_PATH = os.environ.get(
+    "REAL_ESRGAN_MODEL_PATH",
+    "weights/RealESRGAN_x4plus.pth",
+)
+
 API_POLE_ID = 586
 
 
