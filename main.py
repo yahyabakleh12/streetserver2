@@ -36,7 +36,12 @@ from models import (
     Permission,
 )
 from ocr_processor import process_plate_and_issue_ticket, spot_has_car
-from camera_clip import request_camera_clip, is_valid_mp4, fetch_camera_frame
+from camera_clip import (
+    request_camera_clip,
+    is_valid_mp4,
+    fetch_camera_frame,
+    fetch_exit_frame,
+)
 from logger import logger
 from utils import is_same_image
 
@@ -851,7 +856,12 @@ async def receive_parking_data(
         # 5a) Capture a current frame and check if the spot still contains a car
         frame_bytes = None
         try:
-            frame_bytes = fetch_camera_frame(camera_ip, cam_user, cam_pass)
+            frame_bytes = fetch_exit_frame(
+                camera_ip,
+                cam_user,
+                cam_pass,
+                datetime.fromisoformat(payload["time"]),
+            )
         except Exception:
             logger.error("Failed to fetch camera frame for EXIT check", exc_info=True)
 

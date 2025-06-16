@@ -102,7 +102,7 @@ def setup_db(tmp_path):
 
 def test_exit_spot_still_occupied(client, tmp_path):
     payload, ticket_id = setup_db(tmp_path)
-    with patch("main.fetch_camera_frame", return_value=b"img"), \
+    with patch("main.fetch_exit_frame", return_value=b"img"), \
          patch("main.spot_has_car", return_value=True):
         resp = client.post("/post", json=payload)
     assert resp.status_code == 200
@@ -115,7 +115,7 @@ def test_exit_spot_still_occupied(client, tmp_path):
 
 def test_exit_closes_ticket(client, tmp_path):
     payload, ticket_id = setup_db(tmp_path)
-    with patch("main.fetch_camera_frame", return_value=b"img"), \
+    with patch("main.fetch_exit_frame", return_value=b"img"), \
          patch("main.spot_has_car", return_value=False):
         resp = client.post("/post", json=payload)
     assert resp.status_code == 200
