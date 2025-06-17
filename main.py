@@ -8,6 +8,7 @@ import base64
 from datetime import datetime, timedelta
 import uuid
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse, FileResponse, Response
@@ -52,16 +53,14 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# Per-spot locks to queue requests sequentially
-spot_locks: dict[tuple[int, int], asyncio.Lock] = {}
+# Shared thread pool for blocking tasks
+EXECUTOR = ThreadPoolExecutor(
+    max_workers=int(os.environ.get("MAX_WORKERS", "4"))
+)
 
-def _get_spot_lock(cam_id: int, spot_num: int) -> asyncio.Lock:
-    key = (cam_id, spot_num)
-    lock = spot_locks.get(key)
-    if lock is None:
-        lock = asyncio.Lock()
-        spot_locks[key] = lock
-    return lock
+async def run_in_executor(func, *args):
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(EXECUTOR, func, *args)
 
 # 1. Determine which origins are allowed to access the API.
 #    By default a couple of development IPs are whitelisted, but this can be
@@ -685,23 +684,21 @@ async def _process_plate_task(
     camera_pass: str,
     parkonic_api_token: str,
 ):
-    """Run plate processing sequentially per spot."""
-    lock = _get_spot_lock(camera_id, spot_number)
-    async with lock:
-        await asyncio.to_thread(
-            process_plate_and_issue_ticket,
-            payload,
-            park_folder,
-            ts,
-            camera_id,
-            pole_id,
-            api_pole_id,
-            spot_number,
-            camera_ip,
-            camera_user,
-            camera_pass,
-            parkonic_api_token,
-        )
+    """Run plate processing using the shared thread pool."""
+    await run_in_executor(
+        process_plate_and_issue_ticket,
+        payload,
+        park_folder,
+        ts,
+        camera_id,
+        pole_id,
+        api_pole_id,
+        spot_number,
+        camera_ip,
+        camera_user,
+        camera_pass,
+        parkonic_api_token,
+    )
 
 
 def _exit_flow(
@@ -1008,20 +1005,18 @@ async def receive_parking_data(
 
     # ── 5) If occupancy == 0 → attempt to “EXIT” ──
     if payload["occupancy"] == 0:
-        lock = _get_spot_lock(camera_id, spot_number)
-        async with lock:
-            return await asyncio.to_thread(
-                _exit_flow,
-                payload,
-                ts,
-                camera_id,
-                api_pole_id,
-                spot_number,
-                camera_ip,
-                cam_user,
-                cam_pass,
-                parkonic_api_token,
-            )
+        return await run_in_executor(
+            _exit_flow,
+            payload,
+            ts,
+            camera_id,
+            api_pole_id,
+            spot_number,
+            camera_ip,
+            cam_user,
+            cam_pass,
+            parkonic_api_token,
+        )
         # 5a) Capture a current frame and check if the spot still contains a car
         frame_bytes = None
         try:
@@ -1606,6 +1601,17 @@ def _process_clip_request(req_id: int, cam_ip: str, user: str, pwd: str, start_d
     finally:
         session.close()
 
+async def _process_clip_request_async(req_id: int, cam_ip: str, user: str, pwd: str, start_dt: datetime, end_dt: datetime):
+    await run_in_executor(
+        _process_clip_request,
+        req_id,
+        cam_ip,
+        user,
+        pwd,
+        start_dt,
+        end_dt,
+    )
+
 
 @app.post("/clip-requests")
 def create_clip_request(
@@ -1648,7 +1654,7 @@ def create_clip_request(
         db.add(req)
         _retry_commit(req, db)
         background_tasks.add_task(
-            _process_clip_request,
+            _process_clip_request_async,
             req.id,
             cam_ip,
             user or "",
