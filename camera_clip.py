@@ -104,19 +104,33 @@ def request_camera_clip(
                 return None
 
 
-def fetch_camera_frame(camera_ip: str, username: str, password: str) -> bytes:
-    """Return a JPEG snapshot from the camera using RTSP."""
+def fetch_camera_frame(
+    camera_ip: str,
+    username: str,
+    password: str,
+    max_attempts: int = 20,
+) -> bytes:
+    """Return a JPEG snapshot from the camera using RTSP.
+
+    The stream is opened once and up to ``max_attempts`` frames are read,
+    sleeping briefly between tries, until a valid frame is obtained. If no
+    frame is read the function raises ``RuntimeError``.
+    """
 
     rtsp_url = f"rtsp://{username}:{password}@{camera_ip}:554/"
     stream = VideoStream(rtsp_url).start()
     try:
-        frame = stream.read()
-        if frame is None:
-            raise RuntimeError("Failed to read frame from RTSP stream")
-        ok, buf = cv2.imencode(".jpg", frame)
-        if not ok:
-            raise RuntimeError("Failed to encode frame as JPEG")
-        return buf.tobytes()
+        for _ in range(max_attempts):
+            frame = stream.read()
+            if frame is not None:
+                ok, buf = cv2.imencode(".jpg", frame)
+                if not ok:
+                    raise RuntimeError("Failed to encode frame as JPEG")
+                return buf.tobytes()
+            time.sleep(0.1)
+        raise RuntimeError(
+            f"Failed to read frame from RTSP stream after {max_attempts} attempts"
+        )
     finally:
         stream.stop()
 
