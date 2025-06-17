@@ -54,6 +54,7 @@ curl -X POST http://localhost:8000/token \
 
 The JSON response includes the access token and token type. The JWT payload now
 also contains a `roles` field listing the names of the user's roles.
+Tokens are valid for 24 hours by default.
 
 Use the returned token in the `Authorization` header when calling other
 endpoints:

@@ -102,7 +102,8 @@ os.makedirs(REPORTS_JSON_DIR, exist_ok=True)
 # ── Authentication setup ───────────────────────────────────────────────────
 SECRET_KEY = os.environ.get("SECRET_KEY", "changeme")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# Extend token validity to 24 hours so users stay logged in longer
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
