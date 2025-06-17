@@ -8,7 +8,9 @@ import base64
 from datetime import datetime, timedelta
 import uuid
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from queue import Queue
+from concurrent.futures import ThreadPoolExecutor, Future
+import threading
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse, FileResponse, Response
@@ -671,7 +673,7 @@ def save_report_to_file(payload: dict, camera_id: int, spot_number: int, ts: str
         logger.error("Failed to write report JSON", exc_info=True)
 
 
-async def _process_plate_task(
+def _process_plate_task(
     payload: dict,
     park_folder: str,
     ts: str,
@@ -684,9 +686,8 @@ async def _process_plate_task(
     camera_pass: str,
     parkonic_api_token: str,
 ):
-    """Run plate processing using the shared thread pool."""
-    await run_in_executor(
-        process_plate_and_issue_ticket,
+    """Run plate processing synchronously in the worker thread."""
+    process_plate_and_issue_ticket(
         payload,
         park_folder,
         ts,
@@ -860,28 +861,8 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": access_token, "token_type": "bearer","roles": role_names  }
 
 
-@app.post("/post")
-async def receive_parking_data(
-    request: Request,
-    background_tasks: BackgroundTasks,
-):
-    """
-    1) Save raw JSON to disk (catching ClientDisconnect).
-    2) Validate required fields.
-    3) Split parking_area into (location_code, api_code).
-    4) Lookup camera_id, pole_id, camera_ip in DB (short‐lived session, with retry).
-    5) If occupancy == 0 → EXIT: feature‐match vs. last‐saved crop → only close if truly gone.
-    6) If occupancy == 1 → ENTRY: check for existing open ticket; then save report to JSON; save snapshot; queue OCR.
-    """
-
-    # ── 1) Read raw body & save to file ──
-    try:
-        raw_body = await request.body()
-    except ClientDisconnect:
-        logger.error("Client disconnected before sending body", exc_info=True)
-        raise HTTPException(status_code=400, detail="Client disconnected before sending body")
-
-    ts = datetime.now().strftime("%Y%m%d%H%M%S")
+def _process_post_task(payload: dict, raw_body: bytes, ts: str):
+    """Process a /post request synchronously."""
     raw_fn = os.path.join(RAW_REQUEST_DIR, f"raw_request_{ts}.json")
     try:
         with open(raw_fn, "wb") as f:
@@ -889,14 +870,6 @@ async def receive_parking_data(
     except Exception:
         logger.error("Failed to write raw request to disk", exc_info=True)
 
-    # ── 2) Parse JSON payload ──
-    try:
-        payload = await request.json()
-    except Exception as e:
-        logger.error("Failed to parse JSON payload", exc_info=True)
-        raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
-
-    # ── 2a) Ensure required fields are present ──
     required_fields = [
         "event",
         "device",
@@ -926,18 +899,16 @@ async def receive_parking_data(
     if missing:
         raise HTTPException(status_code=400, detail=f"Missing fields: {', '.join(missing)}")
 
-    # ── 3) Split parking_area → letters+digits ──
     m = re.match(r"^([A-Za-z]+)(\d+)$", payload["parking_area"])
     if not m:
         raise HTTPException(
             status_code=400,
             detail="Invalid parking_area format (expected letters+digits, e.g. 'NAD95')",
         )
-    location_code = m.group(1)  # e.g. "NAD"
-    api_code = m.group(2)  # e.g. "95"
+    location_code = m.group(1)
+    api_code = m.group(2)
     spot_number = payload["index_number"]
 
-    # ── 4) Lookup camera_id, pole_id, camera_ip ──
     try:
         db = SessionLocal()
         stmt = text(
@@ -970,15 +941,14 @@ async def receive_parking_data(
         camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row
 
     except OperationalError:
-        # Retry once on lost connection
         logger.warning("Lost DB connection during camera lookup; retrying once", exc_info=True)
         try:
             db.rollback()
-        except:
+        except Exception:
             pass
         try:
             db.close()
-        except:
+        except Exception:
             pass
 
         db2 = SessionLocal()
@@ -987,9 +957,7 @@ async def receive_parking_data(
             if row2 is None:
                 raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-            camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = (
-                row2
-            )
+            camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row2
 
         except SQLAlchemyError as final_err:
             db2.rollback()
@@ -1003,10 +971,8 @@ async def receive_parking_data(
         logger.error("Database error while looking up camera", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Database error: {sa_err}")
 
-    # ── 5) If occupancy == 0 → attempt to “EXIT” ──
     if payload["occupancy"] == 0:
-        return await run_in_executor(
-            _exit_flow,
+        return _exit_flow(
             payload,
             ts,
             camera_id,
@@ -1017,141 +983,9 @@ async def receive_parking_data(
             cam_pass,
             parkonic_api_token,
         )
-        # 5a) Capture a current frame and check if the spot still contains a car
-        frame_bytes = None
-        try:
-            # frame_bytes = request_camera_clip_for_one_frame(
-            #     camera_ip,
-            #     cam_user,
-            #     cam_pass,
-            #     datetime.fromisoformat(payload["time"]),
-            # )
-            start_dt = datetime.fromisoformat(payload["time"]) - timedelta(seconds=0)
-            end_dt   = datetime.fromisoformat(payload["time"]) + timedelta(seconds=5)
-            frame_bytes = request_camera_clip(
-                        camera_ip,
-                        cam_user,
-                        cam_pass,
-                        start_dt     = start_dt,
-                        end_dt       = end_dt,
-                        segment_name = datetime.fromisoformat(payload["time"]).strftime("%Y%m%d%H%M%S"),
-                        unique_tag   = str(spot_number),
-                    )
-        except Exception:
-            logger.error("Failed to fetch camera frame for EXIT check", exc_info=True)
-
-        if frame_bytes is None:
-            try:
-                frame_bytes = base64.b64decode(payload["snapshot"])
-            except Exception:
-                frame_bytes = None
-
-        if frame_bytes is not None:
-            try:
-                print( spot_has_car(frame_bytes, camera_id=camera_id, spot_number=spot_number))
-                if spot_has_car(frame_bytes, camera_id=camera_id, spot_number=spot_number):
-                    logger.debug(
-                        "EXIT report ignored - spot still occupied. Camera=%d, Spot=%d",
-                        camera_id,
-                        spot_number,
-                    )
-                    return JSONResponse(status_code=200, content={"message": "Spot still occupied"})
-            except Exception:
-                logger.error("Error checking spot occupancy", exc_info=True)
-
-        # 5b) Decode snapshot and crop to the parking polygon (for feature‐matching)
-        try:
-            raw_bytes = base64.b64decode(payload["snapshot"])
-            pil_img = Image.open(io.BytesIO(raw_bytes))
-        except Exception:
-            pil_img = None
-            logger.error("Failed to decode snapshot for EXIT check", exc_info=True)
-
-        if pil_img:
-            temp_path = os.path.join(SNAPSHOTS_DIR, f"temp_exit_{ts}.jpg")
-            pil_img.save(temp_path)
-
-            # # Compare against last full-frame image for this (camera, spot)
-            # last_image_path = os.path.join(SPOT_LAST_DIR, f"spot_{camera_id}_{spot_number}.jpg")
-            # if os.path.isfile(last_image_path):
-                # try:
-                #     same = is_same_image(
-                #         last_image_path,
-                #         temp_path,
-                #         camera_id=camera_id,
-                #         spot_number=spot_number,
-                #         min_match_count=50,
-                #         inlier_ratio_thresh=0.5,
-                #     )
-                #     if same:
-                #         os.remove(temp_path)
-                #         logger.debug(
-                #             "EXIT report ignored (false‐clear). Camera=%d, Spot=%d",
-                #             camera_id,
-                #             spot_number,
-                #         )
-                #         return JSONResponse(
-                #             status_code=200, content={"message": "False‐clear; skip EXIT"}
-                #         )
-                # except Exception:
-                #     logger.error("Error in feature-match during EXIT check", exc_info=True)
-
-            try:
-                os.remove(temp_path)
-            except Exception:
-                pass
-
-        # 5b) Proceed to close any open ticket
-        db2 = SessionLocal()
-        try:
-            open_ticket = (
-                db2.query(Ticket)
-                .filter_by(camera_id=camera_id, spot_number=spot_number, exit_time=None)
-                .order_by(Ticket.entry_time.desc())
-                .first()
-            )
-
-            if open_ticket:
-                open_ticket.exit_time = datetime.fromisoformat(payload["time"])
-                _retry_commit(open_ticket, db2)
-                logger.debug("Closed ticket id=%d at %s camera %f spot %d", open_ticket.id, payload["time"],camera_id,spot_number)
-
-                if open_ticket.parkonic_trip_id is not None:
-                    try:
-                        from api_client import park_out_request
-
-                        park_out_request(
-                            token=parkonic_api_token or "",
-                            parkout_time=payload["time"],
-                            spot_number=spot_number,
-                            pole_id=api_pole_id,
-                            trip_id=open_ticket.parkonic_trip_id,
-                        )
-                    except Exception:
-                        logger.error("park_out_request failed", exc_info=True)
-
-                return JSONResponse(status_code=200, content={"message": "Exit recorded"})
-            else:
-                logger.debug(
-                    "No open ticket to close for camera=%d, spot=%d", camera_id, spot_number
-                )
-                return JSONResponse(status_code=200, content={"message": "No open ticket to close"})
-
-        except SQLAlchemyError as e:
-            try:
-                db2.rollback()
-            except:
-                pass
-            logger.error("Database error on EXIT", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Database error on exit: {e}")
-        finally:
-            db2.close()
-
-    # ── 6) If occupancy == 1 → “ENTRY” ──
     else:
         db2 = SessionLocal()
         try:
-            # 6a) Ensure no open ticket already exists
             existing_ticket = (
                 db2.query(Ticket)
                 .filter_by(camera_id=camera_id, spot_number=spot_number, exit_time=None)
@@ -1168,24 +1002,18 @@ async def receive_parking_data(
                 )
                 return JSONResponse(status_code=200, content={"message": "Spot already occupied"})
 
-            # 6b) Save report to JSON file asynchronously
-            background_tasks.add_task(
-                save_report_to_file, payload, camera_id, spot_number, ts
-            )
+            save_report_to_file(payload, camera_id, spot_number, ts)
 
         except SQLAlchemyError as sa_err:
             try:
                 db2.rollback()
-            except:
+            except Exception:
                 pass
             logger.error("Database error during entry handling", exc_info=True)
-            raise HTTPException(
-                status_code=500, detail=f"Database error on entry: {sa_err}"
-            )
+            raise HTTPException(status_code=500, detail=f"Database error on entry: {sa_err}")
         finally:
             db2.close()
 
-        # 6c) Save the snapshot image locally (for OCR thread)
         park_folder = os.path.join(SNAPSHOTS_DIR, f"parking_cam{camera_id}_spot{spot_number}_{ts}")
         os.makedirs(park_folder, exist_ok=True)
 
@@ -1198,9 +1026,7 @@ async def receive_parking_data(
             logger.error("Failed to decode/save snapshot", exc_info=True)
             raise HTTPException(status_code=400, detail=f"Cannot decode snapshot: {e}")
 
-        # 6d) Enqueue OCR/ticket logic in the background
-        background_tasks.add_task(
-            _process_plate_task,
+        _process_plate_task(
             payload,
             park_folder,
             ts,
@@ -1215,6 +1041,57 @@ async def receive_parking_data(
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
+
+
+# Queue and worker thread for sequential processing of /post requests
+POST_QUEUE: Queue[tuple] = Queue()
+
+def _post_worker():
+    while True:
+        payload, raw_body, ts, fut = POST_QUEUE.get()
+        try:
+            result = _process_post_task(payload, raw_body, ts)
+            fut.set_result(result)
+        except Exception as e:
+            fut.set_exception(e)
+        finally:
+            POST_QUEUE.task_done()
+
+_post_thread = threading.Thread(target=_post_worker, daemon=True)
+_post_thread.start()
+
+
+@app.post("/post")
+async def receive_parking_data(
+    request: Request,
+):
+    """
+    1) Save raw JSON to disk (catching ClientDisconnect).
+    2) Validate required fields.
+    3) Split parking_area into (location_code, api_code).
+    4) Lookup camera_id, pole_id, camera_ip in DB (short‐lived session, with retry).
+    5) If occupancy == 0 → EXIT: feature‐match vs. last‐saved crop → only close if truly gone.
+    6) If occupancy == 1 → ENTRY: check for existing open ticket; then save report to JSON; save snapshot; queue OCR.
+    """
+
+    # ── 1) Read raw body & save to file ──
+    try:
+        raw_body = await request.body()
+    except ClientDisconnect:
+        logger.error("Client disconnected before sending body", exc_info=True)
+        raise HTTPException(status_code=400, detail="Client disconnected before sending body")
+
+    ts = datetime.now().strftime("%Y%m%d%H%M%S")
+    try:
+        payload = await request.json()
+    except Exception as e:
+        logger.error("Failed to parse JSON payload", exc_info=True)
+        raise HTTPException(status_code=400, detail=f"Invalid JSON: {e}")
+
+    fut: Future = Future()
+    POST_QUEUE.put((payload, raw_body, ts, fut))
+    return await asyncio.wrap_future(fut)
+
 
 
 @app.post("/locations")
