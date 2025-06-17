@@ -4,6 +4,7 @@ import time
 import uuid
 import requests
 import cv2
+from imutils.video import VideoStream
 from datetime import datetime, timedelta
 from typing import Optional
 from logger import logger
@@ -107,19 +108,17 @@ def fetch_camera_frame(camera_ip: str, username: str, password: str) -> bytes:
     """Return a JPEG snapshot from the camera using RTSP."""
 
     rtsp_url = f"rtsp://{username}:{password}@{camera_ip}:554/"
-    cap = cv2.VideoCapture(rtsp_url)
-    if not cap.isOpened():
-        raise RuntimeError("Failed to open RTSP stream")
+    stream = VideoStream(rtsp_url).start()
     try:
-        ret, frame = cap.read()
-        if not ret:
+        frame = stream.read()
+        if frame is None:
             raise RuntimeError("Failed to read frame from RTSP stream")
         ok, buf = cv2.imencode(".jpg", frame)
         if not ok:
             raise RuntimeError("Failed to encode frame as JPEG")
         return buf.tobytes()
     finally:
-        cap.release()
+        stream.stop()
 
 
 def frame_from_video(path: str) -> bytes:
