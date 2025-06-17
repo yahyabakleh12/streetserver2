@@ -12,3 +12,4 @@ python-jose
 python-multipart
 httpx
 realesrgan
+imutils
