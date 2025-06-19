@@ -685,6 +685,7 @@ def _process_plate_task(
     camera_user: str,
     camera_pass: str,
     parkonic_api_token: str,
+    rtsp_path: str = "/",
 ):
     """Run plate processing synchronously in the worker thread."""
     process_plate_and_issue_ticket(
@@ -699,6 +700,7 @@ def _process_plate_task(
         camera_user,
         camera_pass,
         parkonic_api_token,
+        rtsp_path,
     )
 
 
@@ -909,6 +911,7 @@ def _process_post_task(payload: dict, raw_body: bytes, ts: str):
     api_code = m.group(2)
     spot_number = payload["index_number"]
 
+    rtsp_path = "/"
     try:
         db = SessionLocal()
         stmt = text(
@@ -921,7 +924,8 @@ def _process_post_task(payload: dict, raw_body: bytes, ts: str):
               p.api_pole_id       AS api_pole_id,
               l.parkonic_api_token AS parkonic_api_token,
               l.camera_user        AS camera_user,
-              l.camera_pass        AS camera_pass
+              l.camera_pass        AS camera_pass,
+              l.parameters         AS location_params
 
             FROM cameras AS c
             JOIN poles     AS p ON c.pole_id   = p.id
@@ -938,7 +942,25 @@ def _process_post_task(payload: dict, raw_body: bytes, ts: str):
         if row is None:
             raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-        camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row
+        (
+            camera_id,
+            pole_id,
+            camera_ip,
+            api_pole_id,
+            parkonic_api_token,
+            cam_user,
+            cam_pass,
+            loc_params,
+        ) = row
+
+        rtsp_path = "/"
+        if loc_params:
+            try:
+                if isinstance(loc_params, str):
+                    loc_params = json.loads(loc_params)
+                rtsp_path = loc_params.get("rtsp_path", "/") if isinstance(loc_params, dict) else "/"
+            except Exception:
+                rtsp_path = "/"
 
     except OperationalError:
         logger.warning("Lost DB connection during camera lookup; retrying once", exc_info=True)
@@ -957,7 +979,25 @@ def _process_post_task(payload: dict, raw_body: bytes, ts: str):
             if row2 is None:
                 raise HTTPException(status_code=400, detail="No camera found for that parking_area")
 
-            camera_id, pole_id, camera_ip, api_pole_id, parkonic_api_token, cam_user, cam_pass = row2
+            (
+                camera_id,
+                pole_id,
+                camera_ip,
+                api_pole_id,
+                parkonic_api_token,
+                cam_user,
+                cam_pass,
+                loc_params,
+            ) = row2
+
+            rtsp_path = "/"
+            if loc_params:
+                try:
+                    if isinstance(loc_params, str):
+                        loc_params = json.loads(loc_params)
+                    rtsp_path = loc_params.get("rtsp_path", "/") if isinstance(loc_params, dict) else "/"
+                except Exception:
+                    rtsp_path = "/"
 
         except SQLAlchemyError as final_err:
             db2.rollback()
@@ -1038,6 +1078,7 @@ def _process_post_task(payload: dict, raw_body: bytes, ts: str):
             cam_user,
             cam_pass,
             parkonic_api_token,
+            rtsp_path,
         )
 
         return JSONResponse(status_code=200, content={"message": "Entry queued for processing"})
@@ -1437,7 +1478,15 @@ def get_camera_frame(
         if row is None:
             raise HTTPException(status_code=404, detail="Camera not found")
 
-        cam_ip, user, pwd = row
+        cam_ip, user, pwd, params = row
+        rtsp_path = "/"
+        if params:
+            try:
+                if isinstance(params, str):
+                    params = json.loads(params)
+                rtsp_path = params.get("rtsp_path", "/") if isinstance(params, dict) else "/"
+            except Exception:
+                rtsp_path = "/"
         print(cam_ip)
         print(user)
         print(pwd)
@@ -1445,7 +1494,7 @@ def get_camera_frame(
         db.close()
 
     try:
-        frame_bytes = fetch_camera_frame(cam_ip, user, pwd)
+        frame_bytes = fetch_camera_frame(cam_ip, user, pwd, rtsp_path=rtsp_path)
     except Exception:
         logger.error("Failed fetching camera frame", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to fetch frame")
