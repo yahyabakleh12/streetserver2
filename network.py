@@ -4,10 +4,15 @@ import time
 import requests
 from logger import logger
 
-def send_request_with_retry(url: str, payload: dict, max_retries: int = 2, backoff: float = 1.0) -> dict:
+def send_request_with_retry(url: str, payload: dict, max_retries: int = 2, backoff: float = 1.0) -> str:
     """
-    POST `payload` to `url` with up to max_retries (exponential backoff).
-    Returns the JSON response (or raises after final failure).
+    POST ``payload`` to ``url`` with optional retries and exponential backoff.
+
+    The function simply returns ``requests.Response.text``.  Callers are
+    responsible for parsing the returned value (some endpoints return a JSON
+    string while others may double encode the JSON).
+
+    Raises any ``requests`` exception after the final retry.
     """
     for attempt in range(max_retries + 1):
         try:
