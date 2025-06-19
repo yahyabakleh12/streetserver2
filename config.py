@@ -8,14 +8,14 @@ import os
 
 # The application requires a database connection string in `DATABASE_URL`.
 # No default credentials are provided.
-DATABASE_URL = os.environ.get["DATABASE_URL"]
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # API Tokens
 # ─────────────────────────────────────────────────────────────────────────────
 # Token for the OCR service must be provided via the `OCR_TOKEN` environment
 # variable.
-OCR_TOKEN = os.environ.get["OCR_TOKEN"]
+OCR_TOKEN = os.environ.get("OCR_TOKEN")
 # Location specific configuration now stores the Parkonic API token and camera
 # credentials.  The global constants previously defined here have been
 # deprecated.

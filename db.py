@@ -10,7 +10,7 @@ load_dotenv()
 # ─── Database connection ───
 # `DATABASE_URL` must be supplied by the environment.  No credentials are
 # stored in the repository.
-DATABASE_URL = os.getenv["DB_URL"]
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 # Create engine with pool_pre_ping so that any stale connection is auto‐replaced,
 # pool_recycle so we don’t hold sockets open past typical wait_timeout,
