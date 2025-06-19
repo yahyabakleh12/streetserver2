@@ -1,27 +1,21 @@
 # config.py
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Database URL (replace placeholders with real credentials/host)
-# Environment variable `DATABASE_URL` overrides these defaults.
+# Database connection string provided via the `DATABASE_URL` environment
+# variable. No fallback credentials are stored in the repository.
 # ─────────────────────────────────────────────────────────────────────────────
 import os
 
-DB_USER     = "street"
-DB_PASS     = "!#Street"
-DB_HOST     = "127.0.0.1"
-DB_NAME     = "parking_management"
-
-DEFAULT_DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:3306/{DB_NAME}"
-
-DATABASE_URL = os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL)
+# The application requires a database connection string in `DATABASE_URL`.
+# No default credentials are provided.
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 # ─────────────────────────────────────────────────────────────────────────────
 # API Tokens
 # ─────────────────────────────────────────────────────────────────────────────
-OCR_TOKEN = os.environ.get(
-    "OCR_TOKEN",
-    "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJTTlAiLCJpYXQiOjE3MDM0MTUxOTcsImV4cCI6MTczNDk1MTE5NywiY2xpIjoiQVBJIiwid2lkIjpudWxsfQ.EIup6X0h65BjBEUMmE3BHxolQjH18lrMaCxvfoJ0_Nw",
-)
+# Token for the OCR service must be provided via the `OCR_TOKEN` environment
+# variable.
+OCR_TOKEN = os.environ["OCR_TOKEN"]
 # Location specific configuration now stores the Parkonic API token and camera
 # credentials.  The global constants previously defined here have been
 # deprecated.
