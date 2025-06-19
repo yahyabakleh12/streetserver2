@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 # `DATABASE_URL` can override this value.
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "mysql+mysqlconnector://street:Devstreet@127.0.0.1:3306/parking_management",
+    "mysql+mysqlconnector://street:!#Street@127.0.0.1:3306/parking_management",
 )
 
 # Create engine with pool_pre_ping so that any stale connection is auto‐replaced,
