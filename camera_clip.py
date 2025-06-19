@@ -108,16 +108,21 @@ def fetch_camera_frame(
     camera_ip: str,
     username: str,
     password: str,
+    rtsp_path: str = "/",
     max_attempts: int = 20,
 ) -> bytes:
     """Return a JPEG snapshot from the camera using RTSP.
 
-    The stream is opened once and up to ``max_attempts`` frames are read,
-    sleeping briefly between tries, until a valid frame is obtained. If no
-    frame is read the function raises ``RuntimeError``.
+    ``rtsp_path`` allows specifying the full stream path (e.g.
+    ``/Streaming/Channels/101``). The stream is opened once and up to
+    ``max_attempts`` frames are read, sleeping briefly between tries, until
+    a valid frame is obtained. If no frame is read the function raises
+    ``RuntimeError``.
     """
 
-    rtsp_url = f"rtsp://{username}:{password}@{camera_ip}:554/"
+    if not rtsp_path.startswith("/"):
+        rtsp_path = "/" + rtsp_path
+    rtsp_url = f"rtsp://{username}:{password}@{camera_ip}:554{rtsp_path}"
     stream = VideoStream(rtsp_url).start()
     try:
         for _ in range(max_attempts):

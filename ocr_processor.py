@@ -88,7 +88,8 @@ def process_plate_and_issue_ticket(
     camera_ip: str,
     camera_user: str,
     camera_pass: str,
-    parkonic_api_token: str
+    parkonic_api_token: str,
+    rtsp_path: str = "/"
 ):
     """
     1) Re-open saved snapshot, annotate & crop the parking region.
@@ -261,7 +262,12 @@ def process_plate_and_issue_ticket(
         # Fallback: capture a fresh frame and retry detection/OCR if unread
         if plate_status == "UNREAD":
             try:
-                frame_bytes = fetch_camera_frame(camera_ip, camera_user or "", camera_pass or "")
+                frame_bytes = fetch_camera_frame(
+                    camera_ip,
+                    camera_user or "",
+                    camera_pass or "",
+                    rtsp_path=rtsp_path,
+                )
                 retry_snapshot = os.path.join(park_folder, f"retry_snapshot_{ts}.jpg")
                 with open(retry_snapshot, "wb") as f:
                     f.write(frame_bytes)
