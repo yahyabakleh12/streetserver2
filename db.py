@@ -4,11 +4,13 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
 
+load_dotenv()
 # ─── Database connection ───
 # `DATABASE_URL` must be supplied by the environment.  No credentials are
 # stored in the repository.
-DATABASE_URL = os.environ["DATABASE_URL"]
+DATABASE_URL = os.getenv["DB_URL"]
 
 # Create engine with pool_pre_ping so that any stale connection is auto‐replaced,
 # pool_recycle so we don’t hold sockets open past typical wait_timeout,
