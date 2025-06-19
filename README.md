@@ -12,15 +12,12 @@ pip install -r requirements.txt
 
 ## Configuration
 
-The application reads configuration from environment variables. Values defined
-in `config.py` act as defaults if the variables are not provided.
-
-Set the following variables as needed before running the server:
+The application reads configuration from environment variables. Set the
+following variables before running the server:
 
 - `DATABASE_URL` – MySQL connection string using the PyMySQL driver
-  (`mysql+pymysql`). If unset it is built from `DB_USER`, `DB_PASS`,
-  `DB_HOST`, and `DB_NAME` in `config.py`.
-- `OCR_TOKEN` – token for the OCR service.
+  (`mysql+pymysql`). This variable is required.
+- `OCR_TOKEN` – token for the OCR service. This variable is required.
 - `YOLO_MODEL_PATH` – path to the YOLO license plate model (can also be changed in
   `config.py`).
 - `REAL_ESRGAN_MODEL_PATH` – path to the RealESRGAN weights used for plate image enhancement.
