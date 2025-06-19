@@ -1438,12 +1438,14 @@ def get_camera_frame(
             raise HTTPException(status_code=404, detail="Camera not found")
 
         cam_ip, user, pwd = row
-
+        print(cam_ip)
+        print(user)
+        print(pwd)
     finally:
         db.close()
 
     try:
-        frame_bytes = fetch_camera_frame(cam_ip, user or "", pwd or "")
+        frame_bytes = fetch_camera_frame(cam_ip, user, pwd)
     except Exception:
         logger.error("Failed fetching camera frame", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to fetch frame")
