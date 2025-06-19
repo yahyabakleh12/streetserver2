@@ -6,8 +6,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
 import os
 
-DB_USER     = "street"
-DB_PASS     = "Devstreet"
+DB_USER     = "root"
+DB_PASS     = "!#DevStreet@465"
 DB_HOST     = "127.0.0.1"
 DB_NAME     = "parking_management"
 
