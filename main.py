@@ -1464,7 +1464,7 @@ def get_camera_frame(
         row = db.execute(
             text(
                 """
-                SELECT c.p_ip, l.camera_user, l.camera_pass
+                SELECT c.p_ip, l.camera_user, l.camera_pass, l.parameters
                 FROM cameras c
                 JOIN poles p ON c.pole_id = p.id
                 JOIN locations l ON p.location_id = l.id
@@ -1487,9 +1487,6 @@ def get_camera_frame(
                 rtsp_path = params.get("rtsp_path", "/") if isinstance(params, dict) else "/"
             except Exception:
                 rtsp_path = "/"
-        print(cam_ip)
-        print(user)
-        print(pwd)
     finally:
         db.close()
 
