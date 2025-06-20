@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from logger import logger
 import os
-
+os.environ["OPENCV_FFMPEG_CAPTURE_OPTIONS"] = "timeout;5000" # 5 seconds 
 
 def is_valid_mp4(path: str) -> bool:
     """Return True if the file at ``path`` can be opened and read as MP4."""

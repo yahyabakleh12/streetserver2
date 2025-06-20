@@ -75,7 +75,7 @@ else:
     origins = [
         "http://localhost:5000",
         "http://192.168.1.220:5000",
-        "http://192.168.194.161:5000",
+        "http://10.0.8.2:5000",
     ]
 
 # 2. Add the CORS middleware *before* you include any routers.
